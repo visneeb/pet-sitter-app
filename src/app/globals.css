@@ -1,10 +1,14 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-@theme {
-  /* Font Family - Set as default */
-  --default-font-family: "Satoshi", sans-serif;
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi.woff2") format("woff2");
+  font-style: normal;
+  font-display: swap;
+}
 
+@theme {
   /* Typography Scale */
   /* Display */
   --font-size-display: 5.5rem; /* 88px */
@@ -145,3 +149,14 @@
     text-align: center;
   }
 }
+
+@layer base {
+  :root {
+    --default-font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol", "Noto Color Emoji";
+
+    --font-sans: var(--default-font-family);
+  }
+}
+
