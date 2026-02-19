@@ -1,26 +1,146 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Font Family - Set as default */
+  --default-font-family: "Satoshi", sans-serif;
+
+  /* Typography Scale */
+  /* Display */
+  --font-size-display: 5.5rem; /* 88px */
+  --line-height-display: 6rem; /* 96px */
+  --font-weight-display: 900; /* Black */
+
+  /* Headline 1 */
+  --font-size-headline-1: 3.5rem; /* 56px */
+  --line-height-headline-1: 4rem; /* 64px */
+
+  /* Headline 2 */
+  --font-size-headline-2: 2.25rem; /* 36px */
+  --line-height-headline-2: 2.75rem; /* 44px */
+
+  /* Headline 3 */
+  --font-size-headline-3: 1.5rem; /* 24px */
+  --line-height-headline-3: 2rem; /* 32px */
+
+  /* Headline 4 */
+  --font-size-headline-4: 1.25rem; /* 20px */
+  --line-height-headline-4: 1.75rem; /* 28px */
+
+  /* Body 1 */
+  --font-size-body-1: 1.125rem; /* 18px */
+  --line-height-body-1: 1.625rem; /* 26px */
+
+  /* Body 2 */
+  --font-size-body-2: 1rem; /* 16px */
+  --line-height-body-2: 1.75rem; /* 28px */
+
+  /* Body 3 */
+  --font-size-body-3: 0.875rem; /* 14px */
+  --line-height-body-3: 1.5rem; /* 24px */
+
+  --font-weight-headline: 700; /* Bold */
+  --font-weight-body: 500; /* Medium */
+
+  --letter-spacing: 0%;
+
+  /* Primary Color */
+  --color-orange-600: #e44a0c;
+  --color-orange-500: #ff7037;
+  --color-orange-400: #ff986f;
+  --color-orange-300: #ffb899;
+  --color-orange-200: #ffd5c2;
+  --color-orange-100: #fff1ec;
+
+  --color-gray-600: #3a3b46;
+  --color-gray-500: #5b5d6f;
+  --color-gray-400: #7b7e8f;
+  --color-gray-300: #aeb1c3;
+  --color-gray-200: #dcdfed;
+  --color-gray-100: #f6f6f9;
+
+  /* Secondary Color */
+  --color-yellow-200: #ffca62;
+  --color-yellow-100: #fff5ec;
+
+  --color-blue-500: #76d0fc;
+  --color-blue-100: #ecfbff;
+
+  --color-green-500: #1ccd83;
+  --color-green-100: #e7fdf4;
+
+  --color-pink-500: #fa8ac0;
+  --color-pink-100: #fff0f1;
+
+  /* Other Colors */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-red: #ea1010;
+  --color-bg-gray: #fafafb;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Typography Utility Classes */
+@layer utilities {
+  .style-display {
+    font-weight: var(--font-weight-display);
+    font-size: var(--font-size-display);
+    line-height: var(--line-height-display);
+    letter-spacing: var(--letter-spacing);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  .style-headline-1 {
+    font-weight: var(--font-weight-headline);
+    font-size: var(--font-size-headline-1);
+    line-height: var(--line-height-headline-1);
+    letter-spacing: var(--letter-spacing);
+  }
+
+  .style-headline-2 {
+    font-weight: var(--font-weight-headline);
+    font-size: var(--font-size-headline-2);
+    line-height: var(--line-height-headline-2);
+    letter-spacing: var(--letter-spacing);
+  }
+
+  .style-headline-3 {
+    font-weight: var(--font-weight-headline);
+    font-size: var(--font-size-headline-3);
+    line-height: var(--line-height-headline-3);
+    letter-spacing: var(--letter-spacing);
+  }
+
+  .style-headline-4 {
+    font-weight: var(--font-weight-headline);
+    font-size: var(--font-size-headline-4);
+    line-height: var(--line-height-headline-4);
+    letter-spacing: var(--letter-spacing);
+  }
+
+  .style-body-1 {
+    font-weight: var(--font-weight-body);
+    font-size: var(--font-size-body-1);
+    line-height: var(--line-height-body-1);
+    letter-spacing: var(--letter-spacing);
+  }
+
+  .style-body-2 {
+    font-weight: var(--font-weight-body);
+    font-size: var(--font-size-body-2);
+    line-height: var(--line-height-body-2);
+    letter-spacing: var(--letter-spacing);
+  }
+
+  .style-body-3 {
+    font-weight: var(--font-weight-body);
+    font-size: var(--font-size-body-3);
+    line-height: var(--line-height-body-3);
+    letter-spacing: var(--letter-spacing);
+  }
+
+  .style-button {
+    font-weight: var(--font-weight-headline);
+    font-size: var(--font-size-body-2);
+    line-height: 150%;
+    letter-spacing: var(--letter-spacing);
+    text-align: center;
+  }
 }
