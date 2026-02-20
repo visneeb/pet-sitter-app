@@ -23,7 +23,7 @@ export default function NavbarUser() {
     router.push("/");
   };
   return (
-    <div className="relative flex items-center justify-between bg-white w-full md:h-[80px] px-[20px] py-[12px] md:px-[80px] style-body-2">
+    <div className="relative flex items-center justify-between bg-white w-full md:h-[80px] px-[20px] md:px-[80px] style-body-2">
       <div>
         <Link href="/">
           <Image
@@ -37,15 +37,15 @@ export default function NavbarUser() {
         <div>
           <Link
             href="/notification"
-            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200"
+            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-300 md:hover:bg-gray-200 transition"
           >
-            <Bell className="md:w-6 h-6" />
+            <Bell className="md:w-6 h-6 " />
           </Link>
         </div>
         <div>
           <Link
             href="/message"
-            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200"
+            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-300 md:hover:bg-gray-200 transition"
           >
             <MessagesSquare className="w-6 h-6" />
           </Link>
@@ -54,7 +54,7 @@ export default function NavbarUser() {
           <div tabIndex={0} role="button" className="avatar cursor-pointer">
             <Link
               href="/profile"
-              className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200"
+              className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-300 md:hover:bg-gray-200"
             >
               X
             </Link>
@@ -90,9 +90,7 @@ export default function NavbarUser() {
                 <span className="text-black">Booking History</span>
               </a>
             </li>
-
             <div className="divider my-1"></div>
-
             <li>
               <button
                 onClick={handleLogout}
@@ -104,63 +102,56 @@ export default function NavbarUser() {
             </li>
           </ul>
         </div>
-        <div className="md:hidden">
-          <button
+        <div className="drawer md:hidden">
+          <input id="my-drawer-1" type="checkbox" className="drawer-toggle" />
+          <div
+            className="drawer-content"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-gray-400 hover:text-gray-500 transition p-2 cursor-pointer"
-            aria-label="Toggle menu"
           >
-            {isMenuOpen ? (
-              <X size={24} strokeWidth={2} />
-            ) : (
-              <Menu size={24} strokeWidth={2} />
-            )}
-          </button>
+            <label
+              htmlFor="my-drawer-1"
+              className=" drawer-button text-gray-300 flex items-center gap-3 px-4 py-3 md:hover:bg-gray-200 rounded-xl w-full cursor-pointer"
+            >
+              {isMenuOpen ? (
+                <X size={24} strokeWidth={2} />
+              ) : (
+                <Menu size={24} strokeWidth={2} />
+              )}
+            </label>
+          </div>
+          <div className="drawer-side top-[48px]">
+            <label
+              htmlFor="my-drawer-1"
+              aria-label="close sidebar"
+              className="drawer-overlay"
+            ></label>
+            <ul className="gap-[16px] px-[16px] py-[40px] menu bg-white h-full w-full p-4 ">
+              <li className="text-black style-body-1 hover:bg-gray-50">
+                <Link href="/register-pet-sitter">Profile</Link>
+              </li>
+              <li className="text-black style-body-1 hover:bg-gray-50">
+                <Link href="/login">Your Pet</Link>
+              </li>
+              <li className="text-black style-body-1 hover:bg-gray-50">
+                <Link href="/login">Booking History</Link>
+              </li>
+              <div className="border-t border-gray-200  my-1"></div>
+              <li className="text-black style-body-1 hover:bg-gray-50">
+                <button onClick={handleLogout}>Log out</button>
+              </li>
+              <li className="w-full block">
+                <NavigationButton
+                  variant="primary"
+                  href="/search"
+                  className="w-full"
+                >
+                  Find A Pet Sitter
+                </NavigationButton>
+              </li>
+            </ul>
+          </div>
         </div>
-        {isMenuOpen && (
-          <ul className="md:hidden absolute top-full right-4 mt-2 bg-white rounded-2xl shadow-lg z-50 w-56 p-2">
-            <li>
-              <a
-                href="/profile"
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
-              >
-                <User className="text-gray-600" />
-                <span className="text-black">Profile</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="/my-pet"
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
-              >
-                <PawPrint className="text-gray-600" />
-                <span className="text-black">Your Pet</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="/booking-history"
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
-              >
-                <History className="text-gray-600" />
-                <span className="text-black">Booking History</span>
-              </a>
-            </li>
-
-            <div className="divider my-1"></div>
-
-            <li>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl w-full cursor-pointer"
-              >
-                <LogOut className="text-gray-600" />
-                <span className="text-black">Log Out</span>
-              </button>
-            </li>
-          </ul>
-        )}
-        <div className="hidden md:block">
+        <div className="hidden md:block ">
           <NavigationButton variant="primary" href="/search">
             Find A Pet Sitter
           </NavigationButton>

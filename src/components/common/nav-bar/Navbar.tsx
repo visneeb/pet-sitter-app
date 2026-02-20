@@ -2,7 +2,7 @@ import NavbarGuest from "./NavbarGuest";
 import NavbarUser from "./NavbarUser";
 
 export default function Navbar() {
-  const result = true;
+  const result = true; //for test
 
   return (
     <>
