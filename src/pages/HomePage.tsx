@@ -3,12 +3,11 @@ import ConnectWithSitters from "@/assets/ContentSection/ConnectWithSitters.png";
 import CallingAllPets from "@/assets/ContentSection/CallingAllPets.png";
 import BetterForYourPets from "@/assets/ContentSection/BetterForYourPets.png";
 import PetImage from "@/assets/ContentSection/lovely-pet-portrait-isolated 1.png";
-import Star1 from "@/assets/ContentSection/StarBlue.png";
-import Star2 from "@/assets/ContentSection/StarPink.png";
-import Star3 from "@/assets/ContentSection/StarGreen.png";
-import Star4 from "@/assets/ContentSection/StarYellow.png";
+import { HalfEllipse, FullEllipse } from "@/decorations/Ellipse"
+import { Star} from "@/decorations/Shapes"
 export default function Content() {
   return (
+    <>
     <div className="flex flex-col gap-[120px] p-10">
       <div className="flex text-center justify-center style-headline-3">
         "Your Pets, Our Priority: Perfect Care, Anytime, Anywhere."
@@ -17,7 +16,7 @@ export default function Content() {
       <div className="flex flex-col md:flex-row  justify-between mx-auto max-w-[1064px] gap-24">
         <div className="flex flex-col gap-14 max-w-[504px]">
           <div className="flex gap-3">
-            <Image src={Star1} alt="Broading" className="w-6 h-6" />
+            <Star className="w-6 h-6 shrink-0 text-blue-500" />
             <div className=" flex flex-col gap-3">
               <h3 className="style-headline-3">Broading</h3>
               <p className="style-body-1">
@@ -27,7 +26,7 @@ export default function Content() {
             </div>
           </div>
           <div className="flex gap-3">
-            <Image src={Star2} alt="House Sitting" className="w-6 h-6" />
+          <Star className="w-6 h-6 shrink-0 text-pink-500" />
             <div className=" flex flex-col gap-3">
               <h3 className="style-headline-3">House Sitting</h3>
               <p className="style-body-1">
@@ -38,7 +37,7 @@ export default function Content() {
           </div>
 
           <div className="flex gap-3">
-            <Image src={Star3} alt="Dog Walking" className="w-6 h-6" />
+          <Star className="w-6 h-6 shrink-0 text-green-500" />
             <div className=" flex flex-col gap-3">
               <h3 className="style-headline-3">Dog Walking</h3>
               <p className="style-body-1">
@@ -49,7 +48,7 @@ export default function Content() {
           </div>
 
           <div className="flex gap-3">
-            <Image src={Star4} alt="Drop-In Visits" className="w-6 h-6" />
+          <Star className="w-6 h-6 shrink-0 text-yellow-500" />
             <div className=" flex flex-col gap-3">
               <h3 className="style-headline-3">Drop-In Visits</h3>
               <p className="style-body-1">
@@ -117,9 +116,42 @@ export default function Content() {
             </p>
           </div>
         </div>
+      </div>
 
       
-      </div>
     </div>
+    {/* Perfect Pet Sitter Section */}
+    <section className="relative overflow-hidden bg-yellow-100  py-20 w-fullflex flex-col items-center justify-center gap-10 md:mx-20 md:my-20 md:rounded-4xl">
+        {/* Decorative shapes */}
+        <HalfEllipse className="absolute bottom-0 left-0 w-62 h-31 text-blue-500" />
+        <FullEllipse className="absolute -top-15 -right-3 w-33 h-33 text-yellow-200" />
+        <Star className="absolute w-28 h-27 text-green-500 right-20 top-8" />
+        
+        
+
+        <div className="relative z-10 flex flex-col items-center gap-8">
+          <h2 className="style-headline-2 text-center text-black">
+            Perfect Pet Sitter
+            <br />
+            For Your Pet
+          </h2>
+          <div className="flex flex-col gap-4 w-full max-w-sm">
+            <button
+              type="button"
+              className="w-full px-8 py-3 style-button text-orange-500  rounded-full hover:bg-orange-50 transition-colors"
+            >
+              Become A Pet Sitter
+            </button>
+            <button
+              type="button"
+              className="w-full px-8 py-3 style-button text-white bg-orange-500 rounded-full hover:bg-orange-400 transition-colors"
+            >
+              Find A Pet Sitter
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </>
   );
 }
