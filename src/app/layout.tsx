@@ -15,12 +15,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    
     <html lang="en">
       <body
-        className={`antialiased`}
+        className="antialiased"
       >
         <ScreenProvider>{children}</ScreenProvider>
       </body>
     </html>
+    
   );
 }
