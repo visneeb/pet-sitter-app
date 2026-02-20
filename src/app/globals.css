@@ -3,12 +3,36 @@
 
 @font-face {
   font-family: "Satoshi";
-  src: url("/fonts/Satoshi.woff2") format("woff2");
+  src: url("/fonts/Satoshi-Black.otf") format("opentype");
+  font-weight: 900;
   font-style: normal;
-  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
 }
 
 @theme {
+  /* Font Family - Set as default*/
+  --default-font-family: "Satoshi", sans-serif;
+
   /* Typography Scale */
   /* Display */
   --font-size-display: 5.5rem; /* 88px */
@@ -45,6 +69,7 @@
 
   --font-weight-headline: 700; /* Bold */
   --font-weight-body: 500; /* Medium */
+  --font-weight-regular: 400; /* Regular */
 
   --letter-spacing: 0%;
 
@@ -148,15 +173,18 @@
     letter-spacing: var(--letter-spacing);
     text-align: center;
   }
-}
 
-@layer base {
-  :root {
-    --default-font-family: "Satoshi", ui-sans-serif, system-ui, sans-serif,
-      "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol", "Noto Color Emoji";
+  .style-label {
+    font-weight: var(--font-weight-body);
+    font-size: var(--font-size-body-2);
+    line-height: 150%;
+    letter-spacing: var(--letter-spacing);
+  }
 
-    --font-sans: var(--default-font-family);
+  .style-input {
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-body-2);
+    line-height: 150%;
+    letter-spacing: var(--letter-spacing);
   }
 }
-
