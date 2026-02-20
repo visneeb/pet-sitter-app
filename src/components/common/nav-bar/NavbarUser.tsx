@@ -12,6 +12,7 @@ import {
   History,
   Menu,
   X,
+  UserRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -37,7 +38,7 @@ export default function NavbarUser() {
         <div>
           <Link
             href="/notification"
-            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-300 md:hover:bg-gray-200 transition"
+            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-400 md:text-gray-300 md:hover:bg-gray-200 transition"
           >
             <Bell className="md:w-6 h-6 " />
           </Link>
@@ -45,16 +46,16 @@ export default function NavbarUser() {
         <div>
           <Link
             href="/message"
-            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-300 md:hover:bg-gray-200 transition"
+            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-400 md:text-gray-300 md:hover:bg-gray-200 transition"
           >
             <MessagesSquare className="w-6 h-6" />
           </Link>
         </div>
-        <div className="hidden md:block dropdown dropdown-end p-[4px]">
+        <div className="hidden md:block dropdown dropdown-end">
           <div tabIndex={0} role="button" className="avatar cursor-pointer">
             <Link
               href="/profile"
-              className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-300 md:hover:bg-gray-200"
+              className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-600 md:hover:bg-gray-200"
             >
               X
             </Link>
@@ -69,7 +70,7 @@ export default function NavbarUser() {
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <User className="text-gray-600" />
-                <span className="text-black">Profile</span>
+                <span className="text-black style-body-2">Profile</span>
               </a>
             </li>
             <li>
@@ -78,7 +79,7 @@ export default function NavbarUser() {
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <PawPrint className="text-gray-600" />
-                <span className="text-black">Your Pet</span>
+                <span className="text-black style-body-2">Your Pet</span>
               </a>
             </li>
             <li>
@@ -87,7 +88,7 @@ export default function NavbarUser() {
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <History className="text-gray-600" />
-                <span className="text-black">Booking History</span>
+                <span className="text-black style-body-2">Booking History</span>
               </a>
             </li>
             <div className="divider my-1"></div>
@@ -97,7 +98,7 @@ export default function NavbarUser() {
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl w-full cursor-pointer"
               >
                 <LogOut className="text-gray-600" />
-                <span className="text-black">Log Out</span>
+                <span className="text-black style-body-2">Log Out</span>
               </button>
             </li>
           </ul>
@@ -110,7 +111,7 @@ export default function NavbarUser() {
           >
             <label
               htmlFor="my-drawer-1"
-              className=" drawer-button text-gray-300 flex items-center gap-3 px-4 py-3 md:hover:bg-gray-200 rounded-xl w-full cursor-pointer"
+              className=" drawer-button text-gray-600 flex items-center gap-3 px-4 py-3 md:hover:bg-gray-200 rounded-xl w-full cursor-pointer"
             >
               {isMenuOpen ? (
                 <X size={24} strokeWidth={2} />
@@ -127,17 +128,29 @@ export default function NavbarUser() {
             ></label>
             <ul className="gap-[16px] px-[16px] py-[40px] menu bg-white h-full w-full p-4 ">
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/register-pet-sitter">Profile</Link>
+                <Link href="/register-pet-sitter">
+                  <UserRound />
+                  Profile
+                </Link>
               </li>
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/login">Your Pet</Link>
+                <Link href="/login">
+                  <PawPrint />
+                  Your Pet
+                </Link>
               </li>
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/login">Booking History</Link>
+                <Link href="/login">
+                  <History />
+                  Booking History
+                </Link>
               </li>
               <div className="border-t border-gray-200  my-1"></div>
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <button onClick={handleLogout}>Log out</button>
+                <button onClick={handleLogout}>
+                  <LogOut />
+                  Log out
+                </button>
               </li>
               <li className="w-full block">
                 <NavigationButton

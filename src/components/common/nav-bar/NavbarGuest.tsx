@@ -19,13 +19,13 @@ export default function NavbarGuest() {
           />
         </Link>
       </div>
-      <div className="flex items-center gap-[12px] style-body-1">
-        <div className="hidden md:block px-[24px] py-[16px] text-black ">
+      <div className="flex items-center gap-[12px]">
+        <div className="hidden md:block px-[24px] py-[16px] style-body-1 text-black ">
           <Link href="/register-pet-sitter" className="">
             Become a Pet Sitter
           </Link>
         </div>
-        <div className="hidden md:block px-[24px] py-[16px] text-black">
+        <div className="hidden md:block px-[24px] py-[16px] style-body-1 text-black">
           <Link href="/login">Login</Link>
         </div>
         <div className="drawer md:hidden">
