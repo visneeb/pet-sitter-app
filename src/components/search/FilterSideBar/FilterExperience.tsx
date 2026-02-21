@@ -1,8 +1,18 @@
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { useState } from "react";
 
-export default function FilterExperience() {
-    const [experience, setExperience] = useState("0-2 Years");
+interface FilterExperienceProps{
+  experience: string;
+  onExperienceChange: (experience: string) => void;
+}
+
+export default function FilterExperience({ experience, onExperienceChange }: FilterExperienceProps) {
+   
+  const handleExperienceChange = (experience: string) => {
+
+    onExperienceChange(experience);
+  };
+
     return (
              <div className="flex flex-col gap-2 ">
         <label htmlFor="experience" className="style-body-2 ">
@@ -11,7 +21,7 @@ export default function FilterExperience() {
         <CustomSelect
           options={["0-2 Years", "3-5 Years", "5+ Years"]}
           value={experience}
-          onChange={setExperience}
+          onChange={handleExperienceChange}
         />
       </div>
     );
