@@ -14,7 +14,6 @@ export default function Home() {
         </NavigationButton>
 
         <Input type="name" placeholder="Place Holder" ></Input>
-
       </main>
     </div>
   );

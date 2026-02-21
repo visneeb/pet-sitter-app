@@ -7,11 +7,6 @@
 - data to create pet sitter card
 
 
-
-
-
-
-
 ## 1. View Mode
 - change view mode from list to map and vice versa
 - use URLSearchParams to store the view mode
@@ -22,16 +17,9 @@
 ## 2. Filter Sidebar
 - 
 
-
-
-
-
-
-
 ### Optional
 - Filter sidebar should be sticky
 - Ensure content layout remains horizontally centered regardless of any viewport zoom level.
-
 
 
 ### Flow
