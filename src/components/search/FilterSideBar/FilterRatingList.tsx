@@ -29,8 +29,8 @@ export default function FilterRatingList({
   return (
     <div className="flex flex-col gap-2 ">
       <p className="style-body-2 font-medium">Rating:</p>
-      <div className="flex flex-wrap justify-start items-center gap-x-1 gap-y-2">
-        {dataRating.map((star) => {
+      <div className="flex flex-wrap justify-start items-center gap-x-5 gap-y-2">
+        {rating.map((star) => {
           return (
             <button
               className={cn(styleButton, ActiveStar(star) && "bg-green-100 shadow-none hover:shadow-xl/30 hover:ring-0")}
