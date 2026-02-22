@@ -31,3 +31,12 @@
 ### Optional
 - Filter sidebar should be sticky
 - Ensure content layout remains horizontally centered regardless of any viewport zoom level.
+
+
+
+### Flow
+1. รอข้อมูลจาก API
+2. แสดงข้อมูลในรูปแบบตาราง
+3. แสดงข้อมูลในรูปแบบแผนที่
+4. ทำ pagination
+5. ทำ Responsive

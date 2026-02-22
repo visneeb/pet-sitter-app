@@ -4,6 +4,8 @@ import Link from "next/link";
 import HeaderSearchViewMode from "@/components/search/HeaderSearchViewMode";
 import ContentSearch from "@/components/search/ContentSearch";
 import { PaginationBar } from "@/components/search/ui/PaginationBar";
+import { Suspense } from "react";
+import Loading from "@/components/common/loading/loading";
 
 export default function SearchPage() {
   return (
@@ -11,10 +13,12 @@ export default function SearchPage() {
       {/* Mock nav bar in Component */}
       <Navbar />
 
-      <div className="w-full max-w-[1440px] self-center flex flex-col gap-6">
-        <HeaderSearchViewMode />
-        <ContentSearch />
-      </div>
+      <Suspense fallback={<Loading/>}>
+        <div className="w-full max-w-[1440px] self-center flex flex-col gap-6">
+          <HeaderSearchViewMode />
+          <ContentSearch />
+        </div>
+      </Suspense>
       <PaginationBar />
       {/* Mock up footer in Component */}
       <Footer />

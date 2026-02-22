@@ -1,7 +1,10 @@
+import { useViewMode } from "@/hooks/useViewMode";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const PaginationBar = () => {
+    const { currentView } = useViewMode();
   return (
+    currentView === "list" && (
     <div className="w-full flex justify-center pt-6 pb-[196px]">
       {/* Pagination */}
       <div className="flex justify-center items-center gap-2 ">
@@ -25,5 +28,6 @@ export const PaginationBar = () => {
         </button>
       </div>
     </div>
+    )
   );
 };
