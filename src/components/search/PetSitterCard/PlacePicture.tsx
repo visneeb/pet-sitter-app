@@ -3,7 +3,8 @@ import { PetSitter } from "@/hooks/usePetSitterData";
 
 export default function PlacePicture({
   sitter,
-}: Readonly<{ sitter: PetSitter }>) {
+  priority = false,
+}: Readonly<{ sitter: PetSitter; priority?: boolean }>) {
   return (
     <div>
       <Image
@@ -11,6 +12,7 @@ export default function PlacePicture({
         alt={sitter.name}
         width={245}
         height={184}
+        priority={priority}
         className="w-[245px] h-[184px] aspect-4/3 object-cover rounded-lg"
       />
     </div>

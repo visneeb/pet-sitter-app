@@ -1,4 +1,3 @@
-import { dir } from "console";
 import { usePetSitterData } from "../../../hooks/usePetSitterData";
 import PetSitterCard from "../PetSitterCard";
 import Loading from "@/components/common/loading/loading";
@@ -12,8 +11,12 @@ export default function ListMode() {
         {petSitterData.length === 0 ? (
           <Loading />
         ) : (
-          petSitterData.map((sitter) => (
-            <PetSitterCard key={sitter.id} sitter={sitter} />
+          petSitterData.map((sitter, index) => (
+            <PetSitterCard
+              key={sitter.id}
+              sitter={sitter}
+              priority={index === 0}
+            />
           ))
         )}
       </div>

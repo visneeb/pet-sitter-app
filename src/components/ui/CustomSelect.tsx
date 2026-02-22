@@ -21,6 +21,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [internalValue, setInternalValue] = useState("");
+  const [openUpward, setOpenUpward] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isControlled = value !== undefined;
@@ -56,7 +57,15 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     <div className={cn("relative w-full", className)} ref={containerRef}>
       <button
         type="button" // Prevent form submission
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isOpen && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const estimatedListHeight = 240; // max-h-60 = 15rem = 240px
+            const spaceBelow = window.innerHeight - rect.bottom;
+            setOpenUpward(spaceBelow < estimatedListHeight);
+          }
+          setIsOpen(!isOpen);
+        }}
         className={cn(
           "w-full p-2.5 flex justify-between items-center",
           "border border-gray-200 rounded-lg bg-white",
@@ -80,7 +89,12 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       </button>
 
       {isOpen && (
-        <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto focus:outline-none">
+        <ul
+          className={cn(
+            "absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto focus:outline-none",
+            openUpward ? "bottom-full mb-1" : "top-full mt-1",
+          )}
+        >
           {options.map((option) => (
             <li
               key={option}
