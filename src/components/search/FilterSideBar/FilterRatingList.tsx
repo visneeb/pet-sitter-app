@@ -29,7 +29,7 @@ export default function FilterRatingList({
   return (
     <div className="flex flex-col gap-2 ">
       <p className="style-body-2 font-medium">Rating:</p>
-      <div className="flex flex-wrap justify-start items-center gap-x-5 gap-y-2">
+      <div className="flex flex-wrap justify-start items-center gap-x-1 gap-y-2">
         {dataRating.map((star) => {
           return (
             <button
