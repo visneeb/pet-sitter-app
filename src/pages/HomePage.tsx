@@ -74,7 +74,7 @@ export default function Content() {
 
   return (
     <>
-      <div className={`flex flex-col gap-32 p-10`}>
+      <article className={`flex flex-col gap-32 p-10`}>
         <div
           className={cn(
             "flex text-center justify-center",
@@ -84,7 +84,7 @@ export default function Content() {
           "Your Pets, Our Priority: Perfect Care, Anytime, Anywhere."
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between mx-auto max-w-[1064px] gap-24">
+        <div className="flex flex-col items-center md:flex-row justify-between mx-auto max-w-[1064px] gap-24">
           <div className="flex flex-col gap-14 max-w-[504px]">
             {services.map((service) => (
               <ServiceCard
@@ -111,18 +111,15 @@ export default function Content() {
             />
           ))}
         </div>
-      </div>
+      </article>
 
       {/* Perfect Pet Sitter Section */}
       <section className="relative overflow-hidden bg-yellow-100 py-20  flex flex-col items-center justify-center gap-10 md:mx-20 md:my-20 md:rounded-2xl ">
         <HalfEllipse className="absolute bottom-0 -left-5 w-62 h-31 text-blue-500" />
         <FullEllipse
-          className={cn(
-            "absolute -top-15 -right-3 text-yellow-200",
-            isMedium ? "w-60 h-60" : "w-33 h-33",
-          )}
+          className="absolute text-yellow-200 w-30 h-46 -top-15 -right-3 md:w-46 md:h-60 md:-top-15 md:-right-3 lg:w-60 lg:h-60 lg:-top-15 lg:-right-3"
         />
-        <Star className={cn("absolute right-40 top-27 text-green-500", isMedium ? "w-47 h-47 rotate-5 " : "  w-28 h-27")} />
+        <Star className="absolute text-green-500 w-23 h-23 right-20 top-12 rotate-10 md:w-37 md:h-47 md:right-30 md:top-20 lg:w-47 lg:h-47 lg:right-40 lg:top-27" />
 
         <div className="relative z-10 flex flex-col items-center gap-8 mx-4">
           <h2 className="style-headline-2 text-center text-black mt-12">
