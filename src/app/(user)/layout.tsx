@@ -1,9 +1,12 @@
 import Sidebar from "@/components/ui/Sidebar";
 import { ownerSidebarItems } from "@/config/sidebar/owner";
+import ProfileContainer from "@/components/profile/ProfileContainer";
 
 export default function UserLayout({
+  header,
   children,
 }: {
+  header?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -13,12 +16,14 @@ export default function UserLayout({
           <Sidebar
             items={ownerSidebarItems}
             header={<h4 className="style-headline-4 pb-3 px-5">Account</h4>}
-            variant="light"
+            role="user"
             className="rounded-lg"
             /* add drop shadow */
           />
         </div>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          <ProfileContainer>{children}</ProfileContainer>
+        </main>
       </div>
     </div>
   );
