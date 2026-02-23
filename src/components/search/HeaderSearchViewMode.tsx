@@ -2,7 +2,7 @@
 
 import { List, Map } from "lucide-react";
 import ViewButton from "./ViewMode/ViewButton";
-import { useViewMode } from "@/hooks/useViewMode";
+import { useViewMode } from "@/hooks/PetSitterPage/useViewMode";
 
 // --- Main Component ---
 export default function HeaderSearchViewMode() {

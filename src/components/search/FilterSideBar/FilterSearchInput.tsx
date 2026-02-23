@@ -1,6 +1,7 @@
 import { useCallback, useId } from "react";
-import { Input } from "@/components/ui/Input";
-import { Search } from "lucide-react";
+
+import { Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface FilterSearchInputProps {
   searchText: string;
@@ -17,29 +18,40 @@ export default function FilterSearchInput({
 }: FilterSearchInputProps) {
   const inputId = useId();
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearchChange(e.target.value);
-  }, [onSearchChange]);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onSearchChange(e.target.value);
+    },
+    [onSearchChange],
+  );
+
+  const handleCancelChange=useCallback(
+    ()=>{
+      onSearchChange('');
+    },[onSearchChange]
+  );
 
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={inputId} className="style-body-2">
         {label}
       </label>
-      <div className="relative">
-        <Input
-          id={inputId}
-          type="text"
-          value={searchText}
-          onChange={handleSearchChange}
-          placeholder={placeholder}
-          className="h-12 w-full selection:bg-orange-200"
-        />
-        <Search
-          aria-hidden="true"
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-        />
-      </div>
+      <Input
+        id={inputId}
+        type="text"
+        value={searchText}
+        onChange={handleSearchChange}
+        placeholder={placeholder}
+        className="h-12 w-full selection:bg-orange-200"
+        rightElement={searchText.length === 0 ?
+          <Search
+            aria-hidden="true"
+            className="text-gray-400"
+          /> : <button onClick={handleCancelChange} className="p-1 text-gray-500 rounded-full hover:bg-gray-100">
+            <X />
+          </button>
+        }
+      />
     </div>
   );
 }

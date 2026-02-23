@@ -1,4 +1,4 @@
-import { PetSitter } from "@/hooks/usePetSitterData";
+import { PetSitter } from "@/hooks/PetSitterPage/usePetSitterData";
 import Image from "next/image";
 
 export default function PetSitterPicture({

@@ -4,6 +4,7 @@ import FilterRatingList from "./FilterSideBar/FilterRatingList";
 import FilterActions from "./FilterSideBar/FilterActions";
 import FilterExperience from "./FilterSideBar/FilterExperience";
 import { useState } from "react";
+import axios from "axios";
 
 export default function FilterSidebar() {
   const [searchText, setSearchText] = useState<string>("");
@@ -28,22 +29,26 @@ export default function FilterSidebar() {
   };
 
   const handleClear = () => {
-  setSearchText("");
-  setPetTypes([]);
-  setRating([]);
-  setExperience("0-3 Years"); // reset กลับ default
-};
+    setSearchText("");
+    setPetTypes([]);
+    setRating([]);
+    setExperience("0-3 Years"); // reset กลับ default
+  };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     const query = {
       searchText,
       petTypes,
       rating,
       experience,
     };
-    console.log(query);
-    
-  }
+    try {
+      const request = await axios.get("http://localhost:4000/petSitter");
+      console.log(request);
+    } catch (error) {
+      console.log(`${error}`);
+    }
+  };
 
   return (
     <aside className="sticky top-20 w-98 h-fit px-6 py-6 bg-white shadow-lg rounded-2xl flex flex-col gap-8">

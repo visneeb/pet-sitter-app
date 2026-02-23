@@ -1,4 +1,4 @@
-import { PetSitter } from "@/hooks/usePetSitterData";
+import { PetSitter } from "@/hooks/PetSitterPage/usePetSitterData";
 import PetSitterPicture from "./PetSitterPicture";
 import RatingStar from "./RatingStar";
 

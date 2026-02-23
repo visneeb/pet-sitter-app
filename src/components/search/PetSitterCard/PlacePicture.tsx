@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { PetSitter } from "@/hooks/usePetSitterData";
+import { PetSitter } from "@/hooks/PetSitterPage/usePetSitterData";
 
 export default function PlacePicture({
   sitter,

@@ -1,5 +1,5 @@
 import LocationPetSitter from "./PetSitterCard/LocationPetSitter";
-import { PetSitter } from "@/hooks/usePetSitterData";
+import { PetSitter } from "@/hooks/PetSitterPage/usePetSitterData";
 import TagPetType from "./PetSitterCard/TagPetType";
 import PlacePicture from "./PetSitterCard/PlacePicture";
 import PetSitterInfo from "./PetSitterCard/PetSitterInfo";

@@ -1,4 +1,4 @@
-import { usePetSitterData } from "../../../hooks/usePetSitterData";
+import { usePetSitterData } from "../../../hooks/PetSitterPage/usePetSitterData";
 import PetSitterCard from "../PetSitterCard";
 import Loading from "@/components/common/loading/loading";
 

@@ -1,4 +1,4 @@
-import { PetSitter } from "@/hooks/usePetSitterData";
+import { PetSitter } from "@/hooks/PetSitterPage/usePetSitterData";
 import { Tag } from "../ui/Tag";
 
 export default function TagePetType({
