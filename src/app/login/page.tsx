@@ -7,6 +7,8 @@ import { QuadrantEllipse } from "@/decorations/Ellipse";
 import { Star } from "@/decorations/Shapes";
 import facebookIcon from "@/assets/icons/fb.svg";
 import gmailIcon from "@/assets/icons/gg.svg";
+import { Input } from "@/components/ui/Input";
+import { ActionButton } from "@/components/ui/Button";
 
 type FormValues = {
   email: string;
@@ -138,7 +140,7 @@ export default function LoginPage() {
               <div>
                 <label className="text-sm text-gray-700">Email</label>
                 <div className="relative">
-                  <input
+                  <Input
                     value={values.email}
                     onChange={(e) => setField("email", e.target.value)}
                     onBlur={() => markTouched("email")}
@@ -157,7 +159,7 @@ export default function LoginPage() {
               <div>
                 <label className="text-sm text-gray-700">Password</label>
                 <div className="relative">
-                  <input
+                  <Input
                     value={values.password}
                     onChange={(e) => setField("password", e.target.value)}
                     onBlur={() => markTouched("password")}
@@ -193,13 +195,14 @@ export default function LoginPage() {
               </div>
 
               {/* Login button */}
-              <button
+              <ActionButton
                 type="submit"
+                variant="primary"
                 disabled={isSubmitting}
-                className="w-full rounded-full bg-orange-500 py-3 text-[var(--color-white)] style-button hover:bg-orange-600 transition disabled:bg-gray-200 disabled:text-gray-400"
+                className="w-full disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Logging in..." : "Login"}
-              </button>
+              </ActionButton>
 
               {/* Divider */}
               <div className="flex items-center gap-3">
