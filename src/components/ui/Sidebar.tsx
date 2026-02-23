@@ -5,27 +5,47 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { SidebarItem } from "@/types/sidebarType";
 
+type SidebarRole = "user" | "petsitter" | "admin";
+
 type SidebarProps = {
   items?: SidebarItem[];
-  variant?: "light" | "dark";
   header?: ReactNode;
   footer?: ReactNode;
   className?: string;
+  role?: SidebarRole;
+};
+
+const roleStyles = {
+  user: {
+    base: "bg-white text-gray-600",
+    activeBg: "bg-orange-100",
+    activeText: "text-orange-500",
+  },
+  petsitter: {
+    base: "bg-bg-gray text-gray-600 h-screen border-r border-gray-200 sticky top-0",
+    activeBg: "bg-orange-100",
+    activeText: "text-orange-500",
+  },
+  admin: {
+    base: "bg-black text-gray-300 h-screen",
+    activeBg: "bg-gray-600",
+    activeText: "text-white",
+  },
 };
 
 export default function Sidebar({
   items = [],
-  variant = "light",
   header,
   footer,
   className = "",
+  role = "user",
 }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside
       className={`lg:w-72 flex flex-col justify-between ${
-        variant === "dark" ? "bg-black text-white" : "bg-white text-gray-600"
+        roleStyles[role].base
       } ${className}`}
     >
       <div className="lg:py-6 py-0 flex flex-col">
@@ -40,12 +60,12 @@ export default function Sidebar({
                 key={item.href}
                 href={item.href}
                 className={`snap-start group flex shrink-0 lg:px-6 px-7 lg:py-5 py-3 gap-3 items-center justify-center lg:justify-start transition-colors min-w-max ${
-                  variant === "dark"
+                  role === "admin"
                     ? isActive
-                      ? "bg-gray-800"
+                      ? roleStyles[role].activeBg
                       : "hover:bg-gray-800"
                     : isActive
-                      ? "bg-orange-100"
+                      ? roleStyles[role].activeBg
                       : ""
                 }`}
               >
@@ -64,7 +84,7 @@ export default function Sidebar({
                 <span
                   className={`transition-colors ${
                     isActive
-                      ? "text-orange-500"
+                      ? roleStyles[role].activeText
                       : "text-gray-500 group-hover:text-orange-500"
                   }`}
                 >

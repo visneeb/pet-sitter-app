@@ -6,12 +6,12 @@ import ListIcon from "@/assets/icons/profile/list";
 export const ownerSidebarItems: SidebarConfig = [
   {
     label: "Profile",
-    href: "/owner-profile",
+    href: "/user-profile",
     icon: <UserRound />,
   },
   {
     label: "Your Pet",
-    href: "/your-pet",
+    href: "/pets",
     icon: <PawIcon />,
   },
   {
