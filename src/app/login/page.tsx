@@ -7,8 +7,12 @@ import { QuadrantEllipse } from "@/decorations/Ellipse";
 import { Star } from "@/decorations/Shapes";
 import facebookIcon from "@/assets/icons/fb.svg";
 import gmailIcon from "@/assets/icons/gg.svg";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 import { ActionButton } from "@/components/ui/Button";
+import { Password } from "@/components/ui/Input/Password";
+
+
+
 
 type FormValues = {
   email: string;
@@ -144,41 +148,37 @@ export default function LoginPage() {
                 <label className="text-sm text-gray-700">Email</label>
                 <div className="relative">
                   <Input
-                    value={values.email}
-                    onChange={(e) => setField("email", e.target.value)}
-                    onBlur={() => markTouched("email")}
-                    type="email"
-                    placeholder="email@company.com"
-                    className={inputClass("email")}
-                  />
-                  {emailHasError && <ErrorIcon />}
-                </div>
-                {emailHasError && (
-                  <p className="mt-1 text-xs text-red-600">{errors.email}</p>
-                )}
+                  type="email"
+                  value={values.email}
+                  onChange={(e) => setField("email", e.target.value)}
+                  onBlur={() => markTouched("email")}
+                  placeholder="email@company.com"
+                  error={emailHasError}
+                  // errorMessage={errors.email}
+                  // className="pr-10"
+                  className={inputClass("email")}
+                />
+               
               </div>
+              {emailHasError && (
+                <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+              )}
+            </div>
 
               {/* Password */}
               <div>
                 <label className="text-sm text-gray-700">Password</label>
                 <div className="relative">
-                  <Input
+                  <Password
                     value={values.password}
                     onChange={(e) => setField("password", e.target.value)}
                     onBlur={() => markTouched("password")}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
+                    placeholder="Create your password"
+                    error={passwordHasError}
+                    // errorMessage={errors.password}
                     className={inputClass("password")}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? "🙈" : "👁️"}
-                  </button>
-                  {passwordHasError && <ErrorIcon />}
+                  
                 </div>
                 {passwordHasError && (
                   <p className="mt-1 text-xs text-red-600">{errors.password}</p>
