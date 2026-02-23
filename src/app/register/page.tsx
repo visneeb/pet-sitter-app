@@ -7,6 +7,8 @@ import { QuadrantEllipse } from "@/decorations/Ellipse";
 import { Star } from "@/decorations/Shapes";
 import facebookIcon from "@/assets/icons/fb.svg";
 import gmailIcon from "@/assets/icons/gg.svg";
+import { Input } from "@/components/ui/Input";
+import { ActionButton } from "@/components/ui/Button";
 
 
 
@@ -225,8 +227,31 @@ export default function RegisterPage() {
             <form className="space-y-5" onSubmit={onSubmit}>
               <input type="hidden" value={role} readOnly />
 
+             
               {/* Email */}
               <div>
+                <label className="text-sm text-gray-700">Email</label>
+                <div className="relative">
+                  <Input
+                  type="email"
+                  value={values.email}
+                  onChange={(e) => setField("email", e.target.value)}
+                  onBlur={() => markTouched("email")}
+                  placeholder="email@company.com"
+                  aria-invalid={emailHasError}
+                  // className="pr-10"
+                  className={inputClass("email")}
+                />
+                {emailHasError && <ErrorIcon />}
+              </div>
+              {emailHasError && (
+                <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+              )}
+            </div>
+
+
+              {/* Email */}
+              {/* <div>
                 <label className="text-sm text-gray-700">Email</label>
                 <div className="relative">
                   <input
@@ -242,13 +267,13 @@ export default function RegisterPage() {
                 {emailHasError && (
                   <p className="mt-1 text-xs text-red-600">{errors.email}</p>
                 )}
-              </div>
+              </div> */}
 
               {/* Phone */}
               <div>
                 <label className="text-sm text-gray-700">Phone</label>
                 <div className="relative">
-                  <input
+                  <Input
                     value={values.phone}
                     onChange={(e) => {
                       const digitsOnly = e.target.value.replace(/\D/g, "");
@@ -271,7 +296,7 @@ export default function RegisterPage() {
               <div>
                 <label className="text-sm text-gray-700">Password</label>
                 <div className="relative">
-                  <input
+                  <Input
                     value={values.password}
                     onChange={(e) => setField("password", e.target.value)}
                     onBlur={() => markTouched("password")}
@@ -287,7 +312,7 @@ export default function RegisterPage() {
               </div>
 
               {/* Register button */}
-              <button
+              {/* <button
                 type="submit"
                 disabled={isSubmitting}
                 className="w-full rounded-full bg-orange-500 py-3 text-[var(--color-white)] style-button hover:bg-orange-600 transition disabled:bg-gray-200 disabled:text-gray-400"
@@ -295,7 +320,17 @@ export default function RegisterPage() {
                 {isSubmitting
                   ? "Creating account..."
                   : `Register as ${role === "customer" ? "Customer" : "Sitter"}`}
-              </button>
+              </button> */}
+              <ActionButton
+                variant="primary"
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full disabled:cursor-not-allowed"
+              >
+                {isSubmitting
+                  ? "Creating account..."
+                  : `Register as ${role === "customer" ? "Customer" : "Sitter"}`}
+              </ActionButton>
 
               {/* Divider */}
               <div className="flex items-center gap-3">
