@@ -34,6 +34,8 @@ function ErrorIcon() {
   );
 }
 
+
+
 export default function LoginPage() {
   const [values, setValues] = useState<FormValues>({
     email: "",
@@ -46,6 +48,7 @@ export default function LoginPage() {
     {}
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function setField<K extends keyof FormValues>(key: K, value: FormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -163,10 +166,18 @@ export default function LoginPage() {
                     value={values.password}
                     onChange={(e) => setField("password", e.target.value)}
                     onBlur={() => markTouched("password")}
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     className={inputClass("password")}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
                   {passwordHasError && <ErrorIcon />}
                 </div>
                 {passwordHasError && (
