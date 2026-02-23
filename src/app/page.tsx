@@ -1,5 +1,5 @@
 import { ActionButton, NavigationButton } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input/Input";
 
 export default function Home() {
   return (
@@ -13,8 +13,7 @@ export default function Home() {
           Go to Test Page
         </NavigationButton>
 
-        <Input type="name" placeholder="Place Holder" ></Input>
-
+        <Input type="name" placeholder="Place Holder"></Input>
       </main>
     </div>
   );
