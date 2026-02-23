@@ -7,9 +7,10 @@ import { QuadrantEllipse } from "@/decorations/Ellipse";
 import { Star } from "@/decorations/Shapes";
 import facebookIcon from "@/assets/icons/fb.svg";
 import gmailIcon from "@/assets/icons/gg.svg";
-import { Input } from "@/components/ui/Input";
+import { Input,InputPassword } from "@/components/ui/input";
 import { ActionButton } from "@/components/ui/Button";
-
+import { Password } from "@/components/ui/Input/Password";
+import { useRouter } from "next/navigation";
 
 
 
@@ -33,7 +34,7 @@ function isPhoneValid(phone: string) {
 }
 
 function isPasswordValid(password: string) {
-  return password.length > 8;
+  return password.length > 12;
 }
 
 // mock uniqueness
@@ -50,19 +51,21 @@ async function checkPhoneUnique(phone: string): Promise<boolean> {
   return !usedPhonesMock.has(phone.trim());
 }
 
-function ErrorIcon() {
-  return (
-    <span
-      aria-hidden="true"
-      className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold"
-    >
-      !
-    </span>
-  );
-}
+
 
 export default function RegisterPage() {
+
+  const router = useRouter();
+  const [serverError, setServerError] = useState("");
+  const [serverSuccess, setServerSuccess] = useState("");
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [role, setRole] = useState<Role>("customer");
+
+  const roleMap = {
+    customer: "owner",
+    sitter: "sitter",
+  } as const;
+  const backendRole = roleMap[role]
 
   const [values, setValues] = useState<FormValues>({
     email: "",
@@ -95,7 +98,7 @@ export default function RegisterPage() {
     else if (!isPhoneValid(v.phone)) next.phone = "Phone must start with 0 and be 10 digits.";
 
     if (!v.password) next.password = "Please enter your password.";
-    else if (!isPasswordValid(v.password)) next.password = "Password must be longer than 8 characters.";
+    else if (!isPasswordValid(v.password)) next.password = "Password must be longer than 12 characters.";
 
     return next;
   }
@@ -130,11 +133,11 @@ export default function RegisterPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
+    setServerError("");
+    setServerSuccess("");
 
-    // mark all touched
     setTouched({ email: true, phone: true, password: true });
 
-    // sync
     const syncErrors = validateSync(values);
     if (Object.keys(syncErrors).length > 0) {
       setErrors(syncErrors);
@@ -142,17 +145,36 @@ export default function RegisterPage() {
       return;
     }
 
-    // uniqueness
-    const uniqueErrors = await validateAsyncUniqueness(values);
-    if (Object.keys(uniqueErrors).length > 0) {
-      setErrors(uniqueErrors);
-      setIsSubmitting(false);
-      return;
-    }
+    try {
+      if (!API_BASE) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL");
 
-    // ✅ mock success
-    setIsSubmitting(false);
-    // TODO: call real API
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: values.email.trim(),
+          phone: values.phone.trim(),
+          password: values.password,
+          role: backendRole,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setServerError(data?.error || "Register failed");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setServerSuccess("User registered successfully. Redirecting...");
+      setIsSubmitting(false);
+
+      setTimeout(() => router.push("/login"), 1200);
+    } catch (err: any) {
+      setServerError(err?.message || "Something went wrong");
+      setIsSubmitting(false);
+    }
   }
 
   const emailHasError = Boolean(touched.email && errors.email);
@@ -224,7 +246,19 @@ export default function RegisterPage() {
           {/* Card */}
           {/* ✅ คงสัดส่วนเดิม: mt-8 p-6 */}
           <div className="mt-8 item-center">
-            <form className="space-y-5" onSubmit={onSubmit}>
+            <form  className="space-y-5" onSubmit={onSubmit}>
+              {serverError && (
+                <div className="p-3 rounded bg-red-50 text-red-700 text-sm">
+                  {serverError}
+                </div>
+              )}
+
+              {serverSuccess && (
+                <div className="p-3 rounded bg-green-50 text-green-700 text-sm">
+                  {serverSuccess}
+                </div>
+              )}
+
               <input type="hidden" value={role} readOnly />
 
              
@@ -238,11 +272,12 @@ export default function RegisterPage() {
                   onChange={(e) => setField("email", e.target.value)}
                   onBlur={() => markTouched("email")}
                   placeholder="email@company.com"
-                  aria-invalid={emailHasError}
+                  error={emailHasError}
+                  // errorMessage={errors.email}
                   // className="pr-10"
                   className={inputClass("email")}
                 />
-                {emailHasError && <ErrorIcon />}
+               
               </div>
               {emailHasError && (
                 <p className="mt-1 text-xs text-red-600">{errors.email}</p>
@@ -250,24 +285,6 @@ export default function RegisterPage() {
             </div>
 
 
-              {/* Email */}
-              {/* <div>
-                <label className="text-sm text-gray-700">Email</label>
-                <div className="relative">
-                  <input
-                    value={values.email}
-                    onChange={(e) => setField("email", e.target.value)}
-                    onBlur={() => markTouched("email")}
-                    type="email"
-                    placeholder="email@company.com"
-                    className={inputClass("email")}
-                  />
-                  {emailHasError && <ErrorIcon />}
-                </div>
-                {emailHasError && (
-                  <p className="mt-1 text-xs text-red-600">{errors.email}</p>
-                )}
-              </div> */}
 
               {/* Phone */}
               <div>
@@ -282,10 +299,12 @@ export default function RegisterPage() {
                     onBlur={() => markTouched("phone")}
                     type="tel"
                     placeholder="Your phone number"
+                    error={phoneHasError}
+                    // errorMessage={errors.phone}
                     className={inputClass("phone")}
                     inputMode="numeric"
                   />
-                  {phoneHasError && <ErrorIcon />}
+                  
                 </div>
                 {phoneHasError && (
                   <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
@@ -296,15 +315,16 @@ export default function RegisterPage() {
               <div>
                 <label className="text-sm text-gray-700">Password</label>
                 <div className="relative">
-                  <Input
+                  <Password
                     value={values.password}
                     onChange={(e) => setField("password", e.target.value)}
                     onBlur={() => markTouched("password")}
-                    type="password"
                     placeholder="Create your password"
+                    error={passwordHasError}
+                    // errorMessage={errors.password}
                     className={inputClass("password")}
                   />
-                  {passwordHasError && <ErrorIcon />}
+                  
                 </div>
                 {passwordHasError && (
                   <p className="mt-1 text-xs text-red-600">{errors.password}</p>
