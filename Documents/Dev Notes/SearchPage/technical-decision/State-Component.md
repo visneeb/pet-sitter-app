@@ -51,7 +51,7 @@ export default function FilterSidebar() {
   const [searchText, setSearchText] = useState("");
   const [petTypes, setPetTypes] = useState<string[]>([]);
   const [rating, setRating] = useState<number | null>(null);
-  const [experience, setExperience] = useState("0-2 Years");
+  const [experience, setExperience] = useState("0-3 Years");
 
   const handleSearch = async () => {
     const result = await fetch(
@@ -111,7 +111,7 @@ export function FilterProvider({ children }) {
     searchText: "",
     petTypes: [],
     rating: null,
-    experience: "0-2 Years",
+    experience: "0-3 Years",
   });
 
   const updateFilter = (key, value) =>
@@ -157,7 +157,7 @@ const useFilterStore = create((set) => ({
   searchText: "",
   petTypes: [],
   rating: null,
-  experience: "0-2 Years",
+  experience: "0-3 Years",
   setSearchText: (v) => set({ searchText: v }),
   setRating: (v) => set({ rating: v }),
   handleSearch: async () => {

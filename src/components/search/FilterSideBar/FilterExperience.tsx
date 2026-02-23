@@ -19,7 +19,7 @@ export default function FilterExperience({ experience, onExperienceChange }: Fil
           Experience:
         </label>
         <CustomSelect
-          options={["0-2 Years", "3-5 Years", "5+ Years"]}
+          options={["0-3 Years", "3-5 Years", "5+ Years"]}
           value={experience}
           onChange={handleExperienceChange}
         />

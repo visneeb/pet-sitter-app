@@ -6,13 +6,10 @@ import FilterExperience from "./FilterSideBar/FilterExperience";
 import { useState } from "react";
 
 export default function FilterSidebar() {
-  // const [experience, setExperience] = useState("0-2 Years");
-  // const petType = ["Dog", "Cat", "Bird", "Rabbit"]; typelist need
-  // const rating = [5, 4, 3, 2, 1];
   const [searchText, setSearchText] = useState<string>("");
   const [petTypes, setPetTypes] = useState<string[]>([]);
   const [rating, setRating] = useState<number[]>([]);
-  const [experience, setExperience] = useState<string>("0-2 Years");
+  const [experience, setExperience] = useState<string>("0-3 Years");
 
   const handleSearchChange = (searchText: string) => {
     setSearchText(searchText);
@@ -34,7 +31,7 @@ export default function FilterSidebar() {
   setSearchText("");
   setPetTypes([]);
   setRating([]);
-  setExperience("0-2 Years"); // reset กลับ default
+  setExperience("0-3 Years"); // reset กลับ default
 };
 
   const handleSearch = () => {

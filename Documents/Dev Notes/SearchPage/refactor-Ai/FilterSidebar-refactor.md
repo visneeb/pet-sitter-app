@@ -21,7 +21,7 @@
 |---|--------|------------------|---------|
 | 1 | `useState` แยก 4 ตัวสำหรับ filter เดียวกัน | **Cohesion** — state ที่เกี่ยวข้องกันควรอยู่ด้วยกัน | reset ต้องเรียก setter ทีละตัว, ง่ายต่อการ bug |
 | 2 | Handler functions ทุกตัวแค่เรียก setter ตรงๆ | **YAGNI / DRY** — wrapper function ที่ไม่เพิ่มคุณค่า | เพิ่ม LOC โดยไม่จำเป็น |
-| 3 | Magic string `"0-2 Years"` ซ้ำ 2 ที่ | **DRY / Single Source of Truth** | เปลี่ยนค่าต้องแก้หลายที่ |
+| 3 | Magic string `"0-3 Years"` ซ้ำ 2 ที่ | **DRY / Single Source of Truth** | เปลี่ยนค่าต้องแก้หลายที่ |
 | 4 | Dead code comments (บรรทัด 9-11) | **Clean Code** | ทำให้โค้ดรก อ่านยาก |
 | 5 | `console.log` ใน `handleSearch` | **Production readiness** | ไม่ควรมี log ใน production |
 | 6 | `FilterActions` รับ filter state ทั้ง 4 ตัว แต่ไม่ได้ใช้ | **Interface Segregation** | prop drilling ที่ไม่จำเป็น |
@@ -41,7 +41,7 @@
 const [searchText, setSearchText] = useState("");
 const [petTypes, setPetTypes] = useState<string[]>([]);
 const [rating, setRating] = useState<number[]>([]);
-const [experience, setExperience] = useState("0-2 Years");
+const [experience, setExperience] = useState("0-3 Years");
 
 // ✅ หลัง
 const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
@@ -227,7 +227,7 @@ src/
  */
 
 /** ค่าตัวเลือก Experience ที่เป็นไปได้ */
-export const EXPERIENCE_OPTIONS = ["0-2 Years", "3-5 Years", "5+ Years"] as const;
+export const EXPERIENCE_OPTIONS = ["0-3 Years", "3-5 Years", "5+ Years"] as const;
 export type ExperienceOption = (typeof EXPERIENCE_OPTIONS)[number];
 
 /** ค่าตัวเลือก Pet Type ที่เป็นไปได้ */
@@ -247,7 +247,7 @@ export const DEFAULT_FILTERS: FilterState = {
   searchText: "",
   petTypes: [],
   rating: [],
-  experience: "0-2 Years",
+  experience: "0-3 Years",
 } as const;
 ```
 
