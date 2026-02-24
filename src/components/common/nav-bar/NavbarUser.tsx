@@ -64,31 +64,31 @@ export default function NavbarUser() {
             className="dropdown-content bg-white rounded-2xl shadow-lg z-50 w-56 p-2 mt-2"
           >
             <li>
-              <a
+              <Link
                 href="/profile"
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <User className="text-gray-600" />
                 <span className="text-black style-body-2">Profile</span>
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="/my-pet"
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <PawPrint className="text-gray-600" />
                 <span className="text-black style-body-2">Your Pet</span>
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="/booking-history"
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <History className="text-gray-600" />
                 <span className="text-black style-body-2">Booking History</span>
-              </a>
+              </Link>
             </li>
             <div className="divider my-1"></div>
             <li>
@@ -123,19 +123,19 @@ export default function NavbarUser() {
             ></label>
             <ul className="gap-[16px] px-[16px] py-[40px] menu bg-white h-full w-full p-4 ">
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/register-pet-sitter">
+                <Link href="/profile">
                   <UserRound />
                   Profile
                 </Link>
               </li>
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/login">
+                <Link href="/my-pet">
                   <PawPrint />
                   Your Pet
                 </Link>
               </li>
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/login">
+                <Link href="/booking-history">
                   <History />
                   Booking History
                 </Link>
