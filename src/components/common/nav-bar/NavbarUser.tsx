@@ -11,7 +11,6 @@ import {
   PawPrint,
   History,
   Menu,
-  X,
   UserRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -55,9 +54,9 @@ export default function NavbarUser() {
           <div tabIndex={0} role="button" className="avatar cursor-pointer">
             <Link
               href="/profile"
-              className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-600 md:hover:bg-gray-200"
+              className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-400 md:text-gray-300 md:hover:bg-gray-200 transition"
             >
-              X
+              <UserRound className="w-6 h-6" />
             </Link>
           </div>
           <ul
@@ -113,11 +112,7 @@ export default function NavbarUser() {
               htmlFor="my-drawer-1"
               className=" drawer-button text-gray-600 flex items-center gap-3 px-4 py-3 md:hover:bg-gray-200 rounded-xl w-full cursor-pointer"
             >
-              {isMenuOpen ? (
-                <X size={24} strokeWidth={2} />
-              ) : (
-                <Menu size={24} strokeWidth={2} />
-              )}
+              <Menu size={24} strokeWidth={2} />
             </label>
           </div>
           <div className="drawer-side top-[48px]">

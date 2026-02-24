@@ -4,7 +4,7 @@ import Image from "next/image";
 import logo from "@/assets/web-logo.png";
 import { NavigationButton } from "@/components/ui/Button";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export default function NavbarGuest() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,11 +38,7 @@ export default function NavbarGuest() {
               htmlFor="my-drawer-1"
               className=" drawer-button text-gray-300 flex items-center gap-3 px-4 py-3 hover:bg-gray-200 rounded-xl w-full cursor-pointer"
             >
-              {isMenuOpen ? (
-                <X size={24} strokeWidth={2} />
-              ) : (
-                <Menu size={24} strokeWidth={2} />
-              )}
+              <Menu size={24} strokeWidth={2} />
             </label>
           </div>
           <div className="drawer-side top-[48px]">
