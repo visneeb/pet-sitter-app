@@ -25,7 +25,7 @@ export default function FilterSearchTypeList({
 
   return (
     <div className="flex flex-col gap-2 ">
-      <p className="style-body-2 ">Pet Type:</p>
+      <p className="style-body-2 text-gray-600">Pet Type:</p>
       <div className="flex flex-wrap justify-start gap-x-5 gap-y-2">
         {petType.map((pet) => {
           return (
@@ -36,7 +36,7 @@ export default function FilterSearchTypeList({
               <input
                 type="checkbox"
                 value={pet}
-                className="checkbox checked:bg-orange-400 checked:text-orange-800 checked:shadow-lg hover:bg-orange-200 hover:text-orange-800 hover:shadow-lg"
+                className="checkbox border-gray-200 text-white checked:text-white checked:bg-orange-500 checked:shadow-lg checked:border-orange-300 checked:outline-1 hover:border-orange-300  hover:shadow-lg"
                 checked={petTypes.includes(pet)}
                 onChange={handlePetTypeChange}
               />

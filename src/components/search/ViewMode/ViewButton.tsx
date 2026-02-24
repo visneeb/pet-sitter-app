@@ -1,9 +1,12 @@
 "use client";
 
 import { ViewMode } from "@/constants/viewMode";
+import { useScreenContext } from "@/contexts/ScreenContext";
+import cn from "@/utils/cn";
+
 
 // --- Styles ---
-const BASE_STYLE = "w-20 h-10 rounded-lg transition shadow-md hover:ring-4";
+const BASE_STYLE = "w-20 h-10 rounded-lg transition shadow- hover:ring-4";
 const getButtonStyle = (isActive: boolean) =>
   `${BASE_STYLE} ${
     isActive
@@ -27,10 +30,11 @@ export default function ViewButton({
   label,
   onClick,
 }: ViewButtonProps) {
+  const { isSmall } = useScreenContext();
   return (
     <button
       onClick={() => onClick(mode)}
-      className={getButtonStyle(currentView === mode)}
+      className={cn(getButtonStyle(currentView === mode),!isSmall &&"w-[165px]")}
       aria-pressed={currentView === mode}
       aria-label={`Switch to ${label} view`}
     >

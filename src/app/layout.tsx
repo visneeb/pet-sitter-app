@@ -19,7 +19,9 @@ export default function RootLayout({
       <body
         className={`antialiased`}
       >
-        <ScreenProvider>{children}</ScreenProvider>
+        <ScreenProvider>
+        {children}
+        </ScreenProvider>
       </body>
     </html>
   );

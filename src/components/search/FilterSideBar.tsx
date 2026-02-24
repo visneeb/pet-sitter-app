@@ -3,55 +3,27 @@ import FilterSearchTypeList from "./FilterSideBar/FilterSearchTypeList";
 import FilterRatingList from "./FilterSideBar/FilterRatingList";
 import FilterActions from "./FilterSideBar/FilterActions";
 import FilterExperience from "./FilterSideBar/FilterExperience";
-import { useState } from "react";
-import axios from "axios";
+import useFilterPetSitter from "@/hooks/pet-sitter-page/useFilterPetSitter";
+import { useScreenContext } from "@/contexts/ScreenContext";
 
 export default function FilterSidebar() {
-  const [searchText, setSearchText] = useState<string>("");
-  const [petTypes, setPetTypes] = useState<string[]>([]);
-  const [rating, setRating] = useState<number[]>([]);
-  const [experience, setExperience] = useState<string>("0-3 Years");
-
-  const handleSearchChange = (searchText: string) => {
-    setSearchText(searchText);
-  };
-
-  const handlePetTypesChange = (petTypes: string[]) => {
-    setPetTypes(petTypes);
-  };
-
-  const handleRatingChange = (newRating: number[]) => {
-    setRating(newRating);
-  };
-
-  const handleExperienceChange = (experience: string) => {
-    setExperience(experience);
-  };
-
-  const handleClear = () => {
-    setSearchText("");
-    setPetTypes([]);
-    setRating([]);
-    setExperience("0-3 Years"); // reset กลับ default
-  };
-
-  const handleSearch = async () => {
-    const query = {
-      searchText,
-      petTypes,
-      rating,
-      experience,
-    };
-    try {
-      const request = await axios.get("http://localhost:4000/petSitter");
-      console.log(request);
-    } catch (error) {
-      console.log(`${error}`);
-    }
-  };
-
+  const {
+    searchText,
+    petTypes,
+    rating,
+    experience,
+    handleSearchChange,
+    handlePetTypesChange,
+    handleRatingChange,
+    handleExperienceChange,
+    handleClear,
+    handleSearch,
+  } = useFilterPetSitter();
+  const { isSmall } = useScreenContext();
   return (
-    <aside className="sticky top-20 w-98 h-fit px-6 py-6 bg-white shadow-lg rounded-2xl flex flex-col gap-8">
+    <aside
+      className={`h-fit flex flex-col gap-8 ${isSmall ? "sticky top-20 w-98 bg-white shadow-lg rounded-2xl px-6 py-6" : "px-4 py-4"}`}
+    >
       <FilterSearchInput
         searchText={searchText}
         onSearchChange={handleSearchChange}

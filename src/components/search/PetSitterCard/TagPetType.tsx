@@ -1,4 +1,4 @@
-import { PetSitter } from "@/hooks/PetSitterPage/usePetSitterData";
+import { PetSitter } from "@/hooks/pet-sitter-page/usePetSitterData";
 import { Tag } from "../ui/Tag";
 
 export default function TagePetType({
@@ -6,8 +6,8 @@ export default function TagePetType({
 }: Readonly<{ sitter: PetSitter }>) {
   return (
     <div className="flex flex-wrap gap-2">
-      {sitter.petTypes.map((tag) => (
-        <Tag key={tag} label={tag} />
+      {sitter.petTypes.map((tag, index) => (
+        <Tag key={tag} label={tag} index={index} />
       ))}
     </div>
   );

@@ -1,10 +1,13 @@
 import Image from "next/image";
-import { PetSitter } from "@/hooks/PetSitterPage/usePetSitterData";
+import { PetSitter } from "@/hooks/pet-sitter-page/usePetSitterData";
+import { useScreenContext } from "@/contexts/ScreenContext";
+import cn from "@/utils/cn";
 
 export default function PlacePicture({
   sitter,
   priority = false,
 }: Readonly<{ sitter: PetSitter; priority?: boolean }>) {
+  const { isSmall } = useScreenContext();
   return (
     <div>
       <Image
@@ -13,7 +16,10 @@ export default function PlacePicture({
         width={245}
         height={184}
         priority={priority}
-        className="w-[245px] h-[184px] aspect-4/3 object-cover rounded-lg"
+        className={cn(
+          "object-cover rounded-lg aspect-4/3",
+          isSmall ? "w-[245px]" : "w-full",
+        )}
       />
     </div>
   );

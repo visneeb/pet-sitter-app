@@ -1,4 +1,4 @@
-import { useViewMode } from "@/hooks/PetSitterPage/useViewMode";
+import { useViewMode } from "@/hooks/pet-sitter-page/useViewMode";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const PaginationBar = () => {

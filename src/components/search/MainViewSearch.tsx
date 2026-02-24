@@ -6,7 +6,7 @@ export default function MainViewSearch() {
   // Read directly from URL. Default to 'list' if not found.
   const viewMode = searchParams?.get("view") || "list";
   return (
-    <main className="max-w-[850px] w-[850px] h-fit flex flex-col justify-start items-center rounded-2xl ">
+    <main className="max-w-[850px] w-full h-fit flex flex-col justify-start items-center rounded-2xl ">
       {viewMode === "list" ? <ListMode /> : <MapMode />}
     </main>
   );
