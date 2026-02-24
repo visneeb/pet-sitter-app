@@ -1,6 +1,4 @@
 import { ActionButton, NavigationButton } from "@/components/ui/Button";
-import { Input } from "@/components/ui/input/Input";
-import InputShowcase from "@/components/ui/input/InputShowcase";
 
 export default function Home() {
   return (
@@ -13,8 +11,6 @@ export default function Home() {
         <NavigationButton variant="secondary" href="/test">
           Go to Test Page
         </NavigationButton>
-
-        <InputShowcase/>
       </main>
     </div>
   );
