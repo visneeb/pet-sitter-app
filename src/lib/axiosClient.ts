@@ -8,8 +8,7 @@ if (!baseURL) {
 
 export const createApiInstance = (withAuth: boolean) => {
   const instance = axios.create({
-    baseURL,
-    withCredentials: withAuth,
+    baseURL
   });
 
   // private
