@@ -1,18 +1,37 @@
 "use client";
 
-import { FormProvider as RHFProvider, UseFormReturn } from "react-hook-form";
-import { ProfileFormValues } from "@/lib/validations/profileValidation";
+import * as React from "react";
+import {
+  FormProvider as RHFProvider,
+  UseFormReturn,
+  FieldValues,
+  SubmitHandler,
+} from "react-hook-form";
+import cn from "@/utils/cn";
 
-type Props = {
-  methods: UseFormReturn<ProfileFormValues>;
-  onSubmit: (e?: React.BaseSyntheticEvent) => void;
+type Props<T extends FieldValues> = {
+  methods: UseFormReturn<T>;
+  onSubmit: SubmitHandler<T>;
   children: React.ReactNode;
+  className?: string;
+  id?: string;
 };
 
-export function FormProvider({ methods, onSubmit, children }: Props) {
+export function FormProvider<T extends FieldValues>({
+  methods,
+  onSubmit,
+  children,
+  className,
+  id,
+}: Props<T>) {
   return (
     <RHFProvider {...methods}>
-      <form onSubmit={onSubmit} noValidate>
+      <form
+        id={id}
+        onSubmit={methods.handleSubmit(onSubmit)}
+        noValidate
+        className={cn("flex flex-col gap-6", className)}
+      >
         {children}
       </form>
     </RHFProvider>
