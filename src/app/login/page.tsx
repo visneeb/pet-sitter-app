@@ -10,6 +10,8 @@ import gmailIcon from "@/assets/icons/gg.svg";
 import { Input } from "@/components/ui/input";
 import { ActionButton } from "@/components/ui/Button";
 import { Password } from "@/components/ui/Input/Password";
+import { useRouter } from "next/navigation";
+import { publicApi } from "@/lib/publicApi";
 
 
 
@@ -27,20 +29,10 @@ function isEmailValid(email: string) {
   return v.includes("@") && v.endsWith(".com");
 }
 
-function ErrorIcon() {
-  return (
-    <span
-      aria-hidden="true"
-      className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white text-sm font-bold"
-    >
-      !
-    </span>
-  );
-}
-
 
 
 export default function LoginPage() {
+  const router = useRouter();
   const [values, setValues] = useState<FormValues>({
     email: "",
     password: "",
@@ -52,7 +44,9 @@ export default function LoginPage() {
     {}
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [serverSuccess, setServerSuccess] = useState("");
 
   function setField<K extends keyof FormValues>(key: K, value: FormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -86,21 +80,57 @@ export default function LoginPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSubmitting) return;
+  
     setIsSubmitting(true);
-
+    setServerError("");
+  
     setTouched({ email: true, password: true, remember: true });
-
+  
     const syncErrors = validateSync(values);
     if (Object.keys(syncErrors).length > 0) {
       setErrors(syncErrors);
       setIsSubmitting(false);
       return;
     }
-
-    // ✅ mock success
-    setIsSubmitting(false);
-
-    // TODO: call real login API here
+  
+    try {
+      const payload = {
+        email: values.email.trim(),
+        password: values.password,
+      };
+  
+      // ✅ endpoint อาจเป็น /auth/login หรือ /login (ขึ้นกับ backend)
+      const res = await publicApi.post("/auth/login", payload);
+  
+      // ✅ รองรับหลายรูปแบบ response ที่พบบ่อย
+      const accessToken =
+        res.data?.access_token || res.data?.accessToken || res.data?.token;
+  
+      if (!accessToken) {
+        throw new Error("Login succeeded but token was not returned.");
+      }
+  
+      // remember: true -> localStorage (อยู่ยาว)
+      // remember: false -> sessionStorage (ปิดแท็บแล้วหาย)
+      const storage = values.remember ? localStorage : sessionStorage;
+      storage.setItem("access_token", accessToken);
+  
+      // (optional) ถ้ามี user object
+      if (res.data?.user) storage.setItem("user", JSON.stringify(res.data.user));
+  
+      router.push("/"); // หรือ "/dashboard"
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Login failed";
+  
+      setServerError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const emailHasError = Boolean(touched.email && errors.email);
