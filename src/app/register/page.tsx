@@ -11,6 +11,7 @@ import { Input,InputPassword } from "@/components/ui/input";
 import { ActionButton } from "@/components/ui/Button";
 import { Password } from "@/components/ui/Input/Password";
 import { useRouter } from "next/navigation";
+import { publicApi } from "@/lib/publicApi";
 
 
 
@@ -58,7 +59,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState("");
   const [serverSuccess, setServerSuccess] = useState("");
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+  
   const [role, setRole] = useState<Role>("customer");
 
   const roleMap = {
@@ -146,33 +147,26 @@ export default function RegisterPage() {
     }
 
     try {
-      if (!API_BASE) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL");
-
-      const res = await fetch(`${API_BASE}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: values.email.trim(),
-          phone: values.phone.trim(),
-          password: values.password,
-          role: backendRole,
-        }),
+      const res = await publicApi.post("/auth/register", {
+        email: values.email.trim(),
+        phone: values.phone.trim(),
+        password: values.password,
+        role: backendRole,
       });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setServerError(data?.error || "Register failed");
-        setIsSubmitting(false);
-        return;
-      }
-
-      setServerSuccess("User registered successfully. Redirecting...");
+    
+      // ถ้า backend ส่ง message มา
+      setServerSuccess(res.data?.message || "User registered successfully. Redirecting...");
       setIsSubmitting(false);
-
       setTimeout(() => router.push("/login"), 1200);
     } catch (err: any) {
-      setServerError(err?.message || "Something went wrong");
+      // axios error จะอยู่ที่ err.response.data
+      const msg =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Register failed";
+    
+      setServerError(msg);
       setIsSubmitting(false);
     }
   }
