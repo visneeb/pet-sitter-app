@@ -18,7 +18,7 @@ export default function PlacePicture({
         priority={priority}
         className={cn(
           "object-cover rounded-lg aspect-4/3",
-          isSmall ? "w-[245px]" : "w-full",
+          isSmall ? "w-full h-[100px]" : "w-full h-[100px]",
         )}
       />
     </div>

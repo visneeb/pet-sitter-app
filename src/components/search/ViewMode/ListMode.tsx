@@ -7,7 +7,7 @@ export default function ListMode() {
 
   return (
     <section className="flex flex-col gap-6 w-full">
-      <div className="grid grid-cols-1 gap-4">
+      <div className="w-full grid grid-cols-1 gap-4 justify-items-center">
         {petSitterData.length === 0 ? (
           <Loading />
         ) : (

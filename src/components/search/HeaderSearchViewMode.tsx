@@ -9,13 +9,14 @@ import { useScreenContext } from "@/contexts/ScreenContext";
 // --- Main Component ---
 export default function HeaderSearchViewMode() {
   const { currentView, changeView } = useViewMode();
-  const { isSmall} = useScreenContext();
+  const { isSmall, isMedium, isLarge } = useScreenContext();
+  const isWebView = isSmall && isMedium && isLarge;
   return (
     <header
       className={cn(
-        isSmall
-          ? `flex flex-row justify-between items-center w-full h-22 px-[92px]`
-          : `flex flex-col justify-center items-center w-full`,
+        isWebView
+          ? `flex flex-row justify-between items-center w-full h-22 px-[92px] `
+          : `flex flex-col justify-center items-center w-full gap-3`,
       )}
     >
       <h3

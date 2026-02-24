@@ -30,11 +30,12 @@ export default function ViewButton({
   label,
   onClick,
 }: ViewButtonProps) {
-  const { isSmall } = useScreenContext();
+    const { isSmall, isMedium, isLarge } = useScreenContext();
+  const isWebView = isSmall && isMedium && isLarge;
   return (
     <button
       onClick={() => onClick(mode)}
-      className={cn(getButtonStyle(currentView === mode),!isSmall &&"w-[165px]")}
+      className={cn(getButtonStyle(currentView === mode),!isWebView &&"w-[165px]")}
       aria-pressed={currentView === mode}
       aria-label={`Switch to ${label} view`}
     >

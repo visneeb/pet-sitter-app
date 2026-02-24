@@ -13,15 +13,16 @@ import TestResponsive from "@/components/search/testResponsive";
 import cn from "@/utils/cn";
 
 export default function SearchPage() {
-  const { isSmall } = useScreenContext();
+  const { isSmall,isMedium,isLarge } = useScreenContext();
+  const isWebView= isSmall && isMedium && isLarge;
   return (
-    <div className="min-h-screen bg-[#FAFAFB] text-gray-900 flex flex-col justify-between items-start">
+    <div className="min-h-[375px] bg-[#FAFAFB] text-gray-900 flex flex-col justify-between items-start">
       <Suspense fallback={<Loading />}>
-        {/* <TestResponsive /> */}
+        <TestResponsive />
         <div className="w-full max-w-[1440px] self-center flex flex-col gap-6">
           {/* Desktop Layout */}
           <div
-            className={cn("hidden", isSmall && "flex flex-col gap-6 w-full")}
+            className={cn("hidden", isWebView && "flex flex-col gap-6 w-full")}
           >
             <HeaderSearchViewMode />
             <div className="w-full flex justify-center px-[92px] gap-9">
@@ -33,8 +34,8 @@ export default function SearchPage() {
           {/* Mobile Layout */}
           <div
             className={cn(
-              "flex flex-col gap-6 w-full px-4",
-              isSmall && "hidden",
+              "flex flex-col items-center gap-6 w-full px-4 ",
+              isWebView && "hidden",
             )}
           >
             <FilterSidebar />

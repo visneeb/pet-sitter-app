@@ -5,6 +5,7 @@ import FilterActions from "./FilterSideBar/FilterActions";
 import FilterExperience from "./FilterSideBar/FilterExperience";
 import useFilterPetSitter from "@/hooks/pet-sitter-page/useFilterPetSitter";
 import { useScreenContext } from "@/contexts/ScreenContext";
+import cn from "@/utils/cn";
 
 export default function FilterSidebar() {
   const {
@@ -19,10 +20,16 @@ export default function FilterSidebar() {
     handleClear,
     handleSearch,
   } = useFilterPetSitter();
-  const { isSmall } = useScreenContext();
+  const { isSmall, isMedium, isLarge } = useScreenContext();
+  const isWebView = isSmall && isMedium && isLarge;
   return (
     <aside
-      className={`h-fit flex flex-col gap-8 ${isSmall ? "sticky top-20 w-98 bg-white shadow-lg rounded-2xl px-6 py-6" : "px-4 py-4"}`}
+      className={cn(
+        "h-fit flex flex-col gap-8",
+        isWebView
+          ? "sticky top-20 w-98 bg-white shadow-lg rounded-2xl px-6 py-6"
+          : "w-[375px] px-4 py-4",
+      )}
     >
       <FilterSearchInput
         searchText={searchText}

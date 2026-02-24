@@ -11,16 +11,19 @@ export default function PetSitterCard({
   sitter,
   priority = false,
 }: Readonly<{ sitter: PetSitter; priority?: boolean }>) {
-  const { isSmall } = useScreenContext();
+  const { isSmall, isMedium } = useScreenContext();
+  const isWebView = isSmall && isMedium;
   return (
     <div
       className={cn(
-        "p-4  justify-start rounded-xl overflow-hidden shadow-md border border-gray-100 hover:shadow-xl hover:border-orange-500 transition-shadow duration-300",
-        isSmall ? "h-54 flex flex-row gap-10" : "h-auto flex flex-col gap-4",
+        "p-4 justify-start rounded-xl overflow-hidden shadow-md border border-gray-100 hover:shadow-xl hover:border-orange-500 transition-shadow duration-300",
+        isWebView
+          ? "h-54 flex flex-row gap-10 w-full"
+          : "w-[335px] min-w-[335px] min-h-[268px] flex flex-col gap-4",
       )}
     >
       <PlacePicture sitter={sitter} priority={priority} />
-      <div className="flex flex-col justify-between flex-1 min-w-0">
+      <div className="flex flex-col justify-between flex-1 min-w-0 gap-2">
         <PetSitterInfo sitter={sitter} />
         <LocationPetSitter sitter={sitter} />
         <TagPetType sitter={sitter} />
