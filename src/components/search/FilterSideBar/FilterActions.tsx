@@ -1,18 +1,10 @@
 import { ActionButton } from "@/components/ui/Button";
 interface FilterActionsProps {
-  searchText: string;
-  petTypes: string[];
-  rating: number[];
-  experience: string;
   onClear: () => void;
   onSearch: () => void;
 }
 
 export default function FilterActions({
-  searchText,
-  petTypes,
-  rating,
-  experience,
   onClear,
   onSearch,
 }: FilterActionsProps) {

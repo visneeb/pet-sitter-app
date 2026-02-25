@@ -54,7 +54,7 @@ function useScreen(): ScreenSize {
       );
     };
   }, []);
-    
+
   return screen;
 }
 

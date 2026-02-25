@@ -3,7 +3,7 @@ import FilterSearchTypeList from "./FilterSideBar/FilterSearchTypeList";
 import FilterRatingList from "./FilterSideBar/FilterRatingList";
 import FilterActions from "./FilterSideBar/FilterActions";
 import FilterExperience from "./FilterSideBar/FilterExperience";
-import useFilterPetSitter from "@/hooks/pet-sitter-page/useFilterPetSitter";
+import { usePetSitterSearch } from "@/contexts/PetSitterSearchContext";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
 
@@ -19,9 +19,10 @@ export default function FilterSidebar() {
     handleExperienceChange,
     handleClear,
     handleSearch,
-  } = useFilterPetSitter();
+  } = usePetSitterSearch();
   const { isSmall, isMedium, isLarge } = useScreenContext();
   const isWebView = isSmall && isMedium && isLarge;
+
   return (
     <aside
       className={cn(
@@ -45,14 +46,7 @@ export default function FilterSidebar() {
         experience={experience}
         onExperienceChange={handleExperienceChange}
       />
-      <FilterActions
-        searchText={searchText}
-        petTypes={petTypes}
-        rating={rating}
-        experience={experience}
-        onClear={handleClear}
-        onSearch={handleSearch}
-      />
+      <FilterActions onClear={handleClear} onSearch={handleSearch} />
     </aside>
   );
 }

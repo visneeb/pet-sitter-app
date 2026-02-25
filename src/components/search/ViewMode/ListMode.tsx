@@ -1,17 +1,33 @@
-import { usePetSitterData } from "../../../hooks/pet-sitter-page/usePetSitterData";
+import cn from "@/utils/cn";
+
 import PetSitterCard from "../PetSitterCard";
-import Loading from "@/components/common/loading/loading";
+import PetSitterCardSkeleton from "../PetSitterCard/PetSitterCardSkeleton";
+import { useScreenContext } from "@/contexts/ScreenContext";
+import { usePetSitterSearch } from "@/contexts/PetSitterSearchContext";
 
 export default function ListMode() {
-  const petSitterData = usePetSitterData();
+  const { petSitters, isLoading } = usePetSitterSearch();
+  const { isLarge, isXLarge } = useScreenContext();
+  const isWebViewMini = isLarge && !isXLarge;
 
   return (
     <section className="flex flex-col gap-6 w-full">
-      <div className="w-full grid grid-cols-1 gap-4 justify-items-center">
-        {petSitterData.length === 0 ? (
-          <Loading />
+      <div
+        className={cn(
+          "w-full grid grid-cols-1 gap-4 justify-items-center items-center",
+          isWebViewMini && "justify-start grid-cols-1",
+        )}
+      >
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <PetSitterCardSkeleton key={i} />
+          ))
+        ) : petSitters.length === 0 ? (
+          <p className="text-gray-400 text-center py-12 style-body-1">
+            No pet sitters found matching your criteria.
+          </p>
         ) : (
-          petSitterData.map((sitter, index) => (
+          petSitters.map((sitter, index) => (
             <PetSitterCard
               key={sitter.id}
               sitter={sitter}
