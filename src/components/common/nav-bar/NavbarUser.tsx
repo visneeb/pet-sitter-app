@@ -15,11 +15,14 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function NavbarUser() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
-  const handleLogout = () => {
+  const { signOut } = useAuth();
+  const handleLogout = async () => {
+    await signOut();
     router.push("/");
   };
   return (
