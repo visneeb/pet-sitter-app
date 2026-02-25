@@ -192,7 +192,6 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -203,8 +202,6 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px white inset !important;
-
   -webkit-text-fill-color: #000 !important;
-
   transition: background-color 5000s ease-in-out 0s;
 }
