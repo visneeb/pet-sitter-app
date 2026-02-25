@@ -15,22 +15,28 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useScreenContext } from "@/contexts/ScreenContext";
 
 export default function NavbarUser() {
   const router = useRouter();
   const { signOut } = useAuth();
+  const { isMedium } = useScreenContext();
   const handleLogout = async () => {
     await signOut();
     router.push("/");
   };
   return (
-    <div className="relative flex items-center justify-between bg-white w-full md:h-[80px] px-[20px] md:px-[80px] style-body-2">
+    <div
+      className={`relative flex items-center justify-between bg-white w-full px-[20px] style-body-2 ${
+        isMedium ? "h-[80px] px-[80px]" : ""
+      }`}
+    >
       <div>
         <Link href="/">
           <Image
             src={logo}
             alt="Logo"
-            className="h-[24px] md:h-[40px] w-auto"
+            className={isMedium ? "h-[40px] w-auto" : "h-[24px] w-auto"}
           />
         </Link>
       </div>
@@ -38,77 +44,88 @@ export default function NavbarUser() {
         <div>
           <Link
             href="/notification"
-            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-400 md:text-gray-300 md:hover:bg-gray-200 transition"
+            className={`flex items-center justify-center w-12 h-12 transition ${
+              isMedium
+                ? "bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200"
+                : "text-gray-400"
+            }`}
           >
-            <Bell className="md:w-6 h-6 " />
+            <Bell className="w-6 h-6" />
           </Link>
         </div>
         <div>
           <Link
             href="/message"
-            className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-400 md:text-gray-300 md:hover:bg-gray-200 transition"
+            className={`flex items-center justify-center w-12 h-12 transition ${
+              isMedium
+                ? "bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200"
+                : "text-gray-400"
+            }`}
           >
             <MessagesSquare className="w-6 h-6" />
           </Link>
         </div>
-        <div className="hidden md:block dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="avatar cursor-pointer">
-            <Link
-              href="/profile"
-              className="flex items-center justify-center w-12 h-12 md:bg-gray-100 md:rounded-full text-gray-400 md:text-gray-300 md:hover:bg-gray-200 transition"
-            >
-              <UserRound className="w-6 h-6" />
-            </Link>
-          </div>
-          <ul
-            tabIndex={0}
-            className="dropdown-content bg-white rounded-2xl shadow-lg z-50 w-56 p-2 mt-2"
-          >
-            <li>
+        {isMedium && (
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="avatar cursor-pointer">
               <Link
                 href="/profile"
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition"
               >
-                <User className="text-gray-600" />
-                <span className="text-black style-body-2">Profile</span>
+                <UserRound className="w-6 h-6" />
               </Link>
-            </li>
-            <li>
-              <Link
-                href="/my-pet"
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
-              >
-                <PawPrint className="text-gray-600" />
-                <span className="text-black style-body-2">Your Pet</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/booking-history"
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
-              >
-                <History className="text-gray-600" />
-                <span className="text-black style-body-2">Booking History</span>
-              </Link>
-            </li>
-            <div className="divider my-1"></div>
-            <li>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl w-full cursor-pointer"
-              >
-                <LogOut className="text-gray-600" />
-                <span className="text-black style-body-2">Log Out</span>
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div className="drawer md:hidden">
+            </div>
+            <ul
+              tabIndex={0}
+              className="dropdown-content bg-white rounded-2xl shadow-lg z-50 w-56 p-2 mt-2"
+            >
+              <li>
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <User className="text-gray-600" />
+                  <span className="text-black style-body-2">Profile</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/my-pet"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <PawPrint className="text-gray-600" />
+                  <span className="text-black style-body-2">Your Pet</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/booking-history"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <History className="text-gray-600" />
+                  <span className="text-black style-body-2">Booking History</span>
+                </Link>
+              </li>
+              <div className="divider my-1"></div>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl w-full cursor-pointer"
+                >
+                  <LogOut className="text-gray-600" />
+                  <span className="text-black style-body-2">Log Out</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
+        {!isMedium && (
+          <div className="drawer">
           <input id="my-drawer-1" type="checkbox" className="drawer-toggle" />
           <div className="drawer-content">
             <label
               htmlFor="my-drawer-1"
-              className=" drawer-button text-gray-600 flex items-center gap-3 px-4 py-3 md:hover:bg-gray-200 rounded-xl w-full cursor-pointer"
+              className="drawer-button text-gray-600 flex items-center gap-3 px-4 py-3 hover:bg-gray-200 rounded-xl w-full cursor-pointer"
             >
               <Menu size={24} strokeWidth={2} />
             </label>
@@ -157,11 +174,12 @@ export default function NavbarUser() {
             </ul>
           </div>
         </div>
-        <div className="hidden md:block ">
+        )}
+        {isMedium && (
           <NavigationButton variant="primary" href="/search">
             Find A Pet Sitter
           </NavigationButton>
-        </div>
+        )}
       </div>
     </div>
   );
