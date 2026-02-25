@@ -14,11 +14,9 @@ import {
   UserRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function NavbarUser() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const { signOut } = useAuth();
   const handleLogout = async () => {
@@ -107,10 +105,7 @@ export default function NavbarUser() {
         </div>
         <div className="drawer md:hidden">
           <input id="my-drawer-1" type="checkbox" className="drawer-toggle" />
-          <div
-            className="drawer-content"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
+          <div className="drawer-content">
             <label
               htmlFor="my-drawer-1"
               className=" drawer-button text-gray-600 flex items-center gap-3 px-4 py-3 md:hover:bg-gray-200 rounded-xl w-full cursor-pointer"

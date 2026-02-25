@@ -3,11 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/web-logo.png";
 import { NavigationButton } from "@/components/ui/Button";
-import { useState } from "react";
 import { Menu } from "lucide-react";
 
 export default function NavbarGuest() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <div className="relative flex items-center justify-between bg-white w-full md:h-[80px] px-[20px] md:px-[80px] style-body-2">
       <div>
@@ -30,10 +28,7 @@ export default function NavbarGuest() {
         </div>
         <div className="drawer md:hidden">
           <input id="my-drawer-1" type="checkbox" className="drawer-toggle" />
-          <div
-            className="drawer-content"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
+          <div className="drawer-content">
             <label
               htmlFor="my-drawer-1"
               className=" drawer-button text-gray-300 flex items-center gap-3 px-4 py-3 hover:bg-gray-200 rounded-xl w-full cursor-pointer"
