@@ -2,18 +2,19 @@
 
 import { FieldValues, Path, useFormContext } from "react-hook-form";
 import { FormField } from "../ui/form/FormField";
-import { FormLabel } from "../ui/form/FormLabel";
-import { FormMessage } from "../ui/form/FormMessage";
-import { FormDescription } from "../ui/form/FormDescription";
 import { FormControl } from "../ui/form/FormControl";
-import { Input } from "../ui/input/Input";
+import { Input, InputProps } from "../ui/input/Input";
+import { FormLabel } from "../ui/form/FormLabel";
+import { FormDescription } from "../ui/form/FormDescription";
+import { FormMessage } from "../ui/form/FormMessage";
+import { get } from "react-hook-form";
 
-type Props<T extends FieldValues> = {
+export type RHFInputProps<T extends FieldValues> = {
   name: Path<T>;
-  label: string;
+  label: React.ReactNode;
   required?: boolean;
   description?: string;
-} & React.ComponentPropsWithoutRef<"input">;
+} & Omit<InputProps, "name">;
 
 export function RHFInput<T extends FieldValues>({
   name,
@@ -21,30 +22,42 @@ export function RHFInput<T extends FieldValues>({
   required,
   description,
   ...props
-}: Props<T>) {
+}: RHFInputProps<T>) {
   const {
     register,
     formState: { errors },
   } = useFormContext<T>();
 
-  const error = errors[name];
-
+  const error = get(errors, name);
+  const errorMessage = error?.message?.toString();
+  console.log("FIELD:", name);
+  console.log("ERRORS:", errors);
+  console.log("THIS FIELD ERROR:", error);
   return (
-    <FormField error={!!error}>
+    <FormField
+      error={!!error}
+      errorMessage={errorMessage}
+      disabled={props.disabled}
+      name={name}
+    >
       <FormLabel>
         {label}
         {required && <span>*</span>}
       </FormLabel>
 
-      <FormControl asChild>
-        <Input {...register(name)} {...props} />
+      <FormControl>
+        <Input
+          {...register(name, {
+            required: required ? "This field is required" : false,
+          })}
+          {...props}
+          error={!!error}
+        />
       </FormControl>
 
-      {description && !error && (
-        <FormDescription>{description}</FormDescription>
-      )}
+      {description && <FormDescription>{description}</FormDescription>}
 
-      <FormMessage>{error?.message as string}</FormMessage>
+      <FormMessage />
     </FormField>
   );
 }

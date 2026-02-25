@@ -1,7 +1,20 @@
 "use client";
 
-export function FormDescription({ children }: { children?: React.ReactNode }) {
-  if (!children) return null;
+import { useFormField } from "./FormField";
+import cn from "@/utils/cn";
+import { FormDescriptionProps } from "@/types/formType";
 
-  return <p className="style-body-3 text-muted-foreground">{children}</p>;
+export function FormDescription({ children, className }: FormDescriptionProps) {
+  const { descriptionId, error } = useFormField();
+
+  if (!children || error) return null;
+
+  return (
+    <p
+      id={descriptionId}
+      className={cn("style-body-3 text-gray-500", className)}
+    >
+      {children}
+    </p>
+  );
 }

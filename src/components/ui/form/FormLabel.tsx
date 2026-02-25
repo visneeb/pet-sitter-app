@@ -4,20 +4,22 @@ import * as React from "react";
 import cn from "@/utils/cn";
 import { useFormField } from "./FormField";
 
-export function FormLabel({
-  children,
-  className,
-}: React.LabelHTMLAttributes<HTMLLabelElement>) {
-  const { id, disabled } = useFormField();
+type Props = Omit<React.LabelHTMLAttributes<HTMLLabelElement>, "htmlFor"> & {
+  children: React.ReactNode;
+};
+export function FormLabel({ children, className, ...props }: Props) {
+  const { inputId, disabled } = useFormField();
+  const isDisabled = Boolean(disabled);
 
   return (
     <label
-      htmlFor={id}
+      htmlFor={inputId}
       className={cn(
-        "block style-label transition-colors",
-        disabled && "text-gray-400 cursor-not-allowed",
+        "block style-label text-black transition-colors",
+        isDisabled && "text-gray-400 cursor-not-allowed",
         className,
       )}
+      {...props}
     >
       {children}
     </label>

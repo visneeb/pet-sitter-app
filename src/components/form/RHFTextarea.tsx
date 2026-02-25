@@ -1,20 +1,25 @@
 "use client";
 
 import { FieldValues, Path, useFormContext } from "react-hook-form";
-import { Textarea } from "../ui/inputs/Textarea";
 import { FormField } from "../ui/form/FormField";
-import { FormLabel } from "../ui/form/FormLabel";
-import { FormMessage } from "../ui/form/FormMessage";
 import { FormControl } from "../ui/form/FormControl";
+import { FormMessage } from "../ui/form/FormMessage";
+import { FormDescription } from "../ui/form/FormDescription";
+import { Textarea } from "../ui/input/CustomTextarea";
 
 type Props<T extends FieldValues> = {
   name: Path<T>;
   label: string;
-};
+  required?: boolean;
+  description?: string;
+} & React.ComponentPropsWithoutRef<"textarea">;
 
 export function RHFTextarea<T extends FieldValues>({
   name,
   label,
+  required,
+  description,
+  ...props
 }: Props<T>) {
   const {
     register,
@@ -25,13 +30,23 @@ export function RHFTextarea<T extends FieldValues>({
 
   return (
     <FormField error={!!error}>
-      <FormLabel>{label}</FormLabel>
+      <label className="style-label text-black">
+        {label}
+        {required && <span>*</span>}
+      </label>
 
-      <FormControl asChild>
-        <Textarea {...register(name)} />
+      <FormControl>
+        <Textarea
+          {...register(name, {
+            required: required ? `${label} is required` : false,
+          })}
+          {...props}
+        />
       </FormControl>
 
-      <FormMessage>{error?.message as string}</FormMessage>
+      {description && <FormDescription>{description}</FormDescription>}
+
+      <FormMessage />
     </FormField>
   );
 }

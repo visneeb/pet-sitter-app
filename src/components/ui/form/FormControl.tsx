@@ -3,31 +3,42 @@
 import * as React from "react";
 import cn from "@/utils/cn";
 import { useFormField } from "./FormField";
+import { AlertCircle } from "lucide-react";
+import { FormControlProps } from "@/types/formType";
 
-type Props = React.ComponentPropsWithoutRef<"input"> & {
-  asChild?: boolean;
-  children?: React.ReactElement;
-};
+export function FormControl({
+  children,
+  className,
+  inputClassName,
+  noErrorIcon,
+}: FormControlProps) {
+  const { inputId, descriptionId, messageId, error, disabled } = useFormField();
 
-export function FormControl({ asChild, children, className, ...props }: Props) {
-  const { id, error, disabled } = useFormField();
-
-  if (asChild && children) {
-    return React.cloneElement(children, {
-      id,
-      disabled,
-      "aria-invalid": error,
-      className: cn(children.props.className, className),
-    });
-  }
+  const child = React.Children.only(children) as React.ReactElement<any>;
 
   return (
-    <input
-      id={id}
-      disabled={disabled}
-      aria-invalid={error}
-      className={className}
-      {...props}
-    />
+    <div className={cn("relative", className)}>
+      {React.cloneElement(child, {
+        id: child.props.id ?? inputId,
+        disabled: child.props.disabled ?? disabled,
+        "aria-invalid":
+          child.props["aria-invalid"] ?? (error ? true : undefined),
+        "aria-describedby":
+          child.props["aria-describedby"] ??
+          (error ? messageId : descriptionId),
+        className: cn(
+          child.props.className,
+          inputClassName,
+          error && "border-red pr-10",
+        ),
+      })}
+
+      {error && !noErrorIcon && (
+        <AlertCircle
+          size={18}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-red pointer-events-none"
+        />
+      )}
+    </div>
   );
 }

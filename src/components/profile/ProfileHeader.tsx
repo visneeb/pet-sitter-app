@@ -30,7 +30,7 @@ export function PetSitterProfileHeader({
   leftAction?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center pr-8">
+    <div className="flex items-center pr-8 justify-between">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
           {leftAction}

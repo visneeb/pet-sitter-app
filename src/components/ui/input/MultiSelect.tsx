@@ -16,6 +16,7 @@ type Props = {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  hasError?: boolean; // Add error prop
 };
 
 export function MultiSelect({
@@ -25,6 +26,7 @@ export function MultiSelect({
   placeholder = "Select...",
   disabled,
   className,
+  hasError,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -77,7 +79,10 @@ export function MultiSelect({
           return (
             <span
               key={val}
-              className="bg-gray-200 text-sm px-2 py-1 rounded-md"
+              className={cn(
+                "style-body-3 rounded-full px-4 py-1 text-orange-600 bg-orange-100 hover:bg-orange-200",
+                hasError && "border-red bg-red-50 text-red-700", // Use hasError prop
+              )}
             >
               {option?.label}
             </span>
@@ -97,8 +102,8 @@ export function MultiSelect({
                 type="button"
                 onClick={() => toggleValue(option.value)}
                 className={cn(
-                  "w-full text-left px-3 py-2 text-sm hover:bg-gray-100",
-                  selected && "bg-gray-100 font-medium",
+                  "w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-100",
+                  selected && "bg-gray-100",
                 )}
               >
                 {option.label}

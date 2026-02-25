@@ -1,11 +1,16 @@
 "use client";
 
 import { useFormField } from "./FormField";
+import cn from "@/utils/cn";
 
-export function FormMessage({ children }: { children?: React.ReactNode }) {
-  const { error } = useFormField();
+export function FormMessage({ className }: { className?: string }) {
+  const { messageId, error, errorMessage } = useFormField();
 
-  if (!error || !children) return null;
+  if (!error) return null;
 
-  return <p className="text-red style-body-3">{children}</p>;
+  return (
+    <p id={messageId} className={cn("style-body-3 text-red", className)}>
+      {errorMessage}
+    </p>
+  );
 }

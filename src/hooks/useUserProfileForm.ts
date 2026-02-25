@@ -5,54 +5,36 @@ import {
   ProfileFormValues,
   validateProfile,
 } from "@/lib/validations/profileValidation";
+import { createResolver } from "@/lib/form/createResolver";
 
-export function useProfileForm() {
+export function useUserProfileForm() {
   const methods = useForm<ProfileFormValues>({
     mode: "onSubmit",
+    resolver: createResolver(validateProfile),
     defaultValues: {
       name: "",
       email: "",
       phone: "",
+      profile_image: "",
     },
   });
 
   const {
-    handleSubmit,
     setError,
-    clearErrors,
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    clearErrors();
-
-    const allErrors: Partial<Record<keyof ProfileFormValues, string>> = {};
-
-    // Client validation
-    const validationErrors = validateProfile(data);
-    Object.assign(allErrors, validationErrors);
-
-    // Call server only if email has no client error
-    if (!validationErrors.email) {
-      try {
-        await fakeApiCall(data);
-      } catch (err: any) {
-        allErrors.email = err.message;
-      }
-    }
-
-    if (Object.keys(allErrors).length > 0) {
-      Object.entries(allErrors).forEach(([field, message]) => {
-        setError(field as keyof ProfileFormValues, {
-          type: "manual",
-          message: message as string,
-        });
+  const onSubmit = async (data: ProfileFormValues) => {
+    try {
+      await fakeApiCall(data);
+      alert("Profile updated successfully!");
+    } catch (err: any) {
+      setError("email", {
+        type: "server",
+        message: err.message,
       });
-      return;
     }
-
-    alert("Profile updated successfully!");
-  });
+  };
 
   return {
     methods,
@@ -60,11 +42,10 @@ export function useProfileForm() {
     isSubmitting,
   };
 }
-
 async function fakeApiCall(data: ProfileFormValues) {
   await new Promise((r) => setTimeout(r, 1500));
 
-  const email = data.email.trim().toLowerCase();
+  const email = data.email?.trim().toLowerCase() ?? "";
 
   if (email === "taken@email.com") {
     throw new Error("Email already exists");
