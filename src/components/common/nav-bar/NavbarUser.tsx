@@ -68,12 +68,9 @@ export default function NavbarUser() {
         {isMedium && (
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="avatar cursor-pointer">
-              <Link
-                href="/profile"
-                className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition"
-              >
+              <div className="flex items-center justify-center w-12 h-12  bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition">
                 <UserRound className="w-6 h-6" />
-              </Link>
+              </div>
             </div>
             <ul
               tabIndex={0}
@@ -103,7 +100,7 @@ export default function NavbarUser() {
                   className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
                 >
                   <History className="text-gray-600" />
-                  <span className="text-black style-body-2">Booking History</span>
+                  <span className="text-black style-body-2">History</span>
                 </Link>
               </li>
               <div className="divider my-1"></div>
@@ -121,59 +118,59 @@ export default function NavbarUser() {
         )}
         {!isMedium && (
           <div className="drawer">
-          <input id="my-drawer-1" type="checkbox" className="drawer-toggle" />
-          <div className="drawer-content">
-            <label
-              htmlFor="my-drawer-1"
-              className="drawer-button text-gray-600 flex items-center gap-3 px-4 py-3 hover:bg-gray-200 rounded-xl w-full cursor-pointer"
-            >
-              <Menu size={24} strokeWidth={2} />
-            </label>
+            <input id="my-drawer-1" type="checkbox" className="drawer-toggle" />
+            <div className="drawer-content">
+              <label
+                htmlFor="my-drawer-1"
+                className="drawer-button text-gray-600 flex items-center gap-3 px-4 py-3 hover:bg-gray-200 rounded-xl w-full cursor-pointer"
+              >
+                <Menu size={24} strokeWidth={2} />
+              </label>
+            </div>
+            <div className="drawer-side top-[48px]">
+              <label
+                htmlFor="my-drawer-1"
+                aria-label="close sidebar"
+                className="drawer-overlay"
+              ></label>
+              <ul className="gap-[16px] px-[16px] py-[40px] menu bg-white h-full w-full p-4 ">
+                <li className="text-black style-body-1 hover:bg-gray-50">
+                  <Link href="/profile">
+                    <UserRound />
+                    Profile
+                  </Link>
+                </li>
+                <li className="text-black style-body-1 hover:bg-gray-50">
+                  <Link href="/my-pet">
+                    <PawPrint />
+                    Your Pet
+                  </Link>
+                </li>
+                <li className="text-black style-body-1 hover:bg-gray-50">
+                  <Link href="/booking-history">
+                    <History />
+                    Booking History
+                  </Link>
+                </li>
+                <div className="border-t border-gray-200  my-1"></div>
+                <li className="text-black style-body-1 hover:bg-gray-50">
+                  <button onClick={handleLogout}>
+                    <LogOut />
+                    Log out
+                  </button>
+                </li>
+                <li className="w-full block">
+                  <NavigationButton
+                    variant="primary"
+                    href="/search"
+                    className="w-full"
+                  >
+                    Find A Pet Sitter
+                  </NavigationButton>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="drawer-side top-[48px]">
-            <label
-              htmlFor="my-drawer-1"
-              aria-label="close sidebar"
-              className="drawer-overlay"
-            ></label>
-            <ul className="gap-[16px] px-[16px] py-[40px] menu bg-white h-full w-full p-4 ">
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/profile">
-                  <UserRound />
-                  Profile
-                </Link>
-              </li>
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/my-pet">
-                  <PawPrint />
-                  Your Pet
-                </Link>
-              </li>
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/booking-history">
-                  <History />
-                  Booking History
-                </Link>
-              </li>
-              <div className="border-t border-gray-200  my-1"></div>
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <button onClick={handleLogout}>
-                  <LogOut />
-                  Log out
-                </button>
-              </li>
-              <li className="w-full block">
-                <NavigationButton
-                  variant="primary"
-                  href="/search"
-                  className="w-full"
-                >
-                  Find A Pet Sitter
-                </NavigationButton>
-              </li>
-            </ul>
-          </div>
-        </div>
         )}
         {isMedium && (
           <NavigationButton variant="primary" href="/search">
