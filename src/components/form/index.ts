@@ -16,9 +16,6 @@ export { RHFAvatarUpload as AvatarUpload } from "./image-upload/RHFAvatarUpload"
 export { MultiImageUpload as MultiImageUpload } from "./image-upload/MultiImageUpload";
 export { AvatarUpload as BasicAvatarUpload } from "./image-upload/AvatarUpload";
 
-// Example
-export { FormExample as FormDemo } from "./FormExample";
-
 // Also export original names for backward compatibility
 export { FormProvider } from "./FormProvider";
 export { RHFInput } from "./RHFInput";

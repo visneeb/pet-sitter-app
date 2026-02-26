@@ -29,7 +29,7 @@ export function RHFTextarea<T extends FieldValues>({
   const error = errors[name];
 
   return (
-    <FormField error={!!error}>
+    <FormField name={name} error={!!error}>
       <label className="style-label text-black">
         {label}
         {required && <span>*</span>}

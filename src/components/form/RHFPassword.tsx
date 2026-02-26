@@ -43,6 +43,8 @@ export function RHFPassword<T extends FieldValues>({
             required: required ? "Password is required" : false,
           })}
           {...props}
+          autoComplete="new-password"
+          error={error}
         />
       </FormControl>
 

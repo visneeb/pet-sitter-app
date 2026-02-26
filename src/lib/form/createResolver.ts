@@ -25,7 +25,7 @@ export function createResolver<T extends FieldValues>(
     }
 
     const result: ResolverResult<T> = {
-      values: typedValues,
+      values: {},
       errors: {},
     };
     return result;
