@@ -30,9 +30,6 @@ export function RHFInput<T extends FieldValues>({
 
   const error = get(errors, name);
   const errorMessage = error?.message?.toString();
-  console.log("FIELD:", name);
-  console.log("ERRORS:", errors);
-  console.log("THIS FIELD ERROR:", error);
   return (
     <FormField
       error={!!error}
@@ -51,6 +48,7 @@ export function RHFInput<T extends FieldValues>({
             required: required ? "This field is required" : false,
           })}
           {...props}
+          autoComplete="on"
           error={!!error}
         />
       </FormControl>

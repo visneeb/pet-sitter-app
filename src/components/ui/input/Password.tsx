@@ -20,7 +20,7 @@ export const Password = React.forwardRef<HTMLInputElement, Props>(
           ref={ref}
           type={show ? "text" : "password"}
           error={hasError}
-          className={cn("pr-24", className)} // 👈 ลดจาก 28 ให้พอดี layout
+          className={cn("pr-24", className)}
           {...props}
         />
 

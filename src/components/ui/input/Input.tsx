@@ -5,7 +5,7 @@ import cn from "@/utils/cn";
 import { baseInputStyles } from "./inputStyle";
 
 export type InputProps = React.ComponentPropsWithoutRef<"input"> & {
-  error?: boolean;
+  error?: string | boolean;
   rightAction?: React.ReactNode;
 };
 
@@ -18,7 +18,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className={cn(
             baseInputStyles,
             error && "border-red",
-            rightAction && "pr-10", 
+            rightAction && "pr-10",
             className,
           )}
           {...props}
