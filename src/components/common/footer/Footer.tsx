@@ -5,8 +5,6 @@ import Image from "next/image";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
 
-import { useScreenContext } from "@/contexts/ScreenContext";
-import cn from "@/utils/cn";
 export default function Footer() {
   const { isMedium } = useScreenContext();
   return (
