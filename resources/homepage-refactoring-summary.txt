@@ -1,0 +1,140 @@
+================================================================================
+ สรุปการ Refactor HomePage - Pet Sitter App
+================================================================================
+
+================================================================================
+1. โครงสร้างโค้ดเก่า vs โครงสร้างโค้ดใหม่
+================================================================================
+
+[โค้ดเก่า]
+- ไฟล์เดียว: src/pages/HomePage.tsx (165 บรรทัด)
+- มีโค้ดซ้ำกัน 2 รูปแบบ:
+  1) Service Cards (Boarding, House Sitting, Dog Walking, Drop-In Visits) - ซ้ำ 4 ครั้ง
+  2) Feature Cards (Connect, Better, Calling All Pets) - ซ้ำ 3 ครั้ง
+
+[โค้ดใหม่]
+- src/pages/HomePage.tsx (151 บรรทัด) - หน้าที่หลัก ลดความซับซ้อน
+- src/components/home/ServiceCard.tsx (24 บรรทัด) - component ใหม่
+- src/components/home/FeatureCard.tsx (36 บรรทัด) - component ใหม่
+
+================================================================================
+2. การเปลี่ยนแปลงหลัก
+================================================================================
+
+2.1 สร้าง ServiceCard Component
+-------------------------------
+- แทนที่บล็อกที่ซ้ำกัน 4 ชุด (แต่ละชุด ~10 บรรทัด)
+- รับ props: title, description, iconColor
+- แยก logic การแสดงผล service ออกจากหน้า HomePage
+
+2.2 สร้าง FeatureCard Component
+-------------------------------
+- แทนที่บล็อกที่ซ้ำกัน 3 ชุด (แต่ละชุด ~17 บรรทัด)
+- รับ props: image, alt, highlightedWord, restOfTitle, highlightColor, description
+- ใช้ StaticImageData สำหรับ type ของรูปภาพ
+
+2.3 แยกข้อมูลเป็น Constants
+----------------------------
+- SERVICES: array ของข้อมูล service ทั้ง 4 รายการ
+- FEATURES: array ของข้อมูล feature ทั้ง 3 รายการ
+- ใช้ .map() แทนการเขียน JSX ซ้ำ
+
+2.4 แก้ไขข้อผิดพลาด
+-------------------
+- "Broading" -> "Boarding" (แก้ typo)
+- "max-w-sm 0" -> "max-w-sm" (ลบ 0 ที่ผิด)
+- "w-fullflex" -> "w-full flex" (แยก class ที่ติดกัน)
+
+================================================================================
+3. เปรียบเทียบโค้ด (ตัวอย่าง)
+================================================================================
+
+[เก่า - Service Card แต่ละอัน ~10 บรรทัด x 4 = 40 บรรทัด]
+  <div className="flex gap-3">
+    <Star className="w-6 h-6 shrink-0 text-blue-500" />
+    <div className=" flex flex-col gap-3">
+      <h3 className="style-headline-3">Broading</h3>
+      <p className="style-body-1">...</p>
+    </div>
+  </div>
+  (ซ้ำอีก 3 ชุดด้วยสีและเนื้อหาต่างกัน)
+
+[ใหม่ - ใช้ map + ServiceCard]
+  {services.map((service) => (
+    <ServiceCard
+      key={service.title}
+      title={service.title}
+      description={service.description}
+      iconColor={service.iconColor}
+    />
+  ))}
+
+[เก่า - Feature Card แต่ละอัน ~17 บรรทัด x 3 = 51 บรรทัด]
+  <div className="flex flex-col gap-10 items-center px-6 max-w-sm 0">
+    <Image src={ConnectWithSitters} alt="..." className="w-72 h-72 ..." />
+    <div className="flex flex-col gap-3 items-center">
+      <p className="style-headline-3">
+        <span className="text-green-500">Connect</span> with Sitters
+      </p>
+      <p className="style-body-1 text-center text-gray-500">...</p>
+    </div>
+  </div>
+  (ซ้ำอีก 2 ชุด)
+
+[ใหม่ - ใช้ map + FeatureCard]
+  {features.map((feature) => (
+    <FeatureCard
+      key={feature.alt}
+      image={feature.image}
+      alt={feature.alt}
+      highlightedWord={feature.highlightedWord}
+      restOfTitle={feature.restOfTitle}
+      highlightColor={feature.highlightColor}
+      description={feature.description}
+    />
+  ))}
+
+================================================================================
+4. ข้อดีที่เกิดขึ้น
+================================================================================
+
+4.1 DRY (Don't Repeat Yourself)
+-------------------------------
+- ลดโค้ดซ้ำจาก ~90 บรรทัด เหลือ ~20 บรรทัด (ใช้ map + data)
+- แก้ไขโครงสร้างหรือ style ทำที่ component เดียว แทนแก้หลายจุด
+
+4.2 Maintainability (บำรุงรักษาง่าย)
+------------------------------------
+- เพิ่ม service/feature ใหม่: แค่เพิ่ม object ใน array
+- แก้ UI ของ card: แก้ที่ component เดียว มีผลกับทุก card
+
+4.3 Readability (อ่านง่ายขึ้น)
+------------------------------
+- HomePage อ่านเข้าใจได้เร็วขึ้น เห็นภาพรวมว่ามี sections อะไรบ้าง
+- โครงสร้างแยกชัด: ข้อมูล (SERVICES, FEATURES) vs การแสดงผล (components)
+
+4.4 Reusability (นำกลับมาใช้ได้)
+---------------------------------
+- ServiceCard และ FeatureCard ใช้ซ้ำที่อื่นในโปรเจคได้
+- เช่น ใช้ FeatureCard ในหน้าอื่นที่ต้องการแสดง card แบบเดียวกัน
+
+4.5 Testability (ทดสอบง่ายขึ้น)
+-------------------------------
+- ทดสอบ ServiceCard และ FeatureCard แยกกันได้
+- mock ข้อมูล array ง่ายกว่า mock JSX ทั้งก้อน
+
+4.6 Type Safety
+---------------
+- ใช้ TypeScript interfaces (ServiceCardProps, FeatureCardProps)
+- ใช้ as const สำหรับ array ทำให้ type แม่นยำขึ้น
+
+================================================================================
+5. สรุปตัวเลข
+================================================================================
+
+- จำนวนไฟล์: 1 -> 3 ไฟล์ (เพิ่ม 2 components)
+- บรรทัดใน HomePage: 165 -> 151 บรรทัด
+- โค้ดซ้ำที่ตัดออก: ~70 บรรทัด
+- ข้อผิดพลาดที่แก้: 3 จุด (typo, class name)
+
+================================================================================
