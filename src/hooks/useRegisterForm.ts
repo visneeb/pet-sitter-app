@@ -8,7 +8,7 @@ import { Role, RegisterFormValues } from "@/types/authType";
 import { validateRegister } from "@/lib/validations/registerFormValidation";
 import { authApi } from "@/services/api/auth";
 
-// Hook
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useRegisterForm() {
   const router = useRouter();
@@ -43,14 +43,15 @@ export function useRegisterForm() {
       );
       setTimeout(() => router.push("/login"), 1200);
     } catch (err: any) {
-      const errData = err?.response?.data;
+      const message: string =
+        err?.response?.data?.error || err?.message || "Register failed";
 
-      if (errData?.field === "email") {
-        setError("email", { type: "server", message: errData.message });
-      } else if (errData?.field === "phone") {
-        setError("phone", { type: "server", message: errData.message });
+      if (message.toLowerCase().includes("phone")) {
+        setError("phone", { type: "server", message });
+      } else if (message.toLowerCase().includes("email")) {
+        setError("email", { type: "server", message });
       } else {
-        setServerError(errData?.message || err?.message || "Register failed");
+        setServerError(message);
       }
     }
   };

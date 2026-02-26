@@ -1,9 +1,4 @@
-import {
-  FieldErrors,
-  FieldValues,
-  Resolver,
-  ResolverResult,
-} from "react-hook-form";
+import { FieldErrors, FieldValues, Resolver } from "react-hook-form";
 
 export type ValidateFn<T extends FieldValues> = (
   values: T,
@@ -17,17 +12,15 @@ export function createResolver<T extends FieldValues>(
     const errors = await validate(typedValues);
 
     if (Object.keys(errors).length > 0) {
-      const result: ResolverResult<T> = {
-        values: {},
+      return {
+        values: typedValues as unknown as Record<string, never>,
         errors,
       };
-      return result;
     }
 
-    const result: ResolverResult<T> = {
-      values: {},
+    return {
+      values: typedValues,
       errors: {},
     };
-    return result;
   };
 }

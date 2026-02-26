@@ -1,7 +1,7 @@
 import { FieldErrors } from "react-hook-form";
 import { RegisterFormValues } from "@/types/authType";
 
-// Field-level rules
+// Field-level rules 
 
 function isEmailValid(email: string) {
   const v = email.trim().toLowerCase();
@@ -16,13 +16,13 @@ function isPasswordValid(password: string) {
   return password.length > 12;
 }
 
-// Helper — wraps a plain message into the FieldError shape
+// Helper 
 
 function err(message: string) {
   return { type: "manual", message } as const;
 }
 
-// Validator — signature expected by createResolver
+//  Validator 
 
 export function validateRegister(
   values: RegisterFormValues,
@@ -30,14 +30,14 @@ export function validateRegister(
   const errors: FieldErrors<RegisterFormValues> = {};
 
   // email
-  if (!values.email.trim()) {
+  if (!values.email?.trim()) {
     errors.email = err("Please enter your email.");
   } else if (!isEmailValid(values.email)) {
     errors.email = err("Email must contain @ and end with .com");
   }
 
   // phone
-  if (!values.phone.trim()) {
+  if (!values.phone?.trim()) {
     errors.phone = err("Please enter your phone number.");
   } else if (!isPhoneValid(values.phone)) {
     errors.phone = err("Phone must start with 0 and be 10 digits.");

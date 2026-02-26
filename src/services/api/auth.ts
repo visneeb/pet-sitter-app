@@ -16,8 +16,8 @@ export const authApi = {
   register: (data: RegisterPayload): Promise<RegisterResponse> =>
     publicApi
       .post("/auth/register", {
-        email: data.email.trim(),
-        phone: data.phone.trim(),
+        email: data.email?.trim(),
+        phone: data.phone?.trim(),
         password: data.password,
         role: roleMap[data.role],
       })
@@ -26,7 +26,7 @@ export const authApi = {
   login: (data: LoginPayload): Promise<LoginResponse> =>
     publicApi
       .post("/auth/login", {
-        email: data.email.trim(),
+        email: data.email?.trim(),
         password: data.password,
       })
       .then((res) => res.data),
