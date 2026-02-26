@@ -1,4 +1,4 @@
-//global layout จัดการ layout 
+//global layout จัดการ layout
 // ถ้าหน้าอื่นอยากให้มี layout แบบอื่น ให้สร้าง file layout.tsx ขึ้นใน folder นั้นๆ
 
 import type { Metadata } from "next";
@@ -16,12 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`antialiased`}
-      >
-        <ScreenProvider>
-        {children}
-        </ScreenProvider>
+      <body className={`antialiased`}>
+        <ScreenProvider>{children}</ScreenProvider>
       </body>
     </html>
   );
