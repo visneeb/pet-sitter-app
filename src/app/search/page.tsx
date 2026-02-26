@@ -1,55 +1,26 @@
 "use client";
 
-import HeaderSearchViewMode from "@/components/search/HeaderSearchViewMode";
-import { PaginationBar } from "@/components/search/ui/PaginationBar";
 import { Suspense } from "react";
 import Loading from "@/components/common/loading/loading";
-import { useScreenContext } from "@/contexts/ScreenContext";
 import { PetSitterSearchProvider } from "@/contexts/PetSitterSearchContext";
-import FilterSidebar from "@/components/search/FilterSideBar";
-import MainViewSearch from "@/components/search/MainViewSearch";
-import TestResponsive from "@/components/search/testResponsive";
-import cn from "@/utils/cn";
+import SearchPageContent from "@/components/search/SearchPageContent";
+
+// ── Layout Constants ────────────────────────────────────────
+const PAGE_STYLES = {
+  minHeight: "min-h-[375px]",
+  bgColor: "bg-[#FAFAFB]",
+} as const;
 
 export default function SearchPage() {
-  const { isSmall, isMedium, isLarge } = useScreenContext();
-  const isWebView = isSmall && isMedium && isLarge;
   return (
-    <div className="min-h-[375px] bg-[#FAFAFB] text-gray-900 flex flex-col justify-between items-start">
+    <div
+      className={`${PAGE_STYLES.minHeight} ${PAGE_STYLES.bgColor} text-gray-900 flex flex-col justify-between items-start`}
+    >
       <Suspense fallback={<Loading />}>
         <PetSitterSearchProvider>
-          <TestResponsive />
-          <div className="w-full max-w-[1440px] self-center flex flex-col gap-6">
-            {/* Desktop Layout */}
-            <div
-              className={cn(
-                "hidden",
-                isWebView && "flex flex-col gap-6 w-full",
-              )}
-            >
-              <HeaderSearchViewMode />
-              <div className="w-full flex justify-center px-[92px] gap-9">
-                <FilterSidebar />
-                <MainViewSearch />
-              </div>
-            </div>
-
-            {/* Mobile Layout */}
-            <div
-              className={cn(
-                "flex flex-col items-center gap-6 w-full px-4 ",
-                isWebView && "hidden",
-              )}
-            >
-              <FilterSidebar />
-              <HeaderSearchViewMode />
-              <MainViewSearch />
-            </div>
-          </div>
-          <PaginationBar />
+          <SearchPageContent />
         </PetSitterSearchProvider>
       </Suspense>
-      {/* Mock up footer in Component */}
     </div>
   );
 }

@@ -20,7 +20,12 @@ const PARAM_KEYS = {
   petTypes: "petTypes",
   rating: "rating",
   experience: "exp",
+  page: "page",
 } as const;
+
+// ── Pagination defaults ─────────────────────────────────────
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 5;
 
 // ── Default values ──────────────────────────────────────────
 const DEFAULT_EXPERIENCE = "0-3 Years";
@@ -62,6 +67,12 @@ interface PetSitterSearchContextType {
   handleSearch: () => void;
   handleClear: () => void;
 
+  // Pagination
+  currentPage: number;
+  totalPages: number;
+  totalPetSitters: number;
+  handlePageChange: (page: number) => void;
+
   // Data
   petSitters: PetSitter[];
   isLoading: boolean;
@@ -101,12 +112,23 @@ export function PetSitterSearchProvider({
   const [appliedFilters, setAppliedFilters] =
     useState<FilterParams>(initialFilters);
 
+  // ─ Pagination state ─
+  const initialPage = (() => {
+    const p = new URLSearchParams(searchParams?.toString() ?? "").get(
+      PARAM_KEYS.page,
+    );
+    return p ? Math.max(1, Number(p)) : DEFAULT_PAGE;
+  })();
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalPetSitters, setTotalPetSitters] = useState(0);
+
   // ─ Data fetching state ─
   const [petSitters, setPetSitters] = useState<PetSitter[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Fetch whenever appliedFilters changes ─────────────────
+  // ── Fetch whenever appliedFilters or currentPage changes ──
   useEffect(() => {
     const controller = new AbortController();
 
@@ -117,6 +139,10 @@ export function PetSitterSearchProvider({
 
         // Build query params — match backend API expectations
         const params: Record<string, string> = {};
+
+        // Pagination params
+        params.page = String(currentPage);
+        params.limit = String(DEFAULT_LIMIT);
 
         if (appliedFilters.searchText) {
           params.keyword = appliedFilters.searchText;
@@ -141,10 +167,12 @@ export function PetSitterSearchProvider({
         );
         const raw = response.data;
 
-        // Backend returns { sitters: [...], totalPages, ... }
+        // Backend returns { sitters: [...], totalPages, currentPage, ... }
         const list = Array.isArray(raw?.sitters) ? raw.sitters : [];
 
         setPetSitters(list);
+        setTotalPages(raw.totalPages ?? 1);
+        setTotalPetSitters(raw.totalPetSitters ?? 0);
       } catch (err) {
         if (!axios.isCancel(err)) {
           console.error("Failed to fetch pet sitter data", err);
@@ -160,7 +188,7 @@ export function PetSitterSearchProvider({
     return () => {
       controller.abort();
     };
-  }, [appliedFilters]);
+  }, [appliedFilters, currentPage]);
 
   // ── Helper: push filters to URL ───────────────────────────
   const pushFiltersToURL = useCallback(
@@ -209,6 +237,7 @@ export function PetSitterSearchProvider({
   // ── Actions ───────────────────────────────────────────────
   const handleSearch = useCallback(() => {
     const filters: FilterParams = { searchText, petTypes, rating, experience };
+    setCurrentPage(DEFAULT_PAGE); // Reset to page 1 on new search
     pushFiltersToURL(filters);
     setAppliedFilters(filters);
   }, [searchText, petTypes, rating, experience, pushFiltersToURL]);
@@ -218,11 +247,30 @@ export function PetSitterSearchProvider({
     setPetTypes([]);
     setRating([]);
     setExperience(DEFAULT_EXPERIENCE);
+    setCurrentPage(DEFAULT_PAGE); // Reset to page 1 on clear
 
     const emptyFilters: FilterParams = {};
     pushFiltersToURL(emptyFilters);
     setAppliedFilters(emptyFilters);
   }, [pushFiltersToURL]);
+
+  // ── Pagination handler ────────────────────────────────────
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+
+      // Update URL with page param
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
+      if (page <= 1) {
+        params.delete(PARAM_KEYS.page);
+      } else {
+        params.set(PARAM_KEYS.page, String(page));
+      }
+      const qs = params.toString();
+      router.push(qs ? `?${qs}` : "?");
+    },
+    [router, searchParams],
+  );
 
   // ── Memoize context value ─────────────────────────────────
   const value = useMemo<PetSitterSearchContextType>(
@@ -237,6 +285,10 @@ export function PetSitterSearchProvider({
       handleExperienceChange,
       handleSearch,
       handleClear,
+      currentPage,
+      totalPages,
+      totalPetSitters,
+      handlePageChange,
       petSitters,
       isLoading,
       error,
@@ -252,6 +304,10 @@ export function PetSitterSearchProvider({
       handleExperienceChange,
       handleSearch,
       handleClear,
+      currentPage,
+      totalPages,
+      totalPetSitters,
+      handlePageChange,
       petSitters,
       isLoading,
       error,
