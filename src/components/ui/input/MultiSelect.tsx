@@ -16,7 +16,7 @@ type Props = {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
-  hasError?: boolean; // Add error prop
+  hasError?: boolean;
 };
 
 export function MultiSelect({

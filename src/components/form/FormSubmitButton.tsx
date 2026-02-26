@@ -9,6 +9,7 @@ type Props = {
   isLoading?: boolean;
   loadingText?: string;
   disabled?: boolean;
+  className?: string;
 };
 
 export function SubmitButton({
@@ -16,6 +17,7 @@ export function SubmitButton({
   isLoading,
   loadingText = "Submitting...",
   disabled: disabledProp,
+  className,
 }: Props) {
   const form = useFormContext();
 
@@ -31,6 +33,7 @@ export function SubmitButton({
       variant="primary"
       disabled={disabled}
       aria-busy={loading}
+      className={className}
     >
       {loading ? loadingText : children}
     </ActionButton>

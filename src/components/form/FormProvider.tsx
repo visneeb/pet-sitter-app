@@ -11,6 +11,7 @@ type Props<T extends FieldValues> = {
   onSubmit: (data: T) => void | Promise<void>;
   children: React.ReactNode;
   disabled?: boolean;
+  className?: string;
 };
 
 export function FormProvider<T extends FieldValues>({
@@ -18,10 +19,15 @@ export function FormProvider<T extends FieldValues>({
   onSubmit,
   children,
   disabled,
+  className,
 }: Props<T>) {
   return (
     <RHFProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
+      <form
+        onSubmit={methods.handleSubmit(onSubmit)}
+        noValidate
+        className={className}
+      >
         <fieldset disabled={disabled} className="contents">
           {children}
         </fieldset>

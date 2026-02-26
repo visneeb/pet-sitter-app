@@ -3,10 +3,8 @@ import { ownerSidebarItems } from "@/config/sidebar/owner";
 import ProfileContainer from "@/components/profile/ProfileContainer";
 
 export default function UserLayout({
-  header,
   children,
 }: {
-  header?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
