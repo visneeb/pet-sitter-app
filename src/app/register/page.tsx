@@ -7,11 +7,12 @@ import { QuadrantEllipse } from "@/decorations/Ellipse";
 import { Star } from "@/decorations/Shapes";
 import facebookIcon from "@/assets/icons/fb.svg";
 import gmailIcon from "@/assets/icons/gg.svg";
-import { Input,InputPassword } from "@/components/ui/input";
+
 import { ActionButton } from "@/components/ui/Button";
 import { Password } from "@/components/ui/Input/Password";
 import { useRouter } from "next/navigation";
 import { publicApi } from "@/lib/publicApi";
+import { Input } from "@/components/ui/input/Input";
 
 
 
