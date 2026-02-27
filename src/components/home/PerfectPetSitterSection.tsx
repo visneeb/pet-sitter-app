@@ -38,15 +38,15 @@ export default function PerfectPetSitterSection() {
         <div className="flex flex-col md:flex-row gap-4 w-full max-w-sm md:max-w-md">
           <NavigationButton
             variant="secondary"
-            href="/register"
-            className="w-full"
+            href="/auth/register"
+            className="w-full min-w-[197px]"
           >
             Become A Pet Sitter
           </NavigationButton>
           <NavigationButton
             variant="primary"
-            href="/find-a-pet-sitter"
-            className="w-full"
+            href="/search"
+            className="w-full min-w-[168px]"
           >
             Find A Pet Sitter
           </NavigationButton>

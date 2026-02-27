@@ -23,7 +23,7 @@ export default function SearchBar() {
   return (
     <section
       className={cn(
-        "flex justify-center items-center w-full min-w-[343px] min-h-[416px]",
+        "flex justify-center items-center w-full min-w-[343px] mt-[64px] mb-[35px]",
         isWebView
           ? "flex-col px-[188px]"
           : "flex-col px-4 mx-auto mt-2 w-[400px] min-w-[375px]",
@@ -49,7 +49,7 @@ export default function SearchBar() {
       </div>
       <div
         className={cn(
-          "bg-white flex justify-start items-center",
+          "bg-white flex justify-start items-center shadow-[4px_4px_24px_0_rgba(0,0,0,0.04)]",
           isWebView
             ? "w-[1064px] h-[96px] flex-row p-6 gap-6"
             : "w-full flex-col items-start p-4 pt-4 pb-6 gap-6 rounded-b-2xl shadow-[0px_4px_10px_rgba(0,0,0,0.05)]",
