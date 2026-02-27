@@ -1,11 +1,4 @@
-// import { NextRequest, NextResponse } from "next/server";
-
-// export function authMiddleware(request: NextRequest) {
-//   const token = request.cookies.get("token")?.value;
-
-//   if (!token) {
-//     return NextResponse.redirect(new URL("/login", request.url));
-//   }
-
-//   return NextResponse.next();
-// }
+// Route-protection logic has moved to src/middleware.ts (Next.js root middleware).
+// That file handles ALL protected routes via the Supabase SSR client.
+// This file is kept for reference only.
+export {};

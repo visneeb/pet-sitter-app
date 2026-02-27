@@ -2,7 +2,7 @@
 
 import { FormProvider } from "@/components/form/FormProvider";
 import { RHFInput } from "@/components/form/RHFInput";
-import { useProfileForm } from "@/hooks/useUserProfileForm";
+import { useUserProfileForm } from "@/hooks/useUserProfileForm";
 import { RHFAvatarUpload } from "@/components/form/image-upload/RHFAvatarUpload";
 import Section from "@/components/form/FormSection";
 import ProfileContainer from "@/components/profile/ProfileContainer";
@@ -12,7 +12,7 @@ import { ActionButton } from "@/components/ui/Button";
 //add usePetSitterProfileForm hook
 
 export default function SitterProfileEdit() {
-  const { methods, onSubmit, isSubmitting } = useProfileForm();
+  const { methods, onSubmit, isSubmitting } = useUserProfileForm();
 
   const handleUpdate = () => {
     // TODO: Implement update logic
