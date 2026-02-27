@@ -6,6 +6,9 @@ import ServiceCard from "@/components/home/ServiceCard";
 import FeatureCard from "@/components/home/FeatureCard";
 import PerfectPetSitterSection from "@/components/home/PerfectPetSitterSection";
 import { services, features, PetImage } from "@/constants/homeContent";
+import SearchBar from "@/components/home/SearchBar";
+import HeroSection from "@/components/home/HeroSection";
+import { PetSitterSearchProvider } from "@/contexts/PetSitterSearchContext";
 
 const servicesContainerClassName =
   "flex flex-col items-center md:flex-row justify-between mx-auto max-w-[1064px] gap-24";
@@ -17,6 +20,14 @@ export default function HomePage() {
 
   return (
     <>
+      <section id="Hero-Section" className="w-full">
+        <HeroSection />
+      </section>
+      <section id="search" className="w-full">
+        <PetSitterSearchProvider>
+          <SearchBar />
+        </PetSitterSearchProvider>
+      </section>
       <section className="flex flex-col gap-32 p-10">
         <h1
           className={cn(

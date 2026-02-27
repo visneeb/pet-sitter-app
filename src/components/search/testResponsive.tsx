@@ -8,7 +8,7 @@ export default function TestResponsive() {
     useScreenContext();
 
   return (
-    <div className="fixed bottom-4 right-4 z-[9999] bg-black/80 text-white p-4 rounded-xl shadow-lg font-mono text-sm flex flex-col gap-2 pointer-events-none">
+    <div className="fixed top-2 right-4 z-[9999] bg-black/80 text-white p-4 rounded-xl shadow-lg font-mono text-sm flex flex-col gap-2 pointer-events-none">
       <h4 className="font-bold border-b border-gray-600 pb-1 mb-1 text-center">
         Screen Size
       </h4>
