@@ -8,9 +8,9 @@ export default function PetSitterLayout({
 }) {
   return (
     <div>
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+      <Navbar />
+      <main>{children}</main>
+      <Footer />
     </div>
   );
 }
