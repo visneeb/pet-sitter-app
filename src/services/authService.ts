@@ -113,8 +113,6 @@ export const authService = {
   logout: () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("accessToken");
-      // Redirect to login page
-      window.location.href = "/login";
     }
   },
 
