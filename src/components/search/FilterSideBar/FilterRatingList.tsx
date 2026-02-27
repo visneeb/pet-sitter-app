@@ -16,7 +16,7 @@ export default function FilterRatingList({
 }: FilterRatingListProps) {
   const dataRating = [5, 4, 3, 2, 1];
   const styleButton =
-    "flex flex-row justify-start items-center h-10 p-2 hover:border-orange-300 hover:shadow-xl/30 border-1 border-gray-200 rounded-lg transition shadow-sm";
+    "flex flex-row justify-start items-center h-10 p-2  hover:border-orange-300 hover:shadow-lg border-1 border-gray-200 rounded-lg transition shadow-sm";
 
   const handleRatingChange = (star: number) => {
     if (rating.includes(star)) {

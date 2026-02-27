@@ -28,7 +28,7 @@ export default function HomePage() {
           <SearchBar />
         </PetSitterSearchProvider>
       </section>
-      <section className="flex flex-col gap-32 p-10">
+      <section className="flex flex-col gap-32 p-20">
         <h1
           className={cn(
             "flex text-center justify-center",
