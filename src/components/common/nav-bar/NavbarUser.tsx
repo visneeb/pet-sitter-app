@@ -25,11 +25,10 @@ export default function NavbarUser() {
   const handleLogout = async () => {
     try {
       await authService.logout();
+      signOut();
+      router.push("/");
     } catch (error) {
       console.log(error);
-    } finally {
-      await signOut();
-      router.push("/");
     }
   };
 
