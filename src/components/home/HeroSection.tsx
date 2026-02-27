@@ -23,8 +23,8 @@ export default function HeroSection() {
   }, []);
 
   // Panel ขนาดจริง 400×500 → ให้กว้าง 50% ของหน้าจอ
-  const PANEL_NATURAL_WIDTH = 400;
-  const PANEL_NATURAL_HEIGHT = 500;
+  const PANEL_NATURAL_WIDTH = 428;
+  const PANEL_NATURAL_HEIGHT = 441;
   const panelScale =
     windowWidth > 0 ? (windowWidth * 0.5) / PANEL_NATURAL_WIDTH : 0.57;
   const scaledWidth = PANEL_NATURAL_WIDTH * panelScale;
