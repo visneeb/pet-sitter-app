@@ -67,10 +67,10 @@ export function HeroLeftPanel({ className }: { readonly className?: string }) {
 
       {/* Blue EllipseCut ring + Cat image */}
       <div
-        className="absolute z-10"
+        className="absolute z-10 "
         style={{ top: CAT_GROUP_TOP, left: CAT_GROUP_LEFT }}
       >
-        <div className="relative">
+        <div className="relative right-[-54px]">
           <EllipseCut
             id="shape_cat"
             className="text-blue-500"
@@ -91,7 +91,7 @@ export function HeroLeftPanel({ className }: { readonly className?: string }) {
             alt="Cute pet"
             width={CAT_IMAGE_SIZE}
             height={CAT_IMAGE_SIZE}
-            className="absolute bottom-0 right-0 z-10"
+            className="absolute bottom-0 z-10"
             style={{ clipPath: "url(#catClip)" }}
           />
         </div>
