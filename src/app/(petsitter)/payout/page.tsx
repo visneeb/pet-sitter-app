@@ -1,7 +1,7 @@
 export default function PetSitterPayout() {
   return (
     <>
-      <div>Payout</div>
+      <div className="style-headline-3">Payout Option</div>
     </>
   );
 }
