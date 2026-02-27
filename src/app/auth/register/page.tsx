@@ -7,21 +7,22 @@ import gmailIcon from "@/assets/icons/gg.svg";
 import { Form } from "@/components/form/index";
 import { useRegisterForm } from "@/hooks/useRegisterForm";
 import { RegisterFields } from "@/components/register/Registerfield";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Role } from "@/types/authType";
 
 export default function RegisterPage() {
-  const {
-    methods,
-    onSubmit,
-    isSubmitting,
-    role,
-    setRole,
-    serverError,
-    serverSuccess,
-  } = useRegisterForm();
+  const { methods, onSubmit, isSubmitting, serverError, serverSuccess } =
+    useRegisterForm();
+
+  const role = useWatch({
+    control: methods.control,
+    name: "role",
+  });
+
+  console.log("Current role:", role);
 
   const roles: { value: Role; label: string }[] = [
-    { value: "customer", label: "Customer" },
+    { value: "owner", label: "Owner" },
     { value: "sitter", label: "Sitter" },
   ];
 
@@ -45,7 +46,10 @@ export default function RegisterPage() {
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setRole(value)}
+                  onClick={() => {
+                    console.log("Setting role to:", value);
+                    methods.setValue("role", value, { shouldValidate: true });
+                  }}
                   className={`flex-1 rounded-full py-2 text-sm font-medium transition ${
                     role === value
                       ? "bg-white shadow text-orange-600"
@@ -77,7 +81,7 @@ export default function RegisterPage() {
               disabled={isSubmitting}
               className="flex flex-col gap-[32px]"
             >
-              <RegisterFields role={role} />
+              <RegisterFields />
             </Form>
 
             {/* Divider */}

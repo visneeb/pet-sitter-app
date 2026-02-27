@@ -7,7 +7,7 @@ import {
 } from "react-hook-form";
 
 type Props<T extends FieldValues> = {
-  methods: UseFormReturn<T, any, T>; // ← add third generic here
+  methods: UseFormReturn<T, any, T>;
   onSubmit: (data: T) => void | Promise<void>;
   children: React.ReactNode;
   disabled?: boolean;

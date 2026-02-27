@@ -8,11 +8,10 @@ import { Role, RegisterFormValues } from "@/types/authType";
 import { validateRegister } from "@/lib/validations/registerFormValidation";
 import { authApi } from "@/services/api/auth";
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+//  Hook 
 
 export function useRegisterForm() {
   const router = useRouter();
-  const [role, setRole] = useState<Role>("customer");
   const [serverError, setServerError] = useState("");
   const [serverSuccess, setServerSuccess] = useState("");
 
@@ -23,6 +22,7 @@ export function useRegisterForm() {
       email: "",
       phone: "",
       password: "",
+      role: "owner",
     },
   });
 
@@ -36,7 +36,7 @@ export function useRegisterForm() {
     setServerSuccess("");
 
     try {
-      const res = await authApi.register({ ...data, role });
+      const res = await authApi.register(data);
 
       setServerSuccess(
         res.message || "User registered successfully. Redirecting...",
@@ -60,8 +60,6 @@ export function useRegisterForm() {
     methods,
     onSubmit,
     isSubmitting,
-    role,
-    setRole,
     serverError,
     serverSuccess,
   };

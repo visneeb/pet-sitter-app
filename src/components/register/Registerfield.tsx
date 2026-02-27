@@ -2,10 +2,13 @@ import { Input, PasswordInput, Submit } from "@/components/form/index";
 import { RegisterFormValues } from "@/types/authType";
 import { useFormContext } from "react-hook-form";
 
-export function RegisterFields({ role }: { role: "customer" | "sitter" }) {
+export function RegisterFields() {
   const {
     formState: { errors, isSubmitting },
+    watch,
   } = useFormContext<RegisterFormValues>();
+
+  const role = watch("role");
 
   return (
     <>
@@ -44,7 +47,7 @@ export function RegisterFields({ role }: { role: "customer" | "sitter" }) {
         <Submit disabled={isSubmitting} className="w-full">
           {isSubmitting
             ? "Creating account..."
-            : `Register as ${role === "customer" ? "Customer" : "Sitter"}`}
+            : `Register as ${role === "owner" ? "Owner" : "Sitter"}`}
         </Submit>
       </div>
     </>
