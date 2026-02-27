@@ -1,4 +1,5 @@
 import Footer from "@/components/common/footer/Footer";
+import Navbar from "@/components/common/nav-bar/Navbar";
 
 export default function PetSitterLayout({
   children,
@@ -7,7 +8,7 @@ export default function PetSitterLayout({
 }) {
   return (
     <div>
-        <h1>Component Navbar here !</h1>
+        <Navbar />
         <main>{children}</main>
         <Footer />
     </div>
