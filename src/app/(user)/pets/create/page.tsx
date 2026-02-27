@@ -2,6 +2,7 @@ import PetListPage from "@/pages/dashboard/owner/pet/PetListPage";
 import { UserProfileHeader } from "@/components/profile/ProfileHeader";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import PetCreateForm from "@/components/pets/PetCreateForm";
 
 export default function CreatePetPage() {
   return (
@@ -15,6 +16,7 @@ export default function CreatePetPage() {
         }
       />
       {/* Pet create form*/}
+      <PetCreateForm />
     </>
   );
 }

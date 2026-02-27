@@ -5,6 +5,7 @@ import { FormField } from "../ui/form/FormField";
 import { FormControl } from "../ui/form/FormControl";
 import { FormMessage } from "../ui/form/FormMessage";
 import { FormDescription } from "../ui/form/FormDescription";
+import { FormLabel } from "../ui/form/FormLabel";
 import { Textarea } from "../ui/input/CustomTextarea";
 
 type Props<T extends FieldValues> = {
@@ -30,10 +31,10 @@ export function RHFTextarea<T extends FieldValues>({
 
   return (
     <FormField name={name} error={!!error}>
-      <label className="style-label text-black">
+      <FormLabel>
         {label}
         {required && <span>*</span>}
-      </label>
+      </FormLabel>
 
       <FormControl>
         <Textarea
