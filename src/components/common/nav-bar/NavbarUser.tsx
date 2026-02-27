@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { authService } from "@/services/authService";
+import { authService } from "@/services/authService";
 
 export default function NavbarUser() {
   const { signOut } = useAuth();
