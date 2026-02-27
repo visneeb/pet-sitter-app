@@ -9,3 +9,9 @@ export {
   updateProfileApi,
 } from "./avatarApi";
 export { updateEmailApi } from "./emailApi";
+export {
+  uploadPetImage,
+  deletePetImage,
+  uploadSitterImage,
+  deleteSitterImage,
+} from "./storageApi";
