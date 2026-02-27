@@ -21,6 +21,7 @@ const PARAM_KEYS = {
   rating: "rating",
   experience: "exp",
   page: "page",
+  searchSeed: "seed",
 } as const;
 
 // ── Pagination defaults ─────────────────────────────────────
@@ -28,7 +29,7 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 5;
 
 // ── Default values ──────────────────────────────────────────
-const DEFAULT_EXPERIENCE = "0-3 Years";
+const DEFAULT_EXPERIENCE = "";
 
 // ── Helpers: read URL → filter state ────────────────────────
 function parseFiltersFromURL(searchParams: URLSearchParams): FilterParams {
@@ -64,6 +65,7 @@ interface PetSitterSearchContextType {
   handleExperienceChange: (value: string) => void;
 
   // Actions
+  handleNavigateToSearch: () => void;
   handleSearch: () => void;
   handleClear: () => void;
 
@@ -122,6 +124,11 @@ export function PetSitterSearchProvider({
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(1);
   const [totalPetSitters, setTotalPetSitters] = useState(0);
+
+  // ─ Seed state (for consistent randomization) ─
+  const [searchSeed, setSearchSeed] = useState(() =>
+    Math.random().toString(36).substring(2, 10),
+  );
 
   // ─ Data fetching state ─
   const [petSitters, setPetSitters] = useState<PetSitter[]>([]);
@@ -188,7 +195,7 @@ export function PetSitterSearchProvider({
     return () => {
       controller.abort();
     };
-  }, [appliedFilters, currentPage]);
+  }, [appliedFilters, currentPage, searchSeed]);
 
   // ── Helper: push filters to URL ───────────────────────────
   const pushFiltersToURL = useCallback(
@@ -210,9 +217,41 @@ export function PetSitterSearchProvider({
       if (filters.experience) {
         params.set(PARAM_KEYS.experience, filters.experience);
       }
-
+      if (searchSeed) {
+        params.set(PARAM_KEYS.searchSeed, searchSeed);
+      }
       const qs = params.toString();
       router.push(qs ? `?${qs}` : "?");
+    },
+    [router, searchParams],
+  );
+
+  // ── Helper: push filters to navigator ───────────────────────────
+  const pushFiltersToNavigator = useCallback(
+    (filters: FilterParams) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
+
+      // Remove all filter keys first, then re-add non-empty ones
+      Object.values(PARAM_KEYS).forEach((key) => params.delete(key));
+
+      if (filters.searchText) {
+        params.set(PARAM_KEYS.search, filters.searchText);
+      }
+      if (filters.petTypes && filters.petTypes.length > 0) {
+        params.set(PARAM_KEYS.petTypes, filters.petTypes.join(","));
+      }
+      if (filters.rating && filters.rating.length > 0) {
+        params.set(PARAM_KEYS.rating, filters.rating.join(","));
+      }
+      if (filters.experience) {
+        params.set(PARAM_KEYS.experience, filters.experience);
+      }
+      if (searchSeed) {
+        params.set(PARAM_KEYS.searchSeed, searchSeed);
+      }
+
+      const qs = params.toString();
+      router.push(`/search${qs ? `?${qs}` : "?"}`);
     },
     [router, searchParams],
   );
@@ -238,9 +277,18 @@ export function PetSitterSearchProvider({
   const handleSearch = useCallback(() => {
     const filters: FilterParams = { searchText, petTypes, rating, experience };
     setCurrentPage(DEFAULT_PAGE); // Reset to page 1 on new search
+    setSearchSeed(Math.random().toString(36).substring(2, 10)); // Generate new seed
     pushFiltersToURL(filters);
     setAppliedFilters(filters);
   }, [searchText, petTypes, rating, experience, pushFiltersToURL]);
+
+  const handleNavigateToSearch = useCallback(() => {
+    const filters: FilterParams = { searchText, petTypes, rating, experience };
+    setCurrentPage(DEFAULT_PAGE); // Reset to page 1 on new search
+    setSearchSeed(Math.random().toString(36).substring(2, 10)); // Generate new seed
+    pushFiltersToNavigator(filters);
+    setAppliedFilters(filters);
+  }, [searchText, petTypes, rating, experience, pushFiltersToNavigator]);
 
   const handleClear = useCallback(() => {
     setSearchText("");
@@ -248,6 +296,7 @@ export function PetSitterSearchProvider({
     setRating([]);
     setExperience(DEFAULT_EXPERIENCE);
     setCurrentPage(DEFAULT_PAGE); // Reset to page 1 on clear
+    setSearchSeed(Math.random().toString(36).substring(2, 10)); // Generate new seed
 
     const emptyFilters: FilterParams = {};
     pushFiltersToURL(emptyFilters);
@@ -283,6 +332,7 @@ export function PetSitterSearchProvider({
       handlePetTypesChange,
       handleRatingChange,
       handleExperienceChange,
+      handleNavigateToSearch,
       handleSearch,
       handleClear,
       currentPage,
@@ -302,6 +352,7 @@ export function PetSitterSearchProvider({
       handlePetTypesChange,
       handleRatingChange,
       handleExperienceChange,
+      handleNavigateToSearch,
       handleSearch,
       handleClear,
       currentPage,

@@ -16,7 +16,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = "Select an option",
+  placeholder = "Select",
   className,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -77,8 +77,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           className,
         )}
       >
-        <span className={currentValue ? "text-gray-600" : "text-gray-400"}>
-          {currentValue || placeholder}
+        <span className={cn("style-body-2 text-gray-600",currentValue ? "text-gray-600" : "text-gray-400")}>
+          {currentValue ||placeholder}
         </span>
         <ChevronDown
           className={cn(

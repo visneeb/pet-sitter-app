@@ -4,11 +4,15 @@ import { Star, StarIcon } from "lucide-react";
 interface FilterRatingListProps {
   rating: number[];
   onRatingChange: (rating: number[]) => void;
+  contentStyle?: string;
+  listStyle?: string;
 }
 
 export default function FilterRatingList({
   rating,
   onRatingChange,
+  contentStyle,
+  listStyle,
 }: FilterRatingListProps) {
   const dataRating = [5, 4, 3, 2, 1];
   const styleButton =
@@ -29,9 +33,9 @@ export default function FilterRatingList({
   };
 
   return (
-    <div className="flex flex-col gap-2 ">
+    <div className={cn("flex flex-col gap-2 ",contentStyle)}>
       <p className="style-body-2 font-medium text-gray-600">Rating:</p>
-      <div className="flex flex-wrap justify-start items-center gap-x-2 gap-y-2">
+      <div className={cn("flex flex-wrap justify-start items-center gap-x-2 gap-y-2",listStyle)}>
         {dataRating.map((star) => {
           return (
             <button

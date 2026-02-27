@@ -1,13 +1,18 @@
+import cn from "@/utils/cn";
 import { ChangeEvent, useCallback } from "react";
 
 interface FilterSearchTypeListProps {
   petTypes: string[];
   onPetTypesChange: (petTypes: string[]) => void;
+  contentStyle?: string;
+  listStyle?: string;
 }
 
 export default function FilterSearchTypeList({
   petTypes,
   onPetTypesChange,
+  contentStyle,
+  listStyle,
 }: FilterSearchTypeListProps) {
   const petType = ["Dog", "Cat", "Bird", "Rabbit"];
 
@@ -24,9 +29,9 @@ export default function FilterSearchTypeList({
   );
 
   return (
-    <div className="flex flex-col gap-2 ">
+    <div className={cn("flex flex-col gap-2", contentStyle)}>
       <p className="style-body-2 text-gray-600">Pet Type:</p>
-      <div className="flex flex-wrap justify-start gap-x-5 gap-y-2">
+      <div className={cn("flex flex-wrap justify-start gap-x-5 gap-y-2",listStyle)}>
         {petType.map((pet) => {
           return (
             <label
