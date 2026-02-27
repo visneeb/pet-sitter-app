@@ -25,13 +25,13 @@ export default function NavbarUser() {
   const handleLogout = async () => {
     try {
       await authService.logout();
+      signOut();
+      router.push("/");
     } catch (error) {
       console.log(error);
-    } finally {
-      await signOut();
-      router.push("/");
     }
   };
+
   return (
     <div
       className={`relative flex items-center justify-between bg-white w-full px-[20px] style-body-2 ${
