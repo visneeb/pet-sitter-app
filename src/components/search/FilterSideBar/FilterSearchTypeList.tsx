@@ -41,7 +41,7 @@ export default function FilterSearchTypeList({
               <input
                 type="checkbox"
                 value={pet}
-                className="checkbox border-gray-200 text-white checked:text-white checked:bg-orange-500 checked:shadow-lg checked:border-orange-300 checked:outline-1 hover:border-orange-300  hover:shadow-lg"
+                className="checkbox border-gray-200 text-white bg-white checked:text-white checked:bg-orange-500 checked:shadow-lg checked:border-orange-300 checked:outline-1 hover:border-orange-300  hover:shadow-lg"
                 checked={petTypes.includes(pet)}
                 onChange={handlePetTypeChange}
               />

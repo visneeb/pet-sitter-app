@@ -17,13 +17,17 @@ export default function SearchBar() {
     handleNavigateToSearch,
   } = usePetSitterSearch();
 
-  const { isSmall, isMedium,isXLarge } = useScreenContext();
-  const isWebView = isSmall && isMedium &&isXLarge;
+  const { isSmall, isMedium, isXLarge } = useScreenContext();
+  const isWebView = isSmall && isMedium && isXLarge;
+  const isMobile = !isSmall && !isMedium;
   return (
     <section
       className={cn(
         "flex justify-center items-center w-full min-w-[343px] min-h-[416px]",
-        isWebView ? "flex-col px-[188px]" : "flex-col px-4 mx-auto mb-10 mt-2 w-[400px]",
+        isWebView
+          ? "flex-col px-[188px]"
+          : "flex-col px-4 mx-auto mt-2 w-[400px] min-w-[375px]",
+        isMobile ? "w-[375px]" : "",
       )}
     >
       <div
@@ -40,7 +44,7 @@ export default function SearchBar() {
           contentStyle={cn(
             isWebView ? "flex-row gap-3" : "flex-col gap-4 w-full",
           )}
-          listStyle={isWebView ? "gap-x-[26px]" : "gap-x-5"}
+          listStyle={cn("",isWebView ? "gap-x-[26px]" : "gap-x-5")}
         />
       </div>
       <div

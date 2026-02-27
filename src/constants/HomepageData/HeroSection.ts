@@ -6,8 +6,8 @@ export const HERO_CAT_IMAGE: StaticImageData = cutePet;
 export const HERO_DOG_IMAGE: StaticImageData = dogWearGlass;
 
 // ─── Left panel layout ───────────────────────────────────────────
-export const LEFT_PANEL_WIDTH = 400;
-export const LEFT_PANEL_HEIGHT = 500;
+export const LEFT_PANEL_WIDTH = 428;
+export const LEFT_PANEL_HEIGHT = 441;
 
 export const PAW_SIZE = 163;
 export const PAW_TOP = -5;
@@ -28,8 +28,8 @@ export const ELLIPSE_CUT_SIZE = 253;
 export const CAT_IMAGE_SIZE = 292;
 
 // ─── Right panel layout ──────────────────────────────────────────
-export const RIGHT_PANEL_WIDTH = 400;
-export const RIGHT_PANEL_HEIGHT = 500;
+export const RIGHT_PANEL_WIDTH = 428;
+export const RIGHT_PANEL_HEIGHT = 441;
 
 export const STAR_SIZE = 160;
 export const STAR_TOP = 0;
