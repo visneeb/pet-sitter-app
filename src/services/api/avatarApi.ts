@@ -50,8 +50,13 @@ export async function getProfileApi(): Promise<{
   try {
     const { data } = await privateApi.get("/auth/get-user");
     return data;
-  } catch {
-    return null;
+  } catch (error: any) {
+    console.error("Failed to fetch profile:", error);
+    throw new Error(
+      error.response?.data?.error ||
+        error.message ||
+        "Failed to fetch profile data",
+    );
   }
 }
 

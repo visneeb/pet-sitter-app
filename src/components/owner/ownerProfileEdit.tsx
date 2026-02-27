@@ -13,12 +13,53 @@ export default function ProfileEdit() {
     onSubmit,
     isSubmitting,
     isUploadingFile,
+    isLoadingProfile,
+    profileError,
     handleAvatarChange,
     showPasswordModal,
     pendingData,
     onEmailConfirmed,
     onModalClose,
   } = useUserProfileForm();
+
+  if (isLoadingProfile) {
+    return (
+      <div className="flex justify-center items-center min-h-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (profileError) {
+    const isAuthError =
+      profileError.includes("session") ||
+      profileError.includes("login") ||
+      profileError.includes("Unauthorized");
+
+    return (
+      <div className="flex justify-center items-center min-h-100">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">Error loading profile</div>
+          <div className="text-gray-600 mb-4">{profileError}</div>
+          {isAuthError ? (
+            <button
+              onClick={() => (window.location.href = "/auth/login")}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Go to Login
+            </button>
+          ) : (
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

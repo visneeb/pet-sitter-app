@@ -5,6 +5,7 @@ export type ProfileFormValues = {
   email: string;
   phone: string;
   profile_img_url?: string;
+  password?: string;
 };
 
 export function validateProfile(

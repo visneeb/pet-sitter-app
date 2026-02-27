@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { supabase } from "@/lib/supabaseClient";
+import { userApi } from "@/services/api/userApi";
 
 type ConfirmPasswordValues = {
   password: string;
@@ -10,7 +10,7 @@ type ConfirmPasswordValues = {
 
 interface Options {
   newEmail: string;
-  onSuccess?: () => void;
+  onSuccess?: (password?: string) => void;
   onClose?: () => void;
 }
 
@@ -39,50 +39,44 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
     }
 
     try {
-      // Re-authenticate with current password first
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      console.log("Current user:", user);
+      // Get current user data from backend API
+      const currentUser = await userApi.getCurrentUser();
 
-      if (!user?.email) {
-        setError("password", { type: "server", message: "User not found." });
-        return;
-      }
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: data.password,
-      });
-      console.log("Sign in result:", { signInError });
-
-      if (signInError) {
+      if (!currentUser) {
         setError("password", {
           type: "server",
-          message: "Incorrect password.",
+          message: "No active session",
         });
         return;
       }
 
-      // Password confirmed — update email
-      const { error: updateError } = await supabase.auth.updateUser({
+      console.log("Current user:", currentUser);
+      console.log("Updating email from:", currentUser.email, "to:", newEmail);
+
+      // Update email using backend API
+      const result = await userApi.updateProfile({
+        name: currentUser.name,
+        phone: currentUser.phone,
         email: newEmail,
+        password: data.password,
       });
-      console.log("Email update result:", { updateError });
 
-      if (updateError) {
-        setError("password", { type: "server", message: updateError.message });
-        return;
-      }
+      console.log("Email update response:", result);
 
+      console.log("Email update successful");
       setIsSuccess(true);
       methods.reset();
-      setTimeout(() => onSuccess?.(), 2000);
-    } catch (error) {
-      console.error("Unexpected error:", error);
+      setTimeout(() => onSuccess?.(data.password), 2000);
+    } catch (error: any) {
+      console.error("Email update error:", error);
+      console.error("Error response:", error.response?.data);
+
       setError("password", {
         type: "server",
-        message: "An unexpected error occurred.",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to update email",
       });
     }
   };

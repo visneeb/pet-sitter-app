@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { supabase } from "@/lib/supabaseClient";
 import {
   ProfileFormValues,
   validateProfile,
@@ -11,14 +10,14 @@ import { createResolver } from "@/lib/form/createResolver";
 import {
   uploadAvatarApi,
   deleteAvatarApi,
-  getProfileApi,
-  updateProfileApi,
 } from "@/services/api/avatarApi";
+import { userApi } from "@/services/api/userApi";
 import { ImageFile } from "@/types/imageUploadType";
 
 export function useUserProfileForm() {
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [profileError, setProfileError] = useState<string | null>(null);
   const [originalEmail, setOriginalEmail] = useState(""); // ← track original
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [pendingData, setPendingData] = useState<ProfileFormValues | null>(
@@ -44,32 +43,40 @@ export function useUserProfileForm() {
     formState: { isSubmitting },
   } = methods;
 
-  //  Load profile 
+  //  Load profile
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        setProfileError(null);
 
-        if (user?.email) {
-          setOriginalEmail(user.email);
-          methods.setValue("email", user.email);
+        // Check if user has JWT token
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("accessToken")
+            : null;
+
+        if (!token) {
+          setProfileError("No active session. Please login again.");
+          setIsLoadingProfile(false);
+          return;
         }
 
-        const data = await getProfileApi();
+        // Get user profile from backend API
+        const data = await userApi.getCurrentUser();
 
         if (data) {
+          setOriginalEmail(data.email);
           methods.reset({
-            name: data.name ?? "",
-            phone: data.phone ?? "",
-            email: data.email ?? user?.email ?? "",
-            profile_img_url: data.profileImgUrl ?? "",
+            name: data.name || "",
+            phone: data.phone || "",
+            email: data.email || "",
+            profile_img_url: data.profileImgUrl || "",
           });
         }
-      } catch {
-        // leave defaults
+      } catch (error: any) {
+        console.error("Failed to load profile:", error);
+        setProfileError(error.message || "Failed to load profile data");
       } finally {
         setIsLoadingProfile(false);
       }
@@ -78,7 +85,7 @@ export function useUserProfileForm() {
     loadProfile();
   }, []);
 
-  //  Avatar 
+  //  Avatar
 
   const handleAvatarChange = async (file: ImageFile) => {
     const oldUrl = getValues("profile_img_url");
@@ -130,40 +137,104 @@ export function useUserProfileForm() {
     }
   };
 
-  //  Submit 
+  //  Submit
 
   const onSubmit = async (data: ProfileFormValues) => {
     const emailChanged = data.email.trim() !== originalEmail.trim();
 
     if (emailChanged) {
-      // Save data and show password modal — don't update yet
+      // Save data and show password modal
       setPendingData(data);
       setShowPasswordModal(true);
       return;
     }
 
-    // Email unchanged — update profile fields only
+    // Email unchanged
     await updateProfile(data);
   };
 
   const updateProfile = async (data: ProfileFormValues) => {
-    const result = await updateProfileApi({
-      name: data.name,
-      phone: data.phone,
-      profileImgUrl: data.profile_img_url ?? "",
-    });
+    try {
+      // Get current user data from backend API
+      const currentUser = await userApi.getCurrentUser();
 
-    if (result.error) {
-      setError("root", { type: "server", message: result.error });
+      if (!currentUser) {
+        throw new Error("No active session");
+      }
+
+      // Only update name and phone
+      const payload = {
+        name: data.name,
+        phone: data.phone,
+      };
+
+      console.log("Updating profile with payload:", payload);
+
+      // Update profile using backend API
+      const result = await userApi.updateProfile(payload);
+
+      console.log("Profile update response:", result);
+
+      if (result.message) {
+        console.log("Profile updated successfully");
+      }
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      console.error("Error response:", error.response?.data);
+
+      setError("root", {
+        type: "server",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to update profile",
+      });
     }
   };
 
-  const onEmailConfirmed = async () => {
-    // Email changed successfully — now update the rest of the fields
-    if (pendingData) await updateProfile(pendingData);
-    setOriginalEmail(pendingData?.email ?? "");
-    setShowPasswordModal(false);
-    setPendingData(null);
+  const onEmailConfirmed = async (password?: string) => {
+    try {
+      // Get current user data from backend API
+      const currentUser = await userApi.getCurrentUser();
+
+      if (!currentUser || !pendingData) {
+        throw new Error("No active session or missing data");
+      }
+
+      // Prepare payload for email update
+      const payload = {
+        name: pendingData.name,
+        phone: pendingData.phone,
+        email: pendingData.email,
+        password: password,
+      };
+
+      console.log("Updating email with payload:", payload);
+
+      // Update email using backend API
+      const result = await userApi.updateProfile(payload);
+
+      console.log("Email update response:", result);
+
+      if (result.message) {
+        console.log("Email updated successfully");
+      }
+
+      setOriginalEmail(pendingData?.email ?? "");
+      setShowPasswordModal(false);
+      setPendingData(null);
+    } catch (error: any) {
+      console.error("Email update error:", error);
+      console.error("Error response:", error.response?.data);
+
+      setError("root", {
+        type: "server",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to update email",
+      });
+    }
   };
 
   const onModalClose = () => {
@@ -177,10 +248,11 @@ export function useUserProfileForm() {
     isSubmitting,
     isLoadingProfile,
     isUploadingFile,
+    profileError,
     handleAvatarChange,
     showPasswordModal,
     pendingData,
-    onEmailConfirmed,
+    onEmailConfirmed: (password?: string) => onEmailConfirmed(password),
     onModalClose,
   };
 }

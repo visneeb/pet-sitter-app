@@ -50,7 +50,7 @@ export async function proxy(request: NextRequest) {
   );
 
   try {
-    // getUser() validates the session against Supabase — never trusts only cookies
+    // getUser() validates the session against Supabase
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -71,8 +71,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // ⚠️  DEV MODE: empty matcher — middleware never runs on any route.
-  //    Uncomment when renaming this file to `middleware.ts` for production.
   matcher: [
     // "/user-profile/:path*",
     // "/booking-history/:path*",

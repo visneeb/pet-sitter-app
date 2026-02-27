@@ -15,3 +15,4 @@ export {
   uploadSitterImage,
   deleteSitterImage,
 } from "./storageApi";
+export { sitterApi } from "./sitterApi";
