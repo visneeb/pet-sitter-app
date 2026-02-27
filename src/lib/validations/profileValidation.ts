@@ -26,6 +26,11 @@ export function validateProfile(
     errors.phone = { type: "required", message: "Phone is required" };
   } else if (!/^\d+$/.test(data.phone)) {
     errors.phone = { type: "pattern", message: "Phone number must be numeric" };
+  } else if (data.phone.length < 10 || !data.phone.startsWith("0")) {
+    errors.phone = {
+      type: "pattern",
+      message: "Phone must start with 0 and be 10 digits.",
+    };
   }
 
   return errors;

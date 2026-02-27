@@ -20,14 +20,16 @@ export default function HomePage() {
 
   return (
     <>
-      <section id="Hero-Section" className="w-full">
-        <HeroSection />
-      </section>
-      <section id="search" className="w-full">
-        <PetSitterSearchProvider>
-          <SearchBar />
-        </PetSitterSearchProvider>
-      </section>
+      <div className="pt-20">
+        <section id="Hero-Section" className="w-full">
+          <HeroSection />
+        </section>
+        <section id="search" className="w-full p-t">
+          <PetSitterSearchProvider>
+            <SearchBar />
+          </PetSitterSearchProvider>
+        </section>
+      </div>
       <section className="flex flex-col gap-32 p-20">
         <h1
           className={cn(

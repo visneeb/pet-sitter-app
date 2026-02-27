@@ -78,7 +78,7 @@ export default function NavbarUser() {
             >
               <li>
                 <Link
-                  href="/profile"
+                  href="/user-profile"
                   className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
                 >
                   <User className="text-gray-600" />
@@ -87,7 +87,7 @@ export default function NavbarUser() {
               </li>
               <li>
                 <Link
-                  href="/my-pet"
+                  href="/pets"
                   className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
                 >
                   <PawPrint className="text-gray-600" />

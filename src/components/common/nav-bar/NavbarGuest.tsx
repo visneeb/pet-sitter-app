@@ -28,10 +28,10 @@ export default function NavbarGuest() {
         {isMedium && (
           <>
             <div className="px-[24px] py-[16px] style-body-1 text-black">
-              <Link href="/register-pet-sitter">Become a Pet Sitter</Link>
+              <Link href="auth/register">Become a Pet Sitter</Link>
             </div>
             <div className="px-[24px] py-[16px] style-body-1 text-black">
-              <Link href="/login">Login</Link>
+              <Link href="auth/login">Login</Link>
             </div>
           </>
         )}

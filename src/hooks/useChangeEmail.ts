@@ -28,39 +28,63 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
   } = methods;
 
   const onSubmit = async (data: ConfirmPasswordValues) => {
+    console.log("Submitting password confirmation:", data);
+
     if (!data.password.trim()) {
-      setError("password", { type: "required", message: "Password is required." });
+      setError("password", {
+        type: "required",
+        message: "Password is required.",
+      });
       return;
     }
 
-    // Re-authenticate with current password first
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email) {
-      setError("password", { type: "server", message: "User not found." });
-      return;
+    try {
+      // Re-authenticate with current password first
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      console.log("Current user:", user);
+
+      if (!user?.email) {
+        setError("password", { type: "server", message: "User not found." });
+        return;
+      }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: data.password,
+      });
+      console.log("Sign in result:", { signInError });
+
+      if (signInError) {
+        setError("password", {
+          type: "server",
+          message: "Incorrect password.",
+        });
+        return;
+      }
+
+      // Password confirmed — update email
+      const { error: updateError } = await supabase.auth.updateUser({
+        email: newEmail,
+      });
+      console.log("Email update result:", { updateError });
+
+      if (updateError) {
+        setError("password", { type: "server", message: updateError.message });
+        return;
+      }
+
+      setIsSuccess(true);
+      methods.reset();
+      setTimeout(() => onSuccess?.(), 2000);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      setError("password", {
+        type: "server",
+        message: "An unexpected error occurred.",
+      });
     }
-
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email,
-      password: data.password,
-    });
-
-    if (signInError) {
-      setError("password", { type: "server", message: "Incorrect password." });
-      return;
-    }
-
-    // Password confirmed — update email
-    const { error: updateError } = await supabase.auth.updateUser({ email: newEmail });
-
-    if (updateError) {
-      setError("password", { type: "server", message: updateError.message });
-      return;
-    }
-
-    setIsSuccess(true);
-    methods.reset();
-    setTimeout(() => onSuccess?.(), 2000);
   };
 
   return {

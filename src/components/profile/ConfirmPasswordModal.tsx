@@ -2,7 +2,8 @@
 
 import { FormProvider } from "react-hook-form";
 import { useChangeEmail } from "@/hooks/useChangeEmail";
-import { RHFInput } from "@/components/form/RHFInput";
+import { ActionButton } from "../ui/Button";
+import { PasswordInput } from "@/components/form/index";
 
 interface Props {
   newEmail: string;
@@ -29,12 +30,10 @@ export function ConfirmPasswordModal({ newEmail, onSuccess, onClose }: Props) {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Confirm Password
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="style-headline-4 text-gray-900">Confirm Password</h2>
+            <p className="style-body-2 text-gray-500 mt-1">
               Enter your password to change email to{" "}
-              <span className="font-medium text-gray-700">{newEmail}</span>
+              <span className="style-body-2 text-gray-600">{newEmail}</span>
             </p>
           </div>
           <button
@@ -67,28 +66,24 @@ export function ConfirmPasswordModal({ newEmail, onSuccess, onClose }: Props) {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
-            <RHFInput
+            <PasswordInput
               name="password"
               label="Current Password"
-              type="password"
               placeholder="Enter your password"
+              error={errors.password?.message}
             />
 
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 py-2.5 rounded-lg border border-gray-300 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
+            <div className="flex justify-around px-5 w-full">
+              <ActionButton variant="ghost" onClick={onClose}>
                 Cancel
-              </button>
-              <button
+              </ActionButton>
+              <ActionButton
+                variant="primary"
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
               >
                 {isSubmitting ? "Confirming..." : "Confirm"}
-              </button>
+              </ActionButton>
             </div>
           </form>
         </FormProvider>
