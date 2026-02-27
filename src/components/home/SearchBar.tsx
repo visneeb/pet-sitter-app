@@ -44,7 +44,7 @@ export default function SearchBar() {
           contentStyle={cn(
             isWebView ? "flex-row gap-3" : "flex-col gap-4 w-full",
           )}
-          listStyle={isWebView ? "gap-x-[26px]" : "gap-x-5"}
+          listStyle={cn("",isWebView ? "gap-x-[26px]" : "gap-x-5")}
         />
       </div>
       <div

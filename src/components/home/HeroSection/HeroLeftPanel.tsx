@@ -72,15 +72,27 @@ export function HeroLeftPanel({ className }: { readonly className?: string }) {
       >
         <div className="relative">
           <EllipseCut
+            id="shape_cat"
             className="text-blue-500"
             style={{ width: ELLIPSE_CUT_SIZE, height: ELLIPSE_CUT_SIZE }}
           />
+
+          <svg width="0" height="0">
+            <defs>
+              <clipPath id="catClip">
+                <path d="M253 253V118L109 253H253Z" />
+                <path d="M0 126.5C0 196.364 56.636 253 126.5 253C196.364 253 253 196.364 253 126.5C253 56.636 196.364 0 126.5 0C56.636 0 0 56.636 0 126.5Z" />
+              </clipPath>
+            </defs>
+          </svg>
+
           <Image
             src={HERO_CAT_IMAGE}
             alt="Cute pet"
             width={CAT_IMAGE_SIZE}
             height={CAT_IMAGE_SIZE}
             className="absolute bottom-0 right-0 z-10"
+            style={{ clipPath: "url(#catClip)" }}
           />
         </div>
       </div>

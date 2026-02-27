@@ -33,7 +33,7 @@ export function HeroTextContent() {
       <p
         className={cn(
           "text-gray-400 ",
-          isWebView ? "style-headline-3" : "style-headline-4",
+          isWebView ? "style-headline-3 mt-[32px]" : "style-headline-4 mt-[24px]",
         )}
       >
         Find your perfect pet sitter with us.
