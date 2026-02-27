@@ -8,7 +8,7 @@ export function useImagePreview(file: ImageFile, defaultUrl?: string) {
 
   useEffect(() => {
     if (!file) {
-      setPreview(defaultUrl || null);
+      setPreview(defaultUrl ?? null);
       return;
     }
 

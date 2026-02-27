@@ -1,17 +1,13 @@
+import { privateApi } from "@/services/api/client";
 import { UploadResponse } from "@/types/imageUploadType";
 
 export async function uploadImage(file: File): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch("/api/upload", {
-    method: "POST",
-    body: formData,
+  const { data } = await privateApi.post<UploadResponse>("/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
 
-  if (!response.ok) {
-    throw new Error("Upload failed");
-  }
-
-  return response.json();
+  return data;
 }

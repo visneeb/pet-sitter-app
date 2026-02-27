@@ -3,7 +3,7 @@
 import * as React from "react";
 import cn from "@/utils/cn";
 import { useFormField } from "./FormField";
-import { AlertCircle } from "lucide-react";
+import { ExclamationCircleIcon } from "@/assets/icons/components";
 import { FormControlProps } from "@/types/formType";
 
 export function FormControl({
@@ -34,10 +34,15 @@ export function FormControl({
       })}
 
       {error && !noErrorIcon && (
-        <AlertCircle
-          size={18}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-red pointer-events-none"
-        />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          <div className="bg-red rounded-full flex items-center justify-center">
+            <ExclamationCircleIcon
+              primaryColor="white"
+              secondaryColor="red"
+              size={18}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

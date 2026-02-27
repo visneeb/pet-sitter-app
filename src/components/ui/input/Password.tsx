@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { Input } from "./Input";
 import cn from "@/utils/cn";
 import * as React from "react";
+import { ExclamationCircleIcon } from "@/assets/icons/components";
 
 type Props = React.ComponentPropsWithoutRef<typeof Input> & {
   hasError?: boolean;
@@ -26,8 +27,13 @@ export const Password = React.forwardRef<HTMLInputElement, Props>(
 
         {/* Error icon */}
         {hasError && (
-          <span className="absolute inset-y-0 right-12 flex items-center pointer-events-none text-red">
-            <AlertCircle size={18} />
+          <span className="absolute inset-y-0 right-12 flex items-center pointer-events-none">
+            <ExclamationCircleIcon
+              primaryColor="white"
+              secondaryColor="red"
+              size={18}
+              className=" bg-red rounded-full"
+            />
           </span>
         )}
 

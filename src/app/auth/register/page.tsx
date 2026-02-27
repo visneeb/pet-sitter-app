@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Paw } from "@/decorations/Paw";
-import { QuadrantEllipse } from "@/decorations/Ellipse";
-import { Star } from "@/decorations/Shapes";
+
 import facebookIcon from "@/assets/icons/fb.svg";
 import gmailIcon from "@/assets/icons/gg.svg";
 import { Form } from "@/components/form/index";

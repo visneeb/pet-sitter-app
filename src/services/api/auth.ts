@@ -1,4 +1,4 @@
-import { publicApi } from "@/lib/publicApi";
+import { publicApi } from "./client";
 import { RegisterFormValues, Role, LoginFormValues } from "@/types/authType";
 
 const roleMap: Record<Role, "owner" | "sitter"> = {
