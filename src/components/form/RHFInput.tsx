@@ -31,24 +31,14 @@ export function RHFInput<T extends FieldValues>({
   const errorMessage = error?.message?.toString();
 
   return (
-    <FormField
-      name={name}
-      error={!!error}
-      errorMessage={errorMessage}
-      disabled={props.disabled}
-    >
+    <FormField name={name} disabled={props.disabled}>
       <FormLabel>
         {label}
         {required && <span>*</span>}
       </FormLabel>
 
       <FormControl>
-        <Input
-          {...register(name)}
-          {...props}
-          autoComplete="on"
-          error={!!error}
-        />
+        <Input {...register(name)} {...props} autoComplete="on" />
       </FormControl>
 
       {description && <FormDescription>{description}</FormDescription>}

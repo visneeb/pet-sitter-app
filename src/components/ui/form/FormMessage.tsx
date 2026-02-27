@@ -6,7 +6,7 @@ import cn from "@/utils/cn";
 export function FormMessage({ className }: { className?: string }) {
   const { messageId, error, errorMessage } = useFormField();
 
-  if (!error) return null;
+  if (!error && !errorMessage) return null;
 
   return (
     <p id={messageId} className={cn("style-body-3 text-red", className)}>

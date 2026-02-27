@@ -4,7 +4,7 @@ import { useFormContext } from "react-hook-form";
 
 export function RegisterFields() {
   const {
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
     watch,
   } = useFormContext<RegisterFormValues>();
 
@@ -19,7 +19,6 @@ export function RegisterFields() {
           type="email"
           label="Email"
           placeholder="email@company.com"
-          error={errors.email?.message}
         />
       </div>
 
@@ -30,7 +29,6 @@ export function RegisterFields() {
           type="tel"
           label="Phone"
           placeholder="Your phone number"
-          error={errors.phone?.message}
         />
       </div>
 
@@ -40,7 +38,6 @@ export function RegisterFields() {
           name="password"
           label="Password"
           placeholder="Create your password"
-          error={errors.password?.message}
         />
       </div>
       <div className="w-full">

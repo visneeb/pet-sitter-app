@@ -47,39 +47,16 @@ export function RHFAvatarUpload({
                 value={fileValue}
                 currentUrl={urlValue}
                 onChange={async (file: ImageFile) => {
-                  // Store the File in RHF while upload is in progress;
-                  // handleAvatarChange will call setValue("profile_img_url", publicUrl)
-                  // once the upload completes, replacing it with the real URL string.
+                  // Store the File in RHF while upload is in progress
                   field.onChange(file);
-                  if (onUpload) await onUpload(file);
+                  // Defer the upload to avoid setState during render
+                  setTimeout(async () => {
+                    if (onUpload) await onUpload(file);
+                  }, 0);
                 }}
                 defaultImage={defaultImage}
                 sampleImage={sampleImage}
               />
-
-              {isUploading && (
-                <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-                  <svg
-                    className="animate-spin w-8 h-8 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8H4z"
-                    />
-                  </svg>
-                </div>
-              )}
             </div>
 
             {fieldState.error && (

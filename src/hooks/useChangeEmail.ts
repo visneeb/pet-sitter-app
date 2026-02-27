@@ -71,13 +71,26 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
       console.error("Email update error:", error);
       console.error("Error response:", error.response?.data);
 
-      setError("password", {
-        type: "server",
-        message:
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to update email",
-      });
+      const errorMessage = error.response?.data?.error || error.message || "";
+
+      // Handle specific password mismatch error
+      if (
+        error.response?.status === 401 ||
+        errorMessage.toLowerCase().includes("password") ||
+        errorMessage.toLowerCase().includes("incorrect") ||
+        (errorMessage.toLowerCase().includes("invalid") &&
+          !errorMessage.toLowerCase().includes("email"))
+      ) {
+        setError("password", {
+          type: "server",
+          message: "Password does not match",
+        });
+      } else {
+        setError("password", {
+          type: "server",
+          message: errorMessage,
+        });
+      }
     }
   };
 

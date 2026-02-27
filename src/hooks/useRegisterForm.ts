@@ -4,15 +4,12 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { createResolver } from "@/lib/form/createResolver";
-import { Role, RegisterFormValues } from "@/types/authType";
+import { RegisterFormValues } from "@/types/authType";
 import { validateRegister } from "@/lib/validations/registerFormValidation";
 import { authApi } from "@/services/api/auth";
 
-//  Hook 
-
 export function useRegisterForm() {
   const router = useRouter();
-  const [serverError, setServerError] = useState("");
   const [serverSuccess, setServerSuccess] = useState("");
 
   const methods = useForm<RegisterFormValues>({
@@ -32,7 +29,6 @@ export function useRegisterForm() {
   } = methods;
 
   const onSubmit = async (data: RegisterFormValues) => {
-    setServerError("");
     setServerSuccess("");
 
     try {
@@ -41,17 +37,15 @@ export function useRegisterForm() {
       setServerSuccess(
         res.message || "User registered successfully. Redirecting...",
       );
-      setTimeout(() => router.push("/login"), 1200);
+
+      setTimeout(() => router.push("/auth/login"), 1200);
     } catch (err: any) {
-      const message: string =
-        err?.response?.data?.error || err?.message || "Register failed";
+      const message = err.message;
 
       if (message.toLowerCase().includes("phone")) {
         setError("phone", { type: "server", message });
-      } else if (message.toLowerCase().includes("email")) {
-        setError("email", { type: "server", message });
       } else {
-        setServerError(message);
+        setError("email", { type: "server", message });
       }
     }
   };
@@ -60,7 +54,6 @@ export function useRegisterForm() {
     methods,
     onSubmit,
     isSubmitting,
-    serverError,
     serverSuccess,
   };
 }

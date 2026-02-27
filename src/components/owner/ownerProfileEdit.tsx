@@ -1,10 +1,8 @@
 "use client";
 
 import { FormProvider } from "@/components/form/FormProvider";
-import { Input } from "@/components/form/index";
-import { SubmitButton } from "@/components/form/FormSubmitButton";
+import { Input, AvatarUpload, SubmitButton } from "@/components/form/index";
 import { useUserProfileForm } from "@/hooks/useUserProfileForm";
-import { RHFAvatarUpload } from "@/components/form/image-upload/RHFAvatarUpload";
 import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
 
 export default function ProfileEdit() {
@@ -12,6 +10,7 @@ export default function ProfileEdit() {
     methods,
     onSubmit,
     isSubmitting,
+    isUpdating,
     isUploadingFile,
     isLoadingProfile,
     profileError,
@@ -25,7 +24,7 @@ export default function ProfileEdit() {
   if (isLoadingProfile) {
     return (
       <div className="flex justify-center items-center min-h-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
       </div>
     );
   }
@@ -44,14 +43,14 @@ export default function ProfileEdit() {
           {isAuthError ? (
             <button
               onClick={() => (window.location.href = "/auth/login")}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
               Go to Login
             </button>
           ) : (
             <button
               onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
               Retry
             </button>
@@ -66,10 +65,10 @@ export default function ProfileEdit() {
       <FormProvider
         methods={methods}
         onSubmit={onSubmit}
-        disabled={isSubmitting}
+        disabled={isSubmitting || isUpdating}
       >
         <div className="flex flex-col gap-15">
-          <RHFAvatarUpload
+          <AvatarUpload
             name="profile_img_url"
             onUpload={handleAvatarChange}
             isUploading={isUploadingFile}
@@ -102,7 +101,11 @@ export default function ProfileEdit() {
           </div>
 
           <div className="flex justify-end">
-            <SubmitButton isLoading={isSubmitting || isUploadingFile}>
+            <SubmitButton
+              isLoading={isSubmitting || isUpdating || isUploadingFile}
+              requireValid={true}
+              requireDirty={true}
+            >
               Update Profile
             </SubmitButton>
           </div>
@@ -117,6 +120,7 @@ export default function ProfileEdit() {
           onClose={onModalClose}
         />
       )}
+      {}
     </>
   );
 }

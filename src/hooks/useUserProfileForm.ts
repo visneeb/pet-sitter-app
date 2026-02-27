@@ -7,25 +7,24 @@ import {
   validateProfile,
 } from "@/lib/validations/profileValidation";
 import { createResolver } from "@/lib/form/createResolver";
-import {
-  uploadAvatarApi,
-  deleteAvatarApi,
-} from "@/services/api/avatarApi";
-import { userApi } from "@/services/api/userApi";
+import { ProfileService } from "@/services/profileService";
+import { showCustomToast } from "@/components/ui/toast/Toast";
 import { ImageFile } from "@/types/imageUploadType";
 
 export function useUserProfileForm() {
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState<string | null>(null);
-  const [originalEmail, setOriginalEmail] = useState(""); // ← track original
+  const [originalEmail, setOriginalEmail] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [pendingData, setPendingData] = useState<ProfileFormValues | null>(
     null,
   );
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [resetData, setResetData] = useState<ProfileFormValues | null>(null);
 
   const methods = useForm<ProfileFormValues>({
-    mode: "onSubmit",
+    mode: "onChange",
     resolver: createResolver(validateProfile),
     defaultValues: {
       name: "",
@@ -63,7 +62,7 @@ export function useUserProfileForm() {
         }
 
         // Get user profile from backend API
-        const data = await userApi.getCurrentUser();
+        const data = await ProfileService.getCurrentProfile();
 
         if (data) {
           setOriginalEmail(data.email);
@@ -85,33 +84,32 @@ export function useUserProfileForm() {
     loadProfile();
   }, []);
 
+  // Handle form reset when resetData changes
+  useEffect(() => {
+    if (resetData) {
+      methods.reset(resetData);
+      setResetData(null);
+    }
+  }, [resetData, methods]);
+
   //  Avatar
 
   const handleAvatarChange = async (file: ImageFile) => {
     const oldUrl = getValues("profile_img_url");
 
     if (!file) {
-      if (oldUrl) await deleteAvatarApi(oldUrl);
+      if (oldUrl) await ProfileService.deleteAvatar(oldUrl);
       setValue("profile_img_url", "", { shouldValidate: false });
       clearErrors("profile_img_url");
       return;
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    const maxSize = 5 * 1024 * 1024;
-
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file
+    const validation = ProfileService.validateAvatar(file);
+    if (!validation.isValid) {
       setError("profile_img_url", {
         type: "manual",
-        message: "Only JPG or PNG files are allowed.",
-      });
-      return;
-    }
-
-    if (file.size > maxSize) {
-      setError("profile_img_url", {
-        type: "manual",
-        message: "File size must be under 5MB.",
+        message: validation.error!,
       });
       return;
     }
@@ -120,13 +118,8 @@ export function useUserProfileForm() {
 
     try {
       setIsUploadingFile(true);
-
-      if (oldUrl) await deleteAvatarApi(oldUrl);
-
-      const result = await uploadAvatarApi(file);
-      if (result.error) throw new Error(result.error);
-
-      setValue("profile_img_url", result.publicUrl!, { shouldValidate: true });
+      const publicUrl = await ProfileService.uploadAvatar(file, oldUrl);
+      setValue("profile_img_url", publicUrl, { shouldValidate: true });
     } catch (err: any) {
       setError("profile_img_url", {
         type: "server",
@@ -140,6 +133,8 @@ export function useUserProfileForm() {
   //  Submit
 
   const onSubmit = async (data: ProfileFormValues) => {
+    if (isUpdating) return;
+
     const emailChanged = data.email.trim() !== originalEmail.trim();
 
     if (emailChanged) {
@@ -148,35 +143,25 @@ export function useUserProfileForm() {
       setShowPasswordModal(true);
       return;
     }
-
+    setIsUpdating(true);
     // Email unchanged
     await updateProfile(data);
   };
 
   const updateProfile = async (data: ProfileFormValues) => {
     try {
-      // Get current user data from backend API
-      const currentUser = await userApi.getCurrentUser();
-
-      if (!currentUser) {
-        throw new Error("No active session");
-      }
-
-      // Only update name and phone
-      const payload = {
-        name: data.name,
-        phone: data.phone,
-      };
-
-      console.log("Updating profile with payload:", payload);
-
-      // Update profile using backend API
-      const result = await userApi.updateProfile(payload);
-
-      console.log("Profile update response:", result);
+      // Update profile using service
+      const result = await ProfileService.updateProfile(data);
 
       if (result.message) {
         console.log("Profile updated successfully");
+        showCustomToast({
+          title: "Profile updated successfully",
+          description: "Your changes have been saved.",
+          variant: "success",
+        });
+        // Trigger form reset via useEffect to avoid render issues
+        setResetData(data);
       }
     } catch (error: any) {
       console.error("Profile update error:", error);
@@ -189,35 +174,32 @@ export function useUserProfileForm() {
           error.message ||
           "Failed to update profile",
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const onEmailConfirmed = async (password?: string) => {
     try {
-      // Get current user data from backend API
-      const currentUser = await userApi.getCurrentUser();
-
-      if (!currentUser || !pendingData) {
-        throw new Error("No active session or missing data");
+      if (!pendingData) {
+        throw new Error("No pending data");
       }
 
-      // Prepare payload for email update
-      const payload = {
-        name: pendingData.name,
-        phone: pendingData.phone,
-        email: pendingData.email,
-        password: password,
-      };
-
-      console.log("Updating email with payload:", payload);
-
-      // Update email using backend API
-      const result = await userApi.updateProfile(payload);
-
-      console.log("Email update response:", result);
+      // Update email using service
+      const result = await ProfileService.updateProfileWithEmail(
+        pendingData,
+        password!,
+      );
 
       if (result.message) {
         console.log("Email updated successfully");
+        showCustomToast({
+          title: "Email updated successfully",
+          description: "Your email has been changed.",
+          variant: "success",
+        });
+        // Trigger form reset via useEffect to avoid render issues
+        setResetData(pendingData);
       }
 
       setOriginalEmail(pendingData?.email ?? "");
@@ -234,18 +216,22 @@ export function useUserProfileForm() {
           error.message ||
           "Failed to update email",
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const onModalClose = () => {
     setShowPasswordModal(false);
     setPendingData(null);
+    setIsUpdating(false);
   };
 
   return {
     methods,
     onSubmit,
     isSubmitting,
+    isUpdating,
     isLoadingProfile,
     isUploadingFile,
     profileError,

@@ -1,42 +1,27 @@
 import { privateApi } from "./client";
 
 // TODO: Implement avatar upload endpoints in backend
-// export async function uploadAvatarApi(
-//   file: File,
-// ): Promise<{ publicUrl?: string; error?: string }> {
-//   const formData = new FormData();
-//   formData.append("file", file);
-
-//   const { data } = await privateApi.post("/upload/avatar", formData, {
-//     headers: { "Content-Type": "multipart/form-data" },
-//   });
-
-//   return data;
-// }
-
-// export async function deleteAvatarApi(
-//   publicUrl: string,
-// ): Promise<{ success?: boolean; error?: string }> {
-//   const { data } = await privateApi.delete("/upload/avatar", {
-//     data: { publicUrl },
-//   });
-
-//   return data;
-// }
-
-// Temporary placeholder functions until backend implements upload
 export async function uploadAvatarApi(
   file: File,
 ): Promise<{ publicUrl?: string; error?: string }> {
-  // Return placeholder URL or error until backend implements upload
-  return { error: "Avatar upload not implemented yet" };
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const { data } = await privateApi.post("/upload/avatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  return data;
 }
 
 export async function deleteAvatarApi(
   publicUrl: string,
 ): Promise<{ success?: boolean; error?: string }> {
-  // Return success until backend implements upload
-  return { success: true };
+  const { data } = await privateApi.delete("/upload/avatar", {
+    data: { publicUrl },
+  });
+
+  return data;
 }
 
 export async function getProfileApi(): Promise<{

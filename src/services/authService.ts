@@ -110,6 +110,14 @@ export const authService = {
     }
   },
 
+  logout: () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("accessToken");
+      // Redirect to login page
+      window.location.href = "/auth/login";
+    }
+  },
+
   updateEmail: async (newEmail: string, password: string) => {
     const currentUser = await userApi.getCurrentUser();
 

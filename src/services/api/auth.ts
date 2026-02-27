@@ -21,15 +21,17 @@ export type ResetPasswordResponse = { message?: string };
 export type LogoutResponse = { message?: string };
 
 export const authApi = {
-  register: (data: RegisterPayload): Promise<RegisterResponse> =>
-    publicApi
-      .post("/auth/register", {
-        email: data.email?.trim(),
-        phone: data.phone?.trim(),
-        password: data.password,
-        role: roleMap[data.role],
-      })
-      .then((res) => res.data),
+  register: (data: RegisterPayload): Promise<RegisterResponse> => {
+    const payload = {
+      email: data.email?.trim(),
+      phone: data.phone?.trim(),
+      password: data.password,
+      role: roleMap[data.role],
+    };
+    console.log("Sending registration data:", payload);
+
+    return publicApi.post("/auth/register", payload).then((res) => res.data);
+  },
 
   login: (data: LoginPayload): Promise<LoginResponse> =>
     publicApi

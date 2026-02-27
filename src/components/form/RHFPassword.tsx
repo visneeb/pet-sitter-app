@@ -21,7 +21,6 @@ export function RHFPassword<T extends FieldValues>({
   label,
   required,
   description,
-  error,
   ...props
 }: Props<T>) {
   const {
@@ -29,8 +28,16 @@ export function RHFPassword<T extends FieldValues>({
     formState: { errors },
   } = useFormContext<T>();
 
+  const error = get(errors, name);
+  const errorMessage = error?.message?.toString();
+
   return (
-    <FormField error={!!error} errorMessage={error} name={name}>
+    <FormField
+      name={name}
+      error={!!error}
+      errorMessage={errorMessage}
+      disabled={props.disabled}
+    >
       <FormLabel>
         {label}
         {required && <span>*</span>}
@@ -44,7 +51,6 @@ export function RHFPassword<T extends FieldValues>({
           })}
           {...props}
           autoComplete="new-password"
-          error={error}
         />
       </FormControl>
 

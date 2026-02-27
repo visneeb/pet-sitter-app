@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { authApi } from "@/services/api/auth";
 import { supabase } from "@/lib/supabaseClient";
+import { authService } from "@/services/authService";
 
 interface Options {
   onSuccess?: () => void;
@@ -20,11 +21,14 @@ export function useLogout({ onSuccess, onError }: Options = {}) {
       try {
         await authApi.logout();
       } catch (error) {
-        // Backend logout might fail if session expired, but continue with Supabase logout
+        // Backend logout might fail if session expired, but continue with local logout
         console.warn("Backend logout failed:", error);
       }
 
-      // Always logout from Supabase to clear local session
+      // Always clear localStorage token
+      authService.logout();
+
+      // Also logout from Supabase to clear local session
       await supabase.auth.signOut();
 
       onSuccess?.();

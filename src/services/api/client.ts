@@ -57,7 +57,8 @@ export const createApiInstance = (withAuth: boolean) => {
         );
       }
 
-      error.message = data?.error || `Request failed with status ${status}`;
+      error.message =
+        data?.message || data?.error || `Request failed with status ${status}`;
       return Promise.reject(error);
     },
   );

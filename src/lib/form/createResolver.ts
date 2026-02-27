@@ -13,7 +13,7 @@ export function createResolver<T extends FieldValues>(
 
     if (Object.keys(errors).length > 0) {
       return {
-        values: typedValues as unknown as Record<string, never>,
+        values: {},
         errors,
       };
     }
