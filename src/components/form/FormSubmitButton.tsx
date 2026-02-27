@@ -10,6 +10,8 @@ type Props = {
   loadingText?: string;
   disabled?: boolean;
   className?: string;
+  requireValid?: boolean;
+  requireDirty?: boolean;
 };
 
 export function SubmitButton({
@@ -18,14 +20,22 @@ export function SubmitButton({
   loadingText = "Submitting...",
   disabled: disabledProp,
   className,
+  requireValid = false,
+  requireDirty = false,
 }: Props) {
   const form = useFormContext();
 
   const isSubmitting = form?.formState?.isSubmitting ?? false;
   const isValidating = form?.formState?.isValidating ?? false;
+  const isValid = form?.formState?.isValid ?? true;
+  const isDirty = form?.formState?.isDirty ?? true;
 
   const loading = isLoading || isSubmitting;
-  const disabled = (disabledProp ?? loading) || isValidating;
+  const disabled =
+    (disabledProp ?? loading) ||
+    isValidating ||
+    (requireValid && !isValid) ||
+    (requireDirty && !isDirty);
 
   return (
     <ActionButton

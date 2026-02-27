@@ -1,5 +1,4 @@
 import axios from "axios";
-import { supabase } from "@/lib/supabaseClient";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -10,23 +9,31 @@ if (!baseURL) {
 export const createApiInstance = (withAuth: boolean) => {
   const instance = axios.create({ baseURL });
 
-  //  Private — attach Supabase session token
+  // Private - attach JWT token from localStorage
   if (withAuth && process.env.NEXT_PUBLIC_DISABLE_AUTH !== "true") {
     instance.interceptors.request.use(async (config) => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        // Get JWT token from localStorage (set by authService)
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("accessToken")
+            : null;
 
-      if (session?.access_token) {
-        config.headers = config.headers ?? {};
-        config.headers.Authorization = `Bearer ${session.access_token}`;
+        if (token) {
+          config.headers = config.headers ?? {};
+          config.headers.Authorization = `Bearer ${token}`;
+        } else {
+          console.warn("No JWT token found for authenticated request");
+        }
+      } catch (error) {
+        console.error("Error getting JWT token:", error);
       }
 
       return config;
     });
   }
 
-  //  Response error handler
+  // Response error handler
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -36,8 +43,22 @@ export const createApiInstance = (withAuth: boolean) => {
       }
 
       const { status, data } = error.response;
-      error.message = data?.error || `Request failed with status ${status}`;
 
+      // Handle unauthorized responses
+      if (status === 401) {
+        console.warn("Unauthorized - redirecting to login");
+        // Clear JWT token and redirect to login
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("accessToken");
+          window.location.href = "/auth/login";
+        }
+        return Promise.reject(
+          new Error("Session expired. Please login again."),
+        );
+      }
+
+      error.message =
+        data?.message || data?.error || `Request failed with status ${status}`;
       return Promise.reject(error);
     },
   );
@@ -45,6 +66,5 @@ export const createApiInstance = (withAuth: boolean) => {
   return instance;
 };
 
-//  Ready-to-use instances
 export const publicApi = createApiInstance(false);
 export const privateApi = createApiInstance(true);

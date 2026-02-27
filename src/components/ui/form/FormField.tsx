@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { useFormContext } from "react-hook-form";
 import cn from "@/utils/cn";
-import { FormFieldContextType, FormFieldProviderProps } from "@/types/formType";
+import { FormFieldContextType } from "@/types/formType";
 
 const FormFieldContext = React.createContext<FormFieldContextType | null>(null);
 
@@ -14,27 +15,29 @@ export function useFormField() {
   return context;
 }
 
-export function FormField({
-  name,
-  error,
-  errorMessage,
-  disabled,
-  children,
-  className,
-}: FormFieldProviderProps) {
-  const baseId = name ?? "field";
+type Props = {
+  name: string;
+  disabled?: boolean;
+  children: React.ReactNode;
+  className?: string;
+};
 
-  const value = React.useMemo(
+export function FormField({ name, disabled, children, className }: Props) {
+  const { formState } = useFormContext();
+
+  const fieldError = formState.errors[name];
+
+  const value = React.useMemo<FormFieldContextType>(
     () => ({
       name,
-      inputId: `${baseId}-input`,
-      descriptionId: `${baseId}-description`,
-      messageId: `${baseId}-message`,
-      error,
-      errorMessage,
+      inputId: `${name}-input`,
+      descriptionId: `${name}-description`,
+      messageId: `${name}-message`,
+      error: !!fieldError,
+      errorMessage: fieldError?.message as string | undefined,
       disabled,
     }),
-    [name, baseId, error, errorMessage, disabled],
+    [name, fieldError, disabled],
   );
 
   return (

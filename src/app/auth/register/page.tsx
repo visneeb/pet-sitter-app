@@ -7,7 +7,7 @@ import gmailIcon from "@/assets/icons/gg.svg";
 import { Form } from "@/components/form/index";
 import { useRegisterForm } from "@/hooks/useRegisterForm";
 import { RegisterFields } from "@/components/register/Registerfield";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { Role } from "@/types/authType";
 
 export default function RegisterPage() {
@@ -116,7 +116,7 @@ export default function RegisterPage() {
             <p className="text-center style-body-1 text-black">
               Already have an account?{" "}
               <Link
-                href="auth/login"
+                href="/auth/login"
                 className="text-orange-500 style-body-2 hover:underline"
               >
                 Login

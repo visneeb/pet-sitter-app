@@ -2,31 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { supabase } from "@/lib/supabaseClient";
 import {
   ProfileFormValues,
   validateProfile,
 } from "@/lib/validations/profileValidation";
 import { createResolver } from "@/lib/form/createResolver";
-import {
-  uploadAvatarApi,
-  deleteAvatarApi,
-  getProfileApi,
-  updateProfileApi,
-} from "@/services/api/avatarApi";
+import { ProfileService } from "@/services/profileService";
+import { showCustomToast } from "@/components/ui/toast/Toast";
 import { ImageFile } from "@/types/imageUploadType";
 
 export function useUserProfileForm() {
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-  const [originalEmail, setOriginalEmail] = useState(""); // ← track original
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [originalEmail, setOriginalEmail] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [pendingData, setPendingData] = useState<ProfileFormValues | null>(
     null,
   );
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [resetData, setResetData] = useState<ProfileFormValues | null>(null);
 
   const methods = useForm<ProfileFormValues>({
-    mode: "onSubmit",
+    mode: "onChange",
     resolver: createResolver(validateProfile),
     defaultValues: {
       name: "",
@@ -44,32 +42,40 @@ export function useUserProfileForm() {
     formState: { isSubmitting },
   } = methods;
 
-  //  Load profile 
+  //  Load profile
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        setProfileError(null);
 
-        if (user?.email) {
-          setOriginalEmail(user.email);
-          methods.setValue("email", user.email);
+        // Check if user has JWT token
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("accessToken")
+            : null;
+
+        if (!token) {
+          setProfileError("No active session. Please login again.");
+          setIsLoadingProfile(false);
+          return;
         }
 
-        const data = await getProfileApi();
+        // Get user profile from backend API
+        const data = await ProfileService.getCurrentProfile();
 
         if (data) {
+          setOriginalEmail(data.email);
           methods.reset({
-            name: data.name ?? "",
-            phone: data.phone ?? "",
-            email: data.email ?? user?.email ?? "",
-            profile_img_url: data.profileImgUrl ?? "",
+            name: data.name || "",
+            phone: data.phone || "",
+            email: data.email || "",
+            profile_img_url: data.profileImgUrl || "",
           });
         }
-      } catch {
-        // leave defaults
+      } catch (error: any) {
+        console.error("Failed to load profile:", error);
+        setProfileError(error.message || "Failed to load profile data");
       } finally {
         setIsLoadingProfile(false);
       }
@@ -78,33 +84,32 @@ export function useUserProfileForm() {
     loadProfile();
   }, []);
 
-  //  Avatar 
+  // Handle form reset when resetData changes
+  useEffect(() => {
+    if (resetData) {
+      methods.reset(resetData);
+      setResetData(null);
+    }
+  }, [resetData, methods]);
+
+  //  Avatar
 
   const handleAvatarChange = async (file: ImageFile) => {
     const oldUrl = getValues("profile_img_url");
 
     if (!file) {
-      if (oldUrl) await deleteAvatarApi(oldUrl);
+      if (oldUrl) await ProfileService.deleteAvatar(oldUrl);
       setValue("profile_img_url", "", { shouldValidate: false });
       clearErrors("profile_img_url");
       return;
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    const maxSize = 5 * 1024 * 1024;
-
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file
+    const validation = ProfileService.validateAvatar(file);
+    if (!validation.isValid) {
       setError("profile_img_url", {
         type: "manual",
-        message: "Only JPG or PNG files are allowed.",
-      });
-      return;
-    }
-
-    if (file.size > maxSize) {
-      setError("profile_img_url", {
-        type: "manual",
-        message: "File size must be under 5MB.",
+        message: validation.error!,
       });
       return;
     }
@@ -113,13 +118,8 @@ export function useUserProfileForm() {
 
     try {
       setIsUploadingFile(true);
-
-      if (oldUrl) await deleteAvatarApi(oldUrl);
-
-      const result = await uploadAvatarApi(file);
-      if (result.error) throw new Error(result.error);
-
-      setValue("profile_img_url", result.publicUrl!, { shouldValidate: true });
+      const publicUrl = await ProfileService.uploadAvatar(file, oldUrl);
+      setValue("profile_img_url", publicUrl, { shouldValidate: true });
     } catch (err: any) {
       setError("profile_img_url", {
         type: "server",
@@ -130,57 +130,115 @@ export function useUserProfileForm() {
     }
   };
 
-  //  Submit 
+  //  Submit
 
   const onSubmit = async (data: ProfileFormValues) => {
+    if (isUpdating) return;
+
     const emailChanged = data.email.trim() !== originalEmail.trim();
 
     if (emailChanged) {
-      // Save data and show password modal — don't update yet
+      // Save data and show password modal
       setPendingData(data);
       setShowPasswordModal(true);
       return;
     }
-
-    // Email unchanged — update profile fields only
+    setIsUpdating(true);
+    // Email unchanged
     await updateProfile(data);
   };
 
   const updateProfile = async (data: ProfileFormValues) => {
-    const result = await updateProfileApi({
-      name: data.name,
-      phone: data.phone,
-      profileImgUrl: data.profile_img_url ?? "",
-    });
+    try {
+      // Update profile using service
+      const result = await ProfileService.updateProfile(data);
 
-    if (result.error) {
-      setError("root", { type: "server", message: result.error });
+      if (result.message) {
+        console.log("Profile updated successfully");
+        showCustomToast({
+          title: "Profile updated successfully",
+          description: "Your changes have been saved.",
+          variant: "success",
+        });
+        // Trigger form reset via useEffect to avoid render issues
+        setResetData(data);
+      }
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      console.error("Error response:", error.response?.data);
+
+      setError("root", {
+        type: "server",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to update profile",
+      });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const onEmailConfirmed = async () => {
-    // Email changed successfully — now update the rest of the fields
-    if (pendingData) await updateProfile(pendingData);
-    setOriginalEmail(pendingData?.email ?? "");
-    setShowPasswordModal(false);
-    setPendingData(null);
+  const onEmailConfirmed = async (password?: string) => {
+    try {
+      if (!pendingData) {
+        throw new Error("No pending data");
+      }
+
+      // Update email using service
+      const result = await ProfileService.updateProfileWithEmail(
+        pendingData,
+        password!,
+      );
+
+      if (result.message) {
+        console.log("Email updated successfully");
+        showCustomToast({
+          title: "Email updated successfully",
+          description: "Your email has been changed.",
+          variant: "success",
+        });
+        // Trigger form reset via useEffect to avoid render issues
+        setResetData(pendingData);
+      }
+
+      setOriginalEmail(pendingData?.email ?? "");
+      setShowPasswordModal(false);
+      setPendingData(null);
+    } catch (error: any) {
+      console.error("Email update error:", error);
+      console.error("Error response:", error.response?.data);
+
+      setError("root", {
+        type: "server",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to update email",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const onModalClose = () => {
     setShowPasswordModal(false);
     setPendingData(null);
+    setIsUpdating(false);
   };
 
   return {
     methods,
     onSubmit,
     isSubmitting,
+    isUpdating,
     isLoadingProfile,
     isUploadingFile,
+    profileError,
     handleAvatarChange,
     showPasswordModal,
     pendingData,
-    onEmailConfirmed,
+    onEmailConfirmed: (password?: string) => onEmailConfirmed(password),
     onModalClose,
   };
 }

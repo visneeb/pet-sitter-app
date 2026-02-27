@@ -4,6 +4,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ScreenProvider } from "@/contexts/ScreenContext";
+import { Toaster } from "sonner";
 export const metadata: Metadata = {
   title: "Pet Sitter",
   description: "Perfect pet sitter with us",
@@ -17,7 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light">
       <body className={`antialiased`}>
-        <ScreenProvider>{children}</ScreenProvider>
+        <ScreenProvider>
+          {children}
+          <Toaster />
+        </ScreenProvider>
       </body>
     </html>
   );

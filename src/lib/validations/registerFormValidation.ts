@@ -1,11 +1,11 @@
 import { FieldErrors } from "react-hook-form";
 import { RegisterFormValues } from "@/types/authType";
 
-// Field-level rules 
+// Field-level rules
 
 function isEmailValid(email: string) {
   const v = email.trim().toLowerCase();
-  return v.includes("@") && v.endsWith(".com");
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
 function isPhoneValid(phone: string) {
@@ -13,16 +13,16 @@ function isPhoneValid(phone: string) {
 }
 
 function isPasswordValid(password: string) {
-  return password.length > 12;
+  return password.length >= 12;
 }
 
-// Helper 
+// Helper
 
 function err(message: string) {
   return { type: "manual", message } as const;
 }
 
-//  Validator 
+//  Validator
 
 export function validateRegister(
   values: RegisterFormValues,
@@ -33,7 +33,7 @@ export function validateRegister(
   if (!values.email?.trim()) {
     errors.email = err("Please enter your email.");
   } else if (!isEmailValid(values.email)) {
-    errors.email = err("Email must contain @ and end with .com");
+    errors.email = err("Please enter a valid email address.");
   }
 
   // phone
@@ -47,7 +47,7 @@ export function validateRegister(
   if (!values.password) {
     errors.password = err("Please enter your password.");
   } else if (!isPasswordValid(values.password)) {
-    errors.password = err("Password must be longer than 12 characters.");
+    errors.password = err("Password must be at least 12 characters.");
   }
 
   return errors;

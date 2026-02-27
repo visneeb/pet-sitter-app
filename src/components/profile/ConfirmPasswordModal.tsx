@@ -7,7 +7,7 @@ import { PasswordInput } from "@/components/form/index";
 
 interface Props {
   newEmail: string;
-  onSuccess?: () => void;
+  onSuccess?: (password?: string) => void;
   onClose: () => void;
 }
 
@@ -48,7 +48,7 @@ export function ConfirmPasswordModal({ newEmail, onSuccess, onClose }: Props) {
         {/* Success */}
         {isSuccess && (
           <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
-            Confirmation emails sent to both addresses. Please confirm to
+            Confirmation emails sent to new email address. Please confirm to
             complete the change.
           </div>
         )}
