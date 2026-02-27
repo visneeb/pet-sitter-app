@@ -14,9 +14,9 @@ import {
   UserRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { authApi } from "@/services/api/auth";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { authService } from "@/services/authService";
 
 export default function NavbarUser() {
   const { signOut } = useAuth();
@@ -24,7 +24,7 @@ export default function NavbarUser() {
   const { isMedium } = useScreenContext();
   const handleLogout = async () => {
     try {
-      await authApi.logout();
+      await authService.logout();
     } catch (error) {
       console.log(error);
     } finally {
