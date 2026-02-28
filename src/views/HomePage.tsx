@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { Suspense } from "react";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
 import ServiceCard from "@/components/home/ServiceCard";
@@ -25,9 +26,11 @@ export default function HomePage() {
           <HeroSection />
         </section>
         <section id="search" className="w-full p-t">
-          <PetSitterSearchProvider>
-            <SearchBar />
-          </PetSitterSearchProvider>
+          <Suspense fallback={<div>Loading search...</div>}>
+            <PetSitterSearchProvider>
+              <SearchBar />
+            </PetSitterSearchProvider>
+          </Suspense>
         </section>
       </div>
       <section className="flex flex-col gap-32 p-20">

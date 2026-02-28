@@ -32,12 +32,7 @@ export function RHFPassword<T extends FieldValues>({
   const errorMessage = error?.message?.toString();
 
   return (
-    <FormField
-      name={name}
-      error={!!error}
-      errorMessage={errorMessage}
-      disabled={props.disabled}
-    >
+    <FormField name={name} disabled={props.disabled}>
       <FormLabel>
         {label}
         {required && <span>*</span>}

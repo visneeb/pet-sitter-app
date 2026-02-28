@@ -35,7 +35,7 @@ export function RHFSelect<T extends FieldValues>({
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => (
-        <FormField error={!!error} name={name}>
+        <FormField name={name}>
           <label className="style-label text-black">
             {label}
             {required && <span>*</span>}

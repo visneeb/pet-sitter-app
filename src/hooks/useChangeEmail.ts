@@ -64,9 +64,11 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
       console.log("Email update response:", result);
 
       console.log("Email update successful");
-      setIsSuccess(true);
       methods.reset();
-      setTimeout(() => onSuccess?.(data.password), 2000);
+      setTimeout(() => {
+        setIsSuccess(true);
+        onSuccess?.(data.password);
+      }, 0);
     } catch (error: any) {
       console.error("Email update error:", error);
       console.error("Error response:", error.response?.data);

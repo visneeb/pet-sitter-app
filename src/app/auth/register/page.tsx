@@ -64,11 +64,6 @@ export default function RegisterPage() {
 
           {/* Card */}
           <div className="w-full pt-8 flex flex-col gap-[32px]">
-            {serverError && (
-              <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
-                {serverError}
-              </div>
-            )}
             {serverSuccess && (
               <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-600">
                 {serverSuccess}

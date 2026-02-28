@@ -56,8 +56,10 @@ export function useUserProfileForm() {
             : null;
 
         if (!token) {
-          setProfileError("No active session. Please login again.");
-          setIsLoadingProfile(false);
+          setTimeout(() => {
+            setProfileError("No active session. Please login again.");
+            setIsLoadingProfile(false);
+          }, 0);
           return;
         }
 
@@ -66,12 +68,14 @@ export function useUserProfileForm() {
 
         if (data) {
           setOriginalEmail(data.email);
-          methods.reset({
-            name: data.name || "",
-            phone: data.phone || "",
-            email: data.email || "",
-            profile_img_url: data.profileImgUrl || "",
-          });
+          setTimeout(() => {
+            methods.reset({
+              name: data.name || "",
+              phone: data.phone || "",
+              email: data.email || "",
+              profile_img_url: data.profileImgUrl || "",
+            });
+          }, 0);
         }
       } catch (error: any) {
         console.error("Failed to load profile:", error);
@@ -238,7 +242,7 @@ export function useUserProfileForm() {
     handleAvatarChange,
     showPasswordModal,
     pendingData,
-    onEmailConfirmed: (password?: string) => onEmailConfirmed(password),
+    onEmailConfirmed,
     onModalClose,
   };
 }

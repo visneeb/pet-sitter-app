@@ -28,7 +28,6 @@ export function RHFAvatarUpload({
     <Controller
       name={name}
       control={control}
-      rules={{ validate: validateImage }}
       render={({ field, fieldState }) => {
         // field.value is a string URL after profile loads, or a File after user picks
         const fileValue: ImageFile =

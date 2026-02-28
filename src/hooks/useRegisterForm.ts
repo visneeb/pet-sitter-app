@@ -43,7 +43,6 @@ export function useRegisterForm() {
       setTimeout(() => router.push("/auth/login"), 1200);
     } catch (err: any) {
       const message = err.message;
-      setServerError(message);
 
       if (message.toLowerCase().includes("phone")) {
         setError("phone", { type: "server", message });

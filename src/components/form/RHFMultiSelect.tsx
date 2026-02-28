@@ -30,7 +30,7 @@ export function RHFMultiSelect<T extends FieldValues>({
   const error = get(errors, name);
 
   return (
-    <FormField error={!!error} name={name}>
+    <FormField name={name}>
       {label && (
         <label className="style-label text-black">
           {label}
