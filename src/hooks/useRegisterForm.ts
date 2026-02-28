@@ -11,6 +11,7 @@ import { authApi } from "@/services/api/auth";
 export function useRegisterForm() {
   const router = useRouter();
   const [serverSuccess, setServerSuccess] = useState("");
+  const [serverError, setServerError] = useState("");
 
   const methods = useForm<RegisterFormValues>({
     mode: "onSubmit",
@@ -30,6 +31,7 @@ export function useRegisterForm() {
 
   const onSubmit = async (data: RegisterFormValues) => {
     setServerSuccess("");
+    setServerError("");
 
     try {
       const res = await authApi.register(data);
@@ -41,6 +43,7 @@ export function useRegisterForm() {
       setTimeout(() => router.push("/auth/login"), 1200);
     } catch (err: any) {
       const message = err.message;
+      setServerError(message);
 
       if (message.toLowerCase().includes("phone")) {
         setError("phone", { type: "server", message });
@@ -55,5 +58,6 @@ export function useRegisterForm() {
     onSubmit,
     isSubmitting,
     serverSuccess,
+    serverError,
   };
 }

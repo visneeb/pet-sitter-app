@@ -2,7 +2,7 @@ import ProfileContainer from "@/components/profile/ProfileContainer";
 
 export default function UserProfilePage() {
   return (
-    <ProfileContainer title="Change Password">
+    <ProfileContainer>
       <p>Change Password</p>
     </ProfileContainer>
   );
