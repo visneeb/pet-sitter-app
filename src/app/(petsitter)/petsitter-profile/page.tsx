@@ -1,4 +1,4 @@
-import PetSitterManagementPage from "@/pages/dashboard/pet-sitter/PetSitterManagementPage";
+import PetSitterManagementPage from "@/views/dashboard/pet-sitter/PetSitterManagementPage";
 
 export default function PetSitterProfile() {
   return (

@@ -1,4 +1,4 @@
-import PetListPage from "@/pages/dashboard/owner/pet/PetListPage";
+import PetListPage from "@/views/dashboard/owner/pet/PetListPage";
 import { UserProfileHeader } from "@/components/profile/ProfileHeader";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
