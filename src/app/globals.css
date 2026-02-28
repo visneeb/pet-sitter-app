@@ -1,8 +1,36 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
 @theme {
-  /* Font Family - Set as default */
+  /* Font Family - Set as default*/
   --default-font-family: "Satoshi", sans-serif;
 
   /* Typography Scale */
@@ -41,6 +69,7 @@
 
   --font-weight-headline: 700; /* Bold */
   --font-weight-body: 500; /* Medium */
+  --font-weight-regular: 400; /* Regular */
 
   --letter-spacing: 0%;
 
@@ -144,4 +173,35 @@
     letter-spacing: var(--letter-spacing);
     text-align: center;
   }
+
+  .style-label {
+    font-weight: var(--font-weight-body);
+    font-size: var(--font-size-body-2);
+    line-height: 150%;
+    letter-spacing: var(--letter-spacing);
+  }
+
+  .style-input {
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-body-2);
+    line-height: 150%;
+    letter-spacing: var(--letter-spacing);
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
