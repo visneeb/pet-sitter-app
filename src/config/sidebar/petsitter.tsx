@@ -1,12 +1,12 @@
 import { SidebarConfig } from "@/types/sidebarType";
-import { UserRound, Calendar, CreditCard } from "lucide-react";
+import { UserIcon, CalendarIcon, CreditCardIcon} from "@/assets/icons/components/index";
 import ListIcon from "@/assets/icons/profile/list";
 
 export const petsitterSidebarItems: SidebarConfig = [
   {
     label: "Pet Sitter Profile",
     href: "/petsitter-profile",
-    icon: <UserRound />,
+    icon: <UserIcon />,
   },
   {
     label: "Bookings List",
@@ -16,11 +16,11 @@ export const petsitterSidebarItems: SidebarConfig = [
   {
     label: "Calendar",
     href: "/calendar",
-    icon: <Calendar />,
+    icon: <CalendarIcon />,
   },
   {
     label: "Payout Options",
     href: "/payout",
-    icon: <CreditCard />,
+    icon: <CreditCardIcon />,
   },
 ];

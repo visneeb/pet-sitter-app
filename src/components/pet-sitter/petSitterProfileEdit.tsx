@@ -36,68 +36,57 @@ export default function ProfileEdit() {
       profileError.includes("login") ||
       profileError.includes("Unauthorized");
 
-    return (
-      <div className="flex justify-center items-center min-h-100">
-        <div className="text-center">
-          <div className="text-red-600 mb-4">Error loading profile</div>
-          <div className="text-gray-600 mb-4">{profileError}</div>
-          {isAuthError ? (
-            <button
-              onClick={() => (window.location.href = "/auth/login")}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-            >
-              Go to Login
-            </button>
-          ) : (
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-            >
-              Retry
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <>
-      <FormProvider
-        methods={methods}
-        onSubmit={onSubmit}
-        disabled={isSubmitting || isUpdating}
-      >
-        <div className="flex flex-col gap-15">
-          <AvatarUpload
-            name="profile_img_url"
-            onUpload={handleAvatarChange}
-            isUploading={isUploadingFile}
-          />
+    <FormProvider methods={methods} onSubmit={onSubmit}>
+      <div className="flex flex-col gap-6">
+        <ActionProfileHeader
+          title="Pet Sitter Profile"
+          status={<span className="text-green-500">Approved</span>}
+          action={
+            <ActionButton
+              variant="primary"
+              onClick={handleUpdate}
+              disabled={isSubmitting}
+            >
+              Update
+            </ActionButton>
+          }
+        />
+        <div className="flex flex-col gap-6">
+          <ProfileContainer>
+            <div className="flex flex-col gap-15 px-4 lg:px-10">
+              <Section title="Basic Information">
+                <RHFAvatarUpload name="profile_image" label="Profile Image" />
 
-          <div className="space-y-10">
-            <Input
-              name="name"
-              label="Your Name"
-              placeholder="Enter your name"
-              required
-            />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                  <RHFInput name="name" label="Your Name" required />
+                  <RHFInput name="name" label="Experience" required />
+                  <RHFInput name="email" label="Pet type" type="email" />
+                  <RHFInput name="phone" label="Phone" type="tel" />
+                </div>
+              </Section>
+            </div>
+          </ProfileContainer>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              <Input
-                name="email"
-                label="Email"
-                type="email"
-                placeholder="Enter your email"
-                required
-              />
-              <Input
-                name="phone"
-                label="Phone"
-                type="tel"
-                placeholder="Enter your phone"
-                required
-              />
+          <ProfileContainer>
+            <div className="flex flex-col gap-15 px-4 lg:px-10">
+              <Section title="Pet Sitter">
+                <RHFInput
+                  name="name"
+                  label="Pet sitter name(Trade Name)"
+                  required
+                />
+                <RHFInput
+                  name="email"
+                  label="Services (Describe all of your service for pet sitting)"
+                  type="email"
+                />
+                <RHFInput
+                  name="phone"
+                  label="My Place (Describe you place)"
+                  type="tel"
+                />
+              </Section>
             </div>
           </div>
 
