@@ -1,43 +1,34 @@
-import { useScreenContext } from "@/contexts/ScreenContext";
-import cn from "@/utils/cn";
+const STYLES = {
+  container: "flex flex-col justify-center items-center",
+  heading: "text-black style-headline-1 sm:style-display",
+  subheading:
+    "text-gray-400 style-headline-4 mt-[24px] sm:style-headline-3 md:mt-[32px]",
+} as const;
+
+type HeadlinePart = {
+  text: string;
+  accentColor: string;
+  accentChar: string;
+};
+
+const HEADLINE_PARTS: HeadlinePart[] = [
+  { text: "Pet Sitter", accentColor: "text-orange-500", accentChar: "," },
+  { text: "Perfect", accentColor: "text-blue-500", accentChar: "," },
+  { text: "For Your Pet", accentColor: "text-yellow-200", accentChar: "." },
+];
+
+const SUBHEADING_TEXT = "Find your perfect pet sitter with us.";
 
 export function HeroTextContent() {
-  const { isSmall, isMedium } = useScreenContext();
-  const isWebView = isSmall && isMedium;
   return (
-    <div className="flex flex-col justify-center items-center">
-      <h1
-        className={cn(
-          "text-black ",
-          isWebView ? "style-display" : "style-headline-1",
-        )}
-      >
-        Pet Sitter<span className="text-orange-500">,</span>
-      </h1>
-      <h1
-        className={cn(
-          "text-black ",
-          isWebView ? "style-display" : "style-headline-1",
-        )}
-      >
-        Perfect<span className="text-blue-500">,</span>
-      </h1>
-      <h1
-        className={cn(
-          "text-black ",
-          isWebView ? "style-display" : "style-headline-1",
-        )}
-      >
-        For Your Pet<span className="text-yellow-200">.</span>
-      </h1>
-      <p
-        className={cn(
-          "text-gray-400 ",
-          isWebView ? "style-headline-3 mt-[32px]" : "style-headline-4 mt-[24px]",
-        )}
-      >
-        Find your perfect pet sitter with us.
-      </p>
+    <div className={STYLES.container}>
+      {HEADLINE_PARTS.map(({ text, accentColor, accentChar }) => (
+        <h1 key={text} className={STYLES.heading}>
+          {text}
+          <span className={accentColor}>{accentChar}</span>
+        </h1>
+      ))}
+      <p className={STYLES.subheading}>{SUBHEADING_TEXT}</p>
     </div>
   );
 }

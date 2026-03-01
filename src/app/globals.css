@@ -106,87 +106,89 @@
   --color-white: #ffffff;
   --color-red: #ea1010;
   --color-bg-gray: #fafafb;
+
+  /* Breakpoint */
+  --breakpoint-xxl: 1400px;
 }
 
 /* Typography Utility Classes */
-@layer utilities {
-  .style-display {
-    font-weight: var(--font-weight-display);
-    font-size: var(--font-size-display);
-    line-height: var(--line-height-display);
-    letter-spacing: var(--letter-spacing);
-  }
 
-  .style-headline-1 {
-    font-weight: var(--font-weight-headline);
-    font-size: var(--font-size-headline-1);
-    line-height: var(--line-height-headline-1);
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-display {
+  font-weight: var(--font-weight-display);
+  font-size: var(--font-size-display);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--letter-spacing);
+}
 
-  .style-headline-2 {
-    font-weight: var(--font-weight-headline);
-    font-size: var(--font-size-headline-2);
-    line-height: var(--line-height-headline-2);
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-headline-1 {
+  font-weight: var(--font-weight-headline);
+  font-size: var(--font-size-headline-1);
+  line-height: var(--line-height-headline-1);
+  letter-spacing: var(--letter-spacing);
+}
 
-  .style-headline-3 {
-    font-weight: var(--font-weight-headline);
-    font-size: var(--font-size-headline-3);
-    line-height: var(--line-height-headline-3);
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-headline-2 {
+  font-weight: var(--font-weight-headline);
+  font-size: var(--font-size-headline-2);
+  line-height: var(--line-height-headline-2);
+  letter-spacing: var(--letter-spacing);
+}
 
-  .style-headline-4 {
-    font-weight: var(--font-weight-headline);
-    font-size: var(--font-size-headline-4);
-    line-height: var(--line-height-headline-4);
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-headline-3 {
+  font-weight: var(--font-weight-headline);
+  font-size: var(--font-size-headline-3);
+  line-height: var(--line-height-headline-3);
+  letter-spacing: var(--letter-spacing);
+}
 
-  .style-body-1 {
-    font-weight: var(--font-weight-body);
-    font-size: var(--font-size-body-1);
-    line-height: var(--line-height-body-1);
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-headline-4 {
+  font-weight: var(--font-weight-headline);
+  font-size: var(--font-size-headline-4);
+  line-height: var(--line-height-headline-4);
+  letter-spacing: var(--letter-spacing);
+}
 
-  .style-body-2 {
-    font-weight: var(--font-weight-body);
-    font-size: var(--font-size-body-2);
-    line-height: var(--line-height-body-2);
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-body-1 {
+  font-weight: var(--font-weight-body);
+  font-size: var(--font-size-body-1);
+  line-height: var(--line-height-body-1);
+  letter-spacing: var(--letter-spacing);
+}
 
-  .style-body-3 {
-    font-weight: var(--font-weight-body);
-    font-size: var(--font-size-body-3);
-    line-height: var(--line-height-body-3);
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-body-2 {
+  font-weight: var(--font-weight-body);
+  font-size: var(--font-size-body-2);
+  line-height: var(--line-height-body-2);
+  letter-spacing: var(--letter-spacing);
+}
 
-  .style-button {
-    font-weight: var(--font-weight-headline);
-    font-size: var(--font-size-body-2);
-    line-height: 150%;
-    letter-spacing: var(--letter-spacing);
-    text-align: center;
-  }
+@utility style-body-3 {
+  font-weight: var(--font-weight-body);
+  font-size: var(--font-size-body-3);
+  line-height: var(--line-height-body-3);
+  letter-spacing: var(--letter-spacing);
+}
 
-  .style-label {
-    font-weight: var(--font-weight-body);
-    font-size: var(--font-size-body-2);
-    line-height: 150%;
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-button {
+  font-weight: var(--font-weight-headline);
+  font-size: var(--font-size-body-2);
+  line-height: 150%;
+  letter-spacing: var(--letter-spacing);
+  text-align: center;
+}
 
-  .style-input {
-    font-weight: var(--font-weight-regular);
-    font-size: var(--font-size-body-2);
-    line-height: 150%;
-    letter-spacing: var(--letter-spacing);
-  }
+@utility style-label {
+  font-weight: var(--font-weight-body);
+  font-size: var(--font-size-body-2);
+  line-height: 150%;
+  letter-spacing: var(--letter-spacing);
+}
+
+@utility style-input {
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-body-2);
+  line-height: 150%;
+  letter-spacing: var(--letter-spacing);
 }
 
 .scrollbar-hide::-webkit-scrollbar {

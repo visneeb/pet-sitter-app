@@ -24,20 +24,18 @@ export default function SearchPageContent() {
       <div
         className={`w-full ${LAYOUT.pageMaxWidth} self-center flex flex-col ${LAYOUT.contentGap} px-4 lg:px-0`}
       >
-        {/* Header — Mobile: อันดับ 2 / Desktop: อันดับ 1 */}
-        <div className="order-2 lg:order-1">
+        <div className="hidden lg:block order-2 lg:order-1">
           <HeaderSearchViewMode />
         </div>
 
-        {/* Filter + Main wrapper
-            Mobile: column (filter order-1, main order-3)
-            Desktop: row side-by-side */}
         <div
-          className={`order-1 lg:order-2 flex flex-col lg:flex-row items-center lg:items-start justify-center ${LAYOUT.desktopSidePadding} ${LAYOUT.sidebarGap}`}
+          className={`order-1 lg:order-2 flex flex-col  items-center lg:flex-row  lg:items-start justify-center ${LAYOUT.desktopSidePadding} ${LAYOUT.sidebarGap}`}
         >
           <FilterSidebar />
-          {/* MainViewSearch — อยู่ใต้ filter บน mobile, ข้างๆ filter บน desktop */}
-          <div className="order-3 lg:order-2 w-full">
+          <div className="block lg:hidden mt-10 mb-6">
+            <HeaderSearchViewMode />
+          </div>
+          <div className="order-3 lg:order-2 w-full flex justify-center items-center">
             <MainViewSearch />
           </div>
         </div>

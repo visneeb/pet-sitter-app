@@ -28,7 +28,7 @@ export default function FilterSidebar() {
       className={cn(
         "h-fit flex flex-col gap-8",
         isWebView
-          ? "sticky top-20 w-98 bg-white shadow-lg rounded-2xl px-6 py-6"
+          ? "sticky top-3 w-98 bg-white shadow-lg rounded-2xl px-6 py-6"
           : "w-[375px] px-4 py-4",
       )}
     >
