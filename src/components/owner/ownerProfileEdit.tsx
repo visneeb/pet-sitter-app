@@ -4,6 +4,7 @@ import { FormProvider } from "@/components/form/FormProvider";
 import { Input, AvatarUpload, SubmitButton } from "@/components/form/index";
 import { useUserProfileForm } from "@/hooks/useUserProfileForm";
 import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
+import { ActionButton } from "@/components/ui/Button";
 
 export default function ProfileEdit() {
   const {
@@ -37,23 +38,23 @@ export default function ProfileEdit() {
 
     return (
       <div className="flex justify-center items-center min-h-100">
-        <div className="text-center">
-          <div className="text-red-600 mb-4">Error loading profile</div>
+        <div className="text-center flex flex-col items-center">
+          <div className="text-red mb-4">Error loading profile</div>
           <div className="text-gray-600 mb-4">{profileError}</div>
           {isAuthError ? (
-            <button
+            <ActionButton
+              variant="primary"
               onClick={() => (window.location.href = "/auth/login")}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
               Go to Login
-            </button>
+            </ActionButton>
           ) : (
-            <button
+            <ActionButton
+              variant="primary"
               onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
               Retry
-            </button>
+            </ActionButton>
           )}
         </div>
       </div>

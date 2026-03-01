@@ -5,3 +5,5 @@ export type SidebarItem = {
 };
 
 export type SidebarConfig = SidebarItem[];
+
+export type SidebarRole = "user" | "petsitter" | "admin";

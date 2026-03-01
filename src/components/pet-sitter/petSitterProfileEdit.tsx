@@ -6,7 +6,7 @@ import { useUserProfileForm } from "@/hooks/useUserProfileForm";
 import { RHFAvatarUpload } from "@/components/form/image-upload/RHFAvatarUpload";
 import Section from "@/components/form/FormSection";
 import ProfileContainer from "@/components/profile/ProfileContainer";
-import { PetSitterProfileHeader } from "@/components/profile/ProfileHeader";
+import { ActionProfileHeader } from "@/components/profile/ProfileHeader";
 import { ActionButton } from "@/components/ui/Button";
 
 //add usePetSitterProfileForm hook
@@ -23,7 +23,7 @@ export default function SitterProfileEdit() {
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <div className="flex flex-col gap-6">
-        <PetSitterProfileHeader
+        <ActionProfileHeader
           title="Pet Sitter Profile"
           status={<span className="text-green-500">Approved</span>}
           action={
@@ -36,9 +36,9 @@ export default function SitterProfileEdit() {
             </ActionButton>
           }
         />
-        <div className="pr-8 flex flex-col gap-6">
+        <div className="flex flex-col gap-6">
           <ProfileContainer>
-            <div className="flex flex-col gap-15 px-6">
+            <div className="flex flex-col gap-15 px-4 lg:px-10">
               <Section title="Basic Information">
                 <RHFAvatarUpload name="profile_image" label="Profile Image" />
 
@@ -53,7 +53,7 @@ export default function SitterProfileEdit() {
           </ProfileContainer>
 
           <ProfileContainer>
-            <div className="flex flex-col gap-15 px-6">
+            <div className="flex flex-col gap-15 px-4 lg:px-10">
               <Section title="Pet Sitter">
                 <RHFInput
                   name="name"
