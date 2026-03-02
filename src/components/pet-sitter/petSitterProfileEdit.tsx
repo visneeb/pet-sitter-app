@@ -4,6 +4,11 @@ import { FormProvider } from "@/components/form/FormProvider";
 import { Input, AvatarUpload, SubmitButton } from "@/components/form/index";
 import { useUserProfileForm } from "@/hooks/useUserProfileForm";
 import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
+import { ActionProfileHeader } from "@/components/profile/ProfileHeader";
+import { ActionButton } from "../ui/Button";
+import Section from "@/components/form/FormSection";
+import ProfileContainer from "@/components/profile/ProfileContainer";
+import { RHFInput } from "@/components/form/RHFInput";
 
 export default function ProfileEdit() {
   const {
@@ -38,23 +43,23 @@ export default function ProfileEdit() {
 
     return (
       <div className="flex justify-center items-center min-h-100">
-        <div className="text-center">
-          <div className="text-red-600 mb-4">Error loading profile</div>
+        <div className="text-center flex flex-col items-center">
+          <div className="text-red mb-4">Error loading profile</div>
           <div className="text-gray-600 mb-4">{profileError}</div>
           {isAuthError ? (
-            <button
+            <ActionButton
+              variant="primary"
               onClick={() => (window.location.href = "/auth/login")}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
               Go to Login
-            </button>
+            </ActionButton>
           ) : (
-            <button
+            <ActionButton
+              variant="primary"
               onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
               Retry
-            </button>
+            </ActionButton>
           )}
         </div>
       </div>
@@ -63,42 +68,52 @@ export default function ProfileEdit() {
 
   return (
     <>
-      <FormProvider
-        methods={methods}
-        onSubmit={onSubmit}
-        disabled={isSubmitting || isUpdating}
-      >
-        <div className="flex flex-col gap-15">
-          <AvatarUpload
-            name="profile_img_url"
-            onUpload={handleAvatarChange}
-            isUploading={isUploadingFile}
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        <div className="flex flex-col gap-6">
+          <ActionProfileHeader
+            title="Pet Sitter Profile"
+            status={<span className="text-green-500">Approved</span>}
+            action={
+              <ActionButton variant="primary" disabled={isSubmitting}>
+                Update
+              </ActionButton>
+            }
           />
+          <div className="pr-8 flex flex-col gap-6">
+            <ProfileContainer>
+              <div className="flex flex-col gap-15 px-6">
+                <Section title="Basic Information">
+                  <AvatarUpload name="profile_img_url" label="Profile Image" />
 
-          <div className="space-y-10">
-            <Input
-              name="name"
-              label="Your Name"
-              placeholder="Enter your name"
-              required
-            />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <RHFInput name="name" label="Your Name" required />
+                    <RHFInput name="experience" label="Experience" required />
+                    <RHFInput name="petType" label="Pet Type" />
+                    <RHFInput name="phone" label="Phone" type="tel" />
+                  </div>
+                </Section>
+              </div>
+            </ProfileContainer>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              <Input
-                name="email"
-                label="Email"
-                type="email"
-                placeholder="Enter your email"
-                required
-              />
-              <Input
-                name="phone"
-                label="Phone"
-                type="tel"
-                placeholder="Enter your phone"
-                required
-              />
-            </div>
+            <ProfileContainer>
+              <div className="flex flex-col gap-15 px-6">
+                <Section title="Pet Sitter">
+                  <RHFInput
+                    name="tradeName"
+                    label="Pet Sitter Name (Trade Name)"
+                    required
+                  />
+                  <RHFInput
+                    name="services"
+                    label="Services (Describe all of your services for pet sitting)"
+                  />
+                  <RHFInput
+                    name="placeDescription"
+                    label="My Place (Describe your place)"
+                  />
+                </Section>
+              </div>
+            </ProfileContainer>
           </div>
 
           <div className="flex justify-end">

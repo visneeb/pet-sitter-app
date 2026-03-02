@@ -1,5 +1,3 @@
-import React from "react";
-
 type PawIconProps = {
   size?: number;
   className?: string;

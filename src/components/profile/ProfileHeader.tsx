@@ -1,3 +1,5 @@
+"use client";
+
 export function UserProfileHeader({
   title,
   action,
@@ -8,17 +10,17 @@ export function UserProfileHeader({
   leftAction?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between px-4 lg:px-0">
       <div className="flex items-center gap-2">
         {leftAction}
-        <h3 className="style-headline-3">{title}</h3>
+        <h3 className="style-headline-4 md:style-headline-3">{title}</h3>
       </div>
       {action}
     </div>
   );
 }
 
-export function PetSitterProfileHeader({
+export function ActionProfileHeader({
   title,
   status,
   action,
@@ -30,15 +32,17 @@ export function PetSitterProfileHeader({
   leftAction?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center pr-8 justify-between">
+    <div className="grid md:grid-cols-2 grid-cols-1 gap-2 items-center justify-between px-4 lg:px-0">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
           {leftAction}
-          <h3 className="style-headline-3">{title}</h3>
+          <h3 className="style-headline-4 md:style-headline-3">{title}</h3>
         </div>
-        <span className="stye-body-2">{status}</span>
+        <span className="style-body-1 md:style-body-2">{status}</span>
       </div>
-      {action}
+      <div className="flex items-center md:justify-end justify-start">
+        {action}
+      </div>
     </div>
   );
 }
