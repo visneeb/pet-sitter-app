@@ -19,6 +19,7 @@ export default function ProfileEdit() {
     pendingData,
     onEmailConfirmed,
     onModalClose,
+    isAvatarDirty,
   } = useUserProfileForm();
 
   if (isLoadingProfile) {
@@ -105,6 +106,7 @@ export default function ProfileEdit() {
               isLoading={isSubmitting || isUpdating || isUploadingFile}
               requireValid={true}
               requireDirty={true}
+              extraDirty={isAvatarDirty}
             >
               Update Profile
             </SubmitButton>
@@ -112,7 +114,6 @@ export default function ProfileEdit() {
         </div>
       </FormProvider>
 
-      {/* Password confirmation modal — only shows when email changed */}
       {showPasswordModal && pendingData && (
         <ConfirmPasswordModal
           newEmail={pendingData.email}
@@ -120,7 +121,6 @@ export default function ProfileEdit() {
           onClose={onModalClose}
         />
       )}
-      {}
     </>
   );
 }

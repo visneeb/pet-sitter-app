@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormState } from "react-hook-form";
 import { ActionButton } from "../ui/Button";
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
   className?: string;
   requireValid?: boolean;
   requireDirty?: boolean;
+  extraDirty?: boolean;
 };
 
 export function SubmitButton({
@@ -22,20 +23,20 @@ export function SubmitButton({
   className,
   requireValid = false,
   requireDirty = false,
+  extraDirty = false,
 }: Props) {
-  const form = useFormContext();
-
-  const isSubmitting = form?.formState?.isSubmitting ?? false;
-  const isValidating = form?.formState?.isValidating ?? false;
-  const isValid = form?.formState?.isValid ?? true;
-  const isDirty = form?.formState?.isDirty ?? true;
+  // useFormState subscribes directly to RHF's internal store
+  const { isValid, isDirty, isSubmitting, isValidating } = useFormState();
 
   const loading = isLoading || isSubmitting;
+  const effectiveDirty = isDirty || extraDirty;
+
   const disabled =
-    (disabledProp ?? loading) ||
+    disabledProp === true ||
+    loading ||
     isValidating ||
     (requireValid && !isValid) ||
-    (requireDirty && !isDirty);
+    (requireDirty && !effectiveDirty);
 
   return (
     <ActionButton

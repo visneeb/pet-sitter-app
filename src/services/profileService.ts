@@ -1,73 +1,115 @@
 import { userApi } from "./api/userApi";
-import { uploadAvatarApi, deleteAvatarApi } from "./api/avatarApi";
 import { ProfileFormValues } from "@/lib/validations/profileValidation";
 import { ImageFile } from "@/types/imageUploadType";
 import { validateImage } from "@/lib/validations/useImageValidation";
 
+// Builds a FormData payload the backend expects:
+//    - field "body": stringified JSON with name/phone/email/password etc.
+//    - field "file": the image File (optional)
+//    - field "removeProfileImg": "true" if removing avatar (optional)
+export function buildFormData(
+  bodyJson: object,
+  file?: File | null,
+  removeProfileImg?: boolean,
+): FormData {
+  const formData = new FormData();
+  formData.append("body", JSON.stringify(bodyJson));
+  if (file) {
+    formData.append("image", file);
+  }
+  if (removeProfileImg) {
+    formData.append("removeProfileImg", "true");
+  }
+  return formData;
+}
+
 export class ProfileService {
-  //Get current user profile
+  // Get current user profile
   static async getCurrentProfile() {
     return await userApi.getCurrentUser();
   }
 
-  //Update user profile (name and phone only)
-  static async updateProfile(data: Pick<ProfileFormValues, "name" | "phone">) {
-    const payload = {
-      name: data.name,
-      phone: data.phone,
-    };
+  // Update name + phone (and optionally avatar file)
+  static async updateProfile(
+    data: Pick<ProfileFormValues, "name" | "phone">,
+    file?: File | null,
+  ) {
+    if (!data.name?.trim() || !data.phone?.trim()) {
+      throw new Error("Name and phone are required");
+    }
 
-    console.log("Updating profile with payload:", payload);
-    const result = await userApi.updateProfile(payload);
-    console.log("Profile update response:", result);
+    const formData = buildFormData(
+      {
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+      },
+      file,
+    );
 
-    return result;
+    console.log("Updating profile:", {
+      name: data.name.trim(),
+      phone: data.phone.trim(),
+      hasFile: !!file,
+    });
+
+    return await userApi.updateProfile(formData);
   }
 
-  //Update user profile including email (requires password)
+  // Update name + phone + email (requires password) + optional avatar
   static async updateProfileWithEmail(
     data: ProfileFormValues,
     password: string,
+    file?: File | null,
   ) {
-    const payload = {
-      name: data.name,
-      phone: data.phone,
-      email: data.email,
-      password: password,
-    };
-
-    console.log("Updating email with payload:", payload);
-    const result = await userApi.updateProfile(payload);
-    console.log("Email update response:", result);
-
-    return result;
-  }
-
-  //Upload avatar image
-  static async uploadAvatar(file: ImageFile, oldUrl?: string) {
-    if (!file) {
-      throw new Error("No file provided");
+    if (!data.name?.trim() || !data.phone?.trim()) {
+      throw new Error("Name and phone are required");
+    }
+    if (!data.email?.trim()) {
+      throw new Error("Email is required");
+    }
+    if (!password?.trim()) {
+      throw new Error("Password is required to update email");
     }
 
-    // Delete old avatar if exists
-    if (oldUrl) {
-      await deleteAvatarApi(oldUrl);
-    }
+    const formData = buildFormData(
+      {
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+        email: data.email.trim(),
+        password: password.trim(),
+      },
+      file,
+    );
 
-    const result = await uploadAvatarApi(file);
-    if (result.error) {
-      throw new Error(result.error);
-    }
+    console.log("Updating profile with email:", {
+      name: data.name.trim(),
+      phone: data.phone.trim(),
+      email: data.email.trim(),
+      hasFile: !!file,
+      password: "***",
+    });
 
-    return result.publicUrl;
+    return await userApi.updateProfile(formData);
   }
 
-  //Delete avatar
-  static async deleteAvatar(publicUrl: string) {
-    return await deleteAvatarApi(publicUrl);
+  // Remove avatar
+  static async removeAvatar(data: Pick<ProfileFormValues, "name" | "phone">) {
+    if (!data.name?.trim() || !data.phone?.trim()) {
+      throw new Error("Name and phone are required");
+    }
+
+    const formData = buildFormData(
+      {
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+      },
+      null,
+      true,
+    );
+
+    return await userApi.updateProfile(formData);
   }
 
-  //Validate avatar file
   static validateAvatar(file: ImageFile): { isValid: boolean; error?: string } {
     const validation = validateImage(file);
 

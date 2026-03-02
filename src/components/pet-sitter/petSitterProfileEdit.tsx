@@ -1,80 +1,127 @@
 "use client";
 
 import { FormProvider } from "@/components/form/FormProvider";
-import { RHFInput } from "@/components/form/RHFInput";
+import { Input, AvatarUpload, SubmitButton } from "@/components/form/index";
 import { useUserProfileForm } from "@/hooks/useUserProfileForm";
-import { RHFAvatarUpload } from "@/components/form/image-upload/RHFAvatarUpload";
-import Section from "@/components/form/FormSection";
-import ProfileContainer from "@/components/profile/ProfileContainer";
-import { PetSitterProfileHeader } from "@/components/profile/ProfileHeader";
-import { ActionButton } from "@/components/ui/Button";
+import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
 
-//add usePetSitterProfileForm hook
+export default function ProfileEdit() {
+  const {
+    methods,
+    onSubmit,
+    isSubmitting,
+    isUpdating,
+    isUploadingFile,
+    isLoadingProfile,
+    profileError,
+    handleAvatarChange,
+    showPasswordModal,
+    pendingData,
+    onEmailConfirmed,
+    onModalClose,
+    isAvatarDirty, // ✅ avatar dirty flag from hook
+  } = useUserProfileForm();
 
-export default function SitterProfileEdit() {
-  const { methods, onSubmit, isSubmitting } = useUserProfileForm();
+  if (isLoadingProfile) {
+    return (
+      <div className="flex justify-center items-center min-h-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
 
-  const handleUpdate = () => {
-    // TODO: Implement update logic
-    if (isSubmitting) return;
-    console.log("Update profile");
-  };
+  if (profileError) {
+    const isAuthError =
+      profileError.includes("session") ||
+      profileError.includes("login") ||
+      profileError.includes("Unauthorized");
 
-  return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      <div className="flex flex-col gap-6">
-        <PetSitterProfileHeader
-          title="Pet Sitter Profile"
-          status={<span className="text-green-500">Approved</span>}
-          action={
-            <ActionButton
-              variant="primary"
-              onClick={handleUpdate}
-              disabled={isSubmitting}
+    return (
+      <div className="flex justify-center items-center min-h-100">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">Error loading profile</div>
+          <div className="text-gray-600 mb-4">{profileError}</div>
+          {isAuthError ? (
+            <button
+              onClick={() => (window.location.href = "/auth/login")}
+              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              Update
-            </ActionButton>
-          }
-        />
-        <div className="pr-8 flex flex-col gap-6">
-          <ProfileContainer>
-            <div className="flex flex-col gap-15 px-6">
-              <Section title="Basic Information">
-                <RHFAvatarUpload name="profile_image" label="Profile Image" />
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                  <RHFInput name="name" label="Your Name" required />
-                  <RHFInput name="name" label="Experience" required />
-                  <RHFInput name="email" label="Pet type" type="email" />
-                  <RHFInput name="phone" label="Phone" type="tel" />
-                </div>
-              </Section>
-            </div>
-          </ProfileContainer>
-
-          <ProfileContainer>
-            <div className="flex flex-col gap-15 px-6">
-              <Section title="Pet Sitter">
-                <RHFInput
-                  name="name"
-                  label="Pet sitter name(Trade Name)"
-                  required
-                />
-                <RHFInput
-                  name="email"
-                  label="Services (Describe all of your service for pet sitting)"
-                  type="email"
-                />
-                <RHFInput
-                  name="phone"
-                  label="My Place (Describe you place)"
-                  type="tel"
-                />
-              </Section>
-            </div>
-          </ProfileContainer>
+              Go to Login
+            </button>
+          ) : (
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+            >
+              Retry
+            </button>
+          )}
         </div>
       </div>
-    </FormProvider>
+    );
+  }
+
+  return (
+    <>
+      <FormProvider
+        methods={methods}
+        onSubmit={onSubmit}
+        disabled={isSubmitting || isUpdating}
+      >
+        <div className="flex flex-col gap-15">
+          <AvatarUpload
+            name="profile_img_url"
+            onUpload={handleAvatarChange}
+            isUploading={isUploadingFile}
+          />
+
+          <div className="space-y-10">
+            <Input
+              name="name"
+              label="Your Name"
+              placeholder="Enter your name"
+              required
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              <Input
+                name="email"
+                label="Email"
+                type="email"
+                placeholder="Enter your email"
+                required
+              />
+              <Input
+                name="phone"
+                label="Phone"
+                type="tel"
+                placeholder="Enter your phone"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <SubmitButton
+              isLoading={isSubmitting || isUpdating || isUploadingFile}
+              requireValid={true}
+              // ✅ Form is dirty if RHF fields changed OR avatar changed
+              requireDirty={true}
+              extraDirty={isAvatarDirty}
+            >
+              Update Profile
+            </SubmitButton>
+          </div>
+        </div>
+      </FormProvider>
+
+      {showPasswordModal && pendingData && (
+        <ConfirmPasswordModal
+          newEmail={pendingData.email}
+          onSuccess={onEmailConfirmed}
+          onClose={onModalClose}
+        />
+      )}
+    </>
   );
 }

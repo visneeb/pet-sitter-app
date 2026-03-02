@@ -3,6 +3,24 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { userApi } from "@/services/api/userApi";
+import { buildFormData } from "@/lib/utils/formData";
+
+// Temporary local function in case of module resolution issues
+function localBuildFormData(
+  bodyJson: object,
+  file?: File | null,
+  removeProfileImg?: boolean,
+): FormData {
+  const formData = new FormData();
+  formData.append("body", JSON.stringify(bodyJson));
+  if (file) {
+    formData.append("image", file);
+  }
+  if (removeProfileImg) {
+    formData.append("removeProfileImg", "true");
+  }
+  return formData;
+}
 
 type ConfirmPasswordValues = {
   password: string;
@@ -54,12 +72,14 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
       console.log("Updating email from:", currentUser.email, "to:", newEmail);
 
       // Update email using backend API
-      const result = await userApi.updateProfile({
+      const formData = localBuildFormData({
         name: currentUser.name,
         phone: currentUser.phone,
         email: newEmail,
         password: data.password,
       });
+
+      const result = await userApi.updateProfile(formData);
 
       console.log("Email update response:", result);
 
