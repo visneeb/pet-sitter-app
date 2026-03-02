@@ -1,6 +1,6 @@
 const STYLES = {
   container: "flex flex-col justify-center items-center",
-  heading: "text-black style-headline-1 sm:style-display",
+  heading: "text-black style-headline-1 sm:style-display font-black",
   subheading:
     "text-gray-400 style-headline-4 mt-[24px] sm:style-headline-3 md:mt-[32px]",
 } as const;

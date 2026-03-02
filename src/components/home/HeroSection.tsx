@@ -1,4 +1,5 @@
-import { useScreenContext } from "@/contexts/ScreenContext";
+"use client";
+
 import { HeroLeftPanel } from "./HeroSection/HeroLeftPanel";
 import { HeroRightPanel } from "./HeroSection/HeroRightPanel";
 import { HeroTextContent } from "./HeroSection/HeroTextContent";
@@ -6,7 +7,7 @@ import cn from "@/utils/cn";
 import { useState, useEffect } from "react";
 
 export default function HeroSection() {
-  const { isSmall, isMedium } = useScreenContext();
+
 
   const [isWideScreen, setIsWideScreen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(0);
@@ -25,7 +26,7 @@ export default function HeroSection() {
   const PANEL_NATURAL_WIDTH = 428;
   const PANEL_NATURAL_HEIGHT = 441;
   const panelScale =
-    windowWidth > 0 ? (windowWidth * 0.5) / PANEL_NATURAL_WIDTH : 0.57;
+    windowWidth > 0 ? (windowWidth * 0.65) / PANEL_NATURAL_WIDTH : 0.57;
   const scaledWidth = PANEL_NATURAL_WIDTH * panelScale;
   const scaledHeight = PANEL_NATURAL_HEIGHT * panelScale;
 

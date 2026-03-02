@@ -127,6 +127,7 @@
   letter-spacing: var(--letter-spacing);
 }
 
+
 @utility style-headline-2 {
   font-weight: var(--font-weight-headline);
   font-size: var(--font-size-headline-2);
