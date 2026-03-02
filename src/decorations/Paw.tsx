@@ -3,6 +3,8 @@ import * as React from "react";
 export type PawProps = React.SVGProps<SVGSVGElement>;
 
 export function Paw({ className, ...props }: PawProps) {
+  const uid = React.useId();
+  const maskId = `paw-mask-${uid}`;
   return (
     <svg
       viewBox="0 0 163 169"
@@ -11,7 +13,7 @@ export function Paw({ className, ...props }: PawProps) {
       {...props}
     >
       <defs>
-        <mask id="paw-mask">
+        <mask id={maskId}>
           {/* primary */}
           <path
             fill="white"
@@ -47,7 +49,7 @@ export function Paw({ className, ...props }: PawProps) {
         width="100%"
         height="100%"
         fill="currentColor"
-        mask="url(#paw-mask)"
+        mask={`url(#${maskId})`}
       />
     </svg>
   );

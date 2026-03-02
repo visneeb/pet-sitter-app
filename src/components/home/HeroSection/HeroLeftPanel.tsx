@@ -23,8 +23,11 @@ import {
   QUADRANT_TOP,
 } from "@/constants/HomepageData/HeroSection";
 import cn from "@/utils/cn";
+import React from "react";
 
 export function HeroLeftPanel({ className }: { readonly className?: string }) {
+  const uid = React.useId();
+  const maskId = `cat-mask-${uid}`;
   return (
     <div
       className={cn("relative", className)}
@@ -79,7 +82,7 @@ export function HeroLeftPanel({ className }: { readonly className?: string }) {
 
           <svg width="0" height="0">
             <defs>
-              <clipPath id="catClip">
+              <clipPath id={maskId}>
                 <path d="M253 253V118L109 253H253Z" />
                 <path d="M0 126.5C0 196.364 56.636 253 126.5 253C196.364 253 253 196.364 253 126.5C253 56.636 196.364 0 126.5 0C56.636 0 0 56.636 0 126.5Z" />
               </clipPath>
@@ -92,7 +95,7 @@ export function HeroLeftPanel({ className }: { readonly className?: string }) {
             width={CAT_IMAGE_SIZE}
             height={CAT_IMAGE_SIZE}
             className="absolute bottom-0 z-10"
-            style={{ clipPath: "url(#catClip)" }}
+            style={{ clipPath: `url(#${maskId})` }}
           />
         </div>
       </div>

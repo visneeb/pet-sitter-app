@@ -3,4 +3,5 @@ export interface FilterParams {
   petTypes?: string[];
   rating?: number[];
   experience?: string;
+  seed?:string;
 }

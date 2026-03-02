@@ -1,13 +1,13 @@
-import { useScreenContext } from "@/contexts/ScreenContext";
+"use client";
+
 import { HeroLeftPanel } from "./HeroSection/HeroLeftPanel";
 import { HeroRightPanel } from "./HeroSection/HeroRightPanel";
 import { HeroTextContent } from "./HeroSection/HeroTextContent";
 import cn from "@/utils/cn";
-import TestResponsive from "../search/testResponsive";
 import { useState, useEffect } from "react";
 
 export default function HeroSection() {
-  const { isSmall,isMedium } = useScreenContext();
+
 
   const [isWideScreen, setIsWideScreen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(0);
@@ -26,83 +26,75 @@ export default function HeroSection() {
   const PANEL_NATURAL_WIDTH = 428;
   const PANEL_NATURAL_HEIGHT = 441;
   const panelScale =
-    windowWidth > 0 ? (windowWidth * 0.5) / PANEL_NATURAL_WIDTH : 0.57;
+    windowWidth > 0 ? (windowWidth * 0.65) / PANEL_NATURAL_WIDTH : 0.57;
   const scaledWidth = PANEL_NATURAL_WIDTH * panelScale;
   const scaledHeight = PANEL_NATURAL_HEIGHT * panelScale;
 
   return (
     <>
-      {isWideScreen ? (
-        <section
-          className={cn("flex flex-row justify-center items-center flex-row")}
+      <section
+        className={cn("hidden xxl:flex flex-row justify-center items-center")}
+      >
+        <HeroLeftPanel />
+        <HeroTextContent />
+        <HeroRightPanel />
+      </section>
+
+      <section
+        className={cn(
+          "flex xxl:hidden flex-col justify-center items-center gap-[50px] overflow-x-hidden w-full",
+        )}
+      >
+        <HeroTextContent />
+        <div
+          className={cn("hidden sm:flex flex-row justify-center items-center")}
         >
           <HeroLeftPanel />
-          <HeroTextContent />
           <HeroRightPanel />
-        </section>
-      ) : (
-        <section
-          className={cn(
-            "flex flex-col justify-center items-center flex-col gap-[50px]",
-          )}
+        </div>
+        <div
+          className={cn("flex sm:hidden flex-row justify-center items-center")}
         >
-          <HeroTextContent />
+          {/* outer wrapper กำหนดพื้นที่ใน layout = ขนาดหลัง scale */}
           <div
-            className={cn(
-              "flex flex-row justify-center items-center",
-              
-            )}
+            style={{
+              width: scaledWidth,
+              height: scaledHeight,
+              overflow: "hidden",
+            }}
           >
-            {(isSmall&&isMedium) ? (
-              <>
-                <HeroLeftPanel />
-                <HeroRightPanel />
-              </>
-            ) : (
-              <>
-                {/* outer wrapper กำหนดพื้นที่ใน layout = ขนาดหลัง scale */}
-                <div
-                  style={{
-                    width: scaledWidth,
-                    height: scaledHeight,
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* inner div รับ transform แทน โดยไม่ต้องส่ง style prop เข้า Component */}
-                  <div
-                    style={{
-                      transform: `scale(${panelScale})`,
-                      transformOrigin: "top left",
-                      width: PANEL_NATURAL_WIDTH,
-                      height: PANEL_NATURAL_HEIGHT,
-                    }}
-                  >
-                    <HeroLeftPanel />
-                  </div>
-                </div>
-                <div
-                  style={{
-                    width: scaledWidth,
-                    height: scaledHeight,
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      transform: `scale(${panelScale})`,
-                      transformOrigin: "top left",
-                      width: PANEL_NATURAL_WIDTH,
-                      height: PANEL_NATURAL_HEIGHT,
-                    }}
-                  >
-                    <HeroRightPanel />
-                  </div>
-                </div>
-              </>
-            )}
+            {/* inner div รับ transform แทน โดยไม่ต้องส่ง style prop เข้า Component */}
+            <div
+              style={{
+                transform: `scale(${panelScale})`,
+                transformOrigin: "top left",
+                width: PANEL_NATURAL_WIDTH,
+                height: PANEL_NATURAL_HEIGHT,
+              }}
+            >
+              <HeroLeftPanel />
+            </div>
           </div>
-        </section>
-      )}
+          <div
+            style={{
+              width: scaledWidth,
+              height: scaledHeight,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                transform: `scale(${panelScale})`,
+                transformOrigin: "top left",
+                width: PANEL_NATURAL_WIDTH,
+                height: PANEL_NATURAL_HEIGHT,
+              }}
+            >
+              <HeroRightPanel />
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

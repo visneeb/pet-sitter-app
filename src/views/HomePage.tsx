@@ -21,13 +21,13 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="pt-20">
+      <div className="pt-10 xl:pt-20">
         <section id="Hero-Section" className="w-full">
           <HeroSection />
         </section>
         <section id="search" className="w-full p-t">
           <Suspense fallback={<div>Loading search...</div>}>
-            <PetSitterSearchProvider>
+            <PetSitterSearchProvider enableQuery={false}>
               <SearchBar />
             </PetSitterSearchProvider>
           </Suspense>
