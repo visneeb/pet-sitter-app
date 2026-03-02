@@ -11,3 +11,4 @@ export {
   deleteSitterImage,
 } from "./storageApi";
 export { sitterApi } from "./sitterApi";
+export { userApi } from "./userApi";

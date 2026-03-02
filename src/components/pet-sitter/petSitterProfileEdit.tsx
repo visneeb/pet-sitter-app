@@ -19,7 +19,7 @@ export default function ProfileEdit() {
     pendingData,
     onEmailConfirmed,
     onModalClose,
-    isAvatarDirty, // ✅ avatar dirty flag from hook
+    isAvatarDirty,
   } = useUserProfileForm();
 
   if (isLoadingProfile) {
@@ -105,7 +105,6 @@ export default function ProfileEdit() {
             <SubmitButton
               isLoading={isSubmitting || isUpdating || isUploadingFile}
               requireValid={true}
-              // ✅ Form is dirty if RHF fields changed OR avatar changed
               requireDirty={true}
               extraDirty={isAvatarDirty}
             >
