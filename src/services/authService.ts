@@ -1,4 +1,5 @@
 import { userApi } from "@/services/api/userApi";
+import { buildFormData } from "@/lib/utils/formData";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -125,11 +126,13 @@ export const authService = {
       throw new Error("No active session found");
     }
 
-    await userApi.updateProfile({
+    const formData = buildFormData({
       name: currentUser.name,
       phone: currentUser.phone,
       email: newEmail,
       password,
     });
+
+    await userApi.updateProfile(formData);
   },
 };

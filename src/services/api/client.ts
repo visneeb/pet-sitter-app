@@ -7,13 +7,14 @@ if (!baseURL) {
 }
 
 export const createApiInstance = (withAuth: boolean) => {
-  const instance = axios.create({ baseURL });
+  const instance = axios.create({
+    baseURL,
+  });
 
   // Private - attach JWT token from localStorage
   if (withAuth && process.env.NEXT_PUBLIC_DISABLE_AUTH !== "true") {
     instance.interceptors.request.use(async (config) => {
       try {
-        // Get JWT token from localStorage (set by authService)
         const token =
           typeof window !== "undefined"
             ? localStorage.getItem("accessToken")
@@ -44,10 +45,16 @@ export const createApiInstance = (withAuth: boolean) => {
 
       const { status, data } = error.response;
 
-      // Handle unauthorized responses
+      console.error("API Error:", {
+        status,
+        url: error.config?.url,
+        method: error.config?.method,
+        sentData: error.config?.data,
+        response: data,
+      });
+
       if (status === 401) {
         console.warn("Unauthorized - redirecting to login");
-        // Clear JWT token and redirect to login
         if (typeof window !== "undefined") {
           localStorage.removeItem("accessToken");
           window.location.href = "/auth/login";

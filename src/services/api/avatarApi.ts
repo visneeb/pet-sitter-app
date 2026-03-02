@@ -1,27 +1,15 @@
-import { privateApi } from "./client";
-
-// TODO: Implement avatar upload endpoints in backend
 export async function uploadAvatarApi(
-  file: File,
+  _file: File,
 ): Promise<{ publicUrl?: string; error?: string }> {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const { data } = await privateApi.post("/upload/avatar", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-
-  return data;
+  console.warn("uploadAvatarApi: use ProfileService.uploadAvatar instead");
+  return { error: "Use ProfileService.uploadAvatar instead" };
 }
 
 export async function deleteAvatarApi(
-  publicUrl: string,
+  _publicUrl: string,
 ): Promise<{ success?: boolean; error?: string }> {
-  const { data } = await privateApi.delete("/upload/avatar", {
-    data: { publicUrl },
-  });
-
-  return data;
+  console.warn("deleteAvatarApi: backend handles deletion automatically");
+  return { success: true };
 }
 
 export async function getProfileApi(): Promise<{
@@ -32,6 +20,7 @@ export async function getProfileApi(): Promise<{
   profileImgUrl: string;
   role: string;
 } | null> {
+  const { privateApi } = await import("./client");
   try {
     const { data } = await privateApi.get("/auth/get-user");
     return data;
@@ -43,13 +32,4 @@ export async function getProfileApi(): Promise<{
         "Failed to fetch profile data",
     );
   }
-}
-
-export async function updateProfileApi(body: {
-  name: string;
-  phone: string;
-  profileImgUrl: string;
-}): Promise<{ success?: boolean; error?: string }> {
-  const { data } = await privateApi.put("/pet-owner/user", body);
-  return data;
 }
