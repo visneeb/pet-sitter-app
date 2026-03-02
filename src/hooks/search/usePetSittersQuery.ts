@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FilterParams } from "@/types/FilterParams";
 import { PetSitter } from "@/types/PetSittersType";
-import { buildApiQueryParams } from "@/features/search/utils/searchFilters";
+import { buildApiQueryParams } from "@/utils/search/searchFilters";
 
 interface UsePetSittersQueryResult {
   petSitters: PetSitter[];

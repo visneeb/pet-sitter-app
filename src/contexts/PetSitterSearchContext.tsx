@@ -11,8 +11,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { PetSitter } from "@/types/PetSittersType";
 import { FilterParams } from "@/types/FilterParams";
-import { useSearchFilterUrl } from "@/features/search/hooks/useSearchFilterUrl";
-import { usePetSittersQuery } from "@/features/search/hooks/usePetSittersQuery";
+import { useSearchFilterUrl } from "@/hooks/search/useSearchFilterUrl";
+import { usePetSittersQuery } from "@/hooks/search/usePetSittersQuery";
 
 // ── URL param keys ──────────────────────────────────────────
 const PARAM_KEYS = {

@@ -4,7 +4,7 @@ import { FilterParams } from "@/types/FilterParams";
 import {
   parseFiltersFromURLParams,
   buildURLSearchParamsFromFilters,
-} from "@/features/search/utils/searchFilters";
+} from "@/utils/search/searchFilters";
 
 export function useSearchFilterUrl() {
   const router = useRouter();
@@ -45,4 +45,3 @@ export function useSearchFilterUrl() {
     pushFiltersToSearchPage,
   };
 }
-
