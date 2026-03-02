@@ -10,7 +10,7 @@ export const LEFT_PANEL_WIDTH = 428;
 export const LEFT_PANEL_HEIGHT = 441;
 
 export const PAW_SIZE = 163;
-export const PAW_TOP = -5;
+export const PAW_TOP = 0;
 export const PAW_RIGHT = 35;
 
 export const QUADRANT_SIZE = 117.5;

@@ -21,7 +21,7 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="pt-20">
+      <div className="pt-10 xl:pt-20">
         <section id="Hero-Section" className="w-full">
           <HeroSection />
         </section>
