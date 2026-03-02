@@ -33,7 +33,7 @@ export default function HomePage() {
           </Suspense>
         </section>
       </div>
-      <section className="flex flex-col gap-32 p-20">
+      <section className="flex flex-col gap-20 md:gap-32 px-20 pt-10 md:p-20">
         <h1
           className={cn(
             "flex text-center justify-center",
