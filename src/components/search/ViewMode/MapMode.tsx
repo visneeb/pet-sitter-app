@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 // ssr: false ทั้งคู่ — Leaflet ต้องการ window ซึ่งมีแค่ใน browser
 // MapControls import UserMarker ซึ่ง import L from "leaflet" → ต้อง dynamic ด้วย
-const LeafletMap = dynamic(() => import("@/components/Map/Map"), {
+const LeafletMap = dynamic(() => import("@/components/Map/LeafletMap"), {
   ssr: false,
 });
 const MapControls = dynamic(

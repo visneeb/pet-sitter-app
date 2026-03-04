@@ -11,7 +11,7 @@ interface MapProps {
 }
 
 // ── Main Map Component ────────────────────────────────────────────────────────
-export default function Map({
+export default function LeafletMap({
   children,
   center,
   zoom = 13,
