@@ -7,6 +7,8 @@ import { validatePetForm } from "@/lib/validations/petFormValidation";
 import { petApi } from "@/services/api";
 import { showCustomToast } from "@/components/ui/toast/Toast";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { PetDetail } from "@/services/api/petApi";
 
 interface Props {
   mode: "create" | "edit";
@@ -15,6 +17,9 @@ interface Props {
 }
 
 export function usePetForm(props: Props) {
+  const [isLoading, setIsLoading] = useState<boolean>(props.mode === "edit");
+  const [petTypes, setPetTypes] = useState<{ id: number; name: string }[]>([]);
+  const [pet, setPet] = useState<PetDetail | null>(null);
   const router = useRouter();
   const methods = useForm<PetFormValues>({
     mode: "onSubmit",
@@ -22,7 +27,7 @@ export function usePetForm(props: Props) {
     defaultValues: {
       img_url: null,
       petName: "",
-      petTypeId: "",
+      petTypeId: NaN,
       breed: "",
       sex: "",
       dateOfBirth: null,
@@ -37,9 +42,61 @@ export function usePetForm(props: Props) {
     formState: { isSubmitting },
   } = methods;
 
-  const handleSubmit = async (data: PetFormValues) => {
-    console.log(5555);
+  const loadPetTypes = async () => {
+    setPetTypes(await petApi.getTypes());
+  };
 
+  const loadPet = async () => {
+    if (props.mode !== "edit" || !props.petId) return;
+
+    try {
+      setPet(await petApi.getById(props.petId));
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to load pet data";
+
+      showCustomToast({
+        title: "Failed to load pet",
+        description: message,
+        variant: "error",
+      });
+
+      router.push("/pets");
+    }
+  };
+
+  useEffect(() => {
+    loadPetTypes();
+  }, []);
+
+  useEffect(() => {
+    loadPet();
+  }, [props.mode, props.petId, methods]);
+
+  useEffect(() => {
+    setIsLoading(true);
+
+    if (pet) {
+      methods.reset({
+        img_url: pet.imgUrl || null,
+        petName: pet.petName,
+        petTypeId: petTypes.filter((petType) => petType.name === pet.petType)[0]
+          ?.id,
+        sex: pet.sex,
+        breed: pet.breed,
+        dateOfBirth: pet.dateOfBirth ? new Date(pet.dateOfBirth) : null,
+        color: pet.color,
+        weight: String(pet.weight),
+        about: pet.about ?? "",
+      });
+
+      setIsLoading(false);
+    }
+  }, [pet]);
+
+  const handleSubmit = async (data: PetFormValues) => {
     try {
       if (props.mode === "create") {
         const response = await petApi.createPet(data);
@@ -63,6 +120,8 @@ export function usePetForm(props: Props) {
           description: response.message ?? "Your pet has been updated.",
           variant: "success",
         });
+
+        router.push("/pets");
       }
     } catch (error: any) {
       const message =
@@ -85,5 +144,5 @@ export function usePetForm(props: Props) {
     }
   };
 
-  return { methods, handleSubmit, isSubmitting };
+  return { petTypes, methods, handleSubmit, isSubmitting, isLoading };
 }

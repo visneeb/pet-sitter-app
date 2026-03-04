@@ -11,7 +11,7 @@ export interface PetTypeApi {
 export interface PetFormValues {
   img_url: File | string | null;
   petName: string;
-  petTypeId: string;
+  petTypeId: number;
   breed: string;
   sex: string;
   dateOfBirth: Date | null;

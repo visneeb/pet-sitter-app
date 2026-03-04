@@ -12,25 +12,19 @@ import {
 } from "@/components/form";
 import { ActionButton, NavigationButton } from "@/components/ui/Button";
 import { PawPrint } from "lucide-react";
-import { petApi } from "@/services/api";
+import cn from "@/utils/cn";
 
 const sexes = ["Male", "Female", "Unknown"];
 
-function PetFields({ mode }: { mode: "create" | "edit" }) {
+interface Props {
+  mode: "create" | "edit";
+  petTypes: { id: number; name: string }[];
+}
+
+function PetFields(props: Props) {
   const {
     formState: { errors },
   } = useFormContext<PetFormValues>();
-
-  const [petTypes, setPetTypes] = useState<{ id: number; petType: string }[]>(
-    [],
-  );
-
-  useEffect(() => {
-    petApi
-      .getTypes()
-      .then(setPetTypes)
-      .catch(() => setPetTypes([]));
-  }, []);
 
   return (
     <>
@@ -55,9 +49,9 @@ function PetFields({ mode }: { mode: "create" | "edit" }) {
             placeholder="Select type of your pet"
             required
           >
-            {petTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                <span className="style-input">{type.petType}</span>
+            {props.petTypes.map((petType) => (
+              <option key={petType.id} value={petType.id}>
+                <span className="style-input">{petType.name}</span>
               </option>
             ))}
           </Select>
@@ -119,9 +113,12 @@ function PetFields({ mode }: { mode: "create" | "edit" }) {
           <ActionButton
             variant="primary"
             type="submit"
-            className="flex-1 sm:flex-0 sm:min-w-32"
+            className={cn(
+              "flex-1 sm:flex-0",
+              props.mode === "edit" ? "sm:min-w-36" : "sm:min-w-32",
+            )}
           >
-            {mode === "edit" ? "Update Pet" : "Create Pet"}
+            {props.mode === "edit" ? "Update Pet" : "Create Pet"}
           </ActionButton>
         </div>
       </div>

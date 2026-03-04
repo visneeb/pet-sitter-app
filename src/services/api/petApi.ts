@@ -16,6 +16,19 @@ export type PetResponse = {
   message: string;
 };
 
+export type PetDetail = {
+  id: number;
+  imgUrl: string;
+  petName: string;
+  petType: string;
+  sex: "Male" | "Female" | "Unknown";
+  breed: string;
+  dateOfBirth: string;
+  color: string;
+  weight: number;
+  about: string | null;
+};
+
 function toRequestBody(values: PetFormValues): PetRequestBody {
   return {
     petName: values.petName.trim(),
@@ -32,10 +45,15 @@ function toRequestBody(values: PetFormValues): PetRequestBody {
 }
 
 export const petApi = {
-  getTypes: async (): Promise<{ id: number; petType: string }[]> => {
-    const { data } = await privateApi.get<{ id: number; petType: string }[]>(
+  getTypes: async (): Promise<{ id: number; name: string }[]> => {
+    const { data } = await privateApi.get<{ id: number; name: string }[]>(
       "/pet/type",
     );
+    return data;
+  },
+
+  getById: async (petId: number | string): Promise<PetDetail> => {
+    const { data } = await privateApi.get<PetDetail>(`/pet-owner/pet/${petId}`);
     return data;
   },
 
