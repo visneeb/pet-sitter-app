@@ -7,20 +7,7 @@ import { UserMarkerProps } from "@/types/map";
 // zoom >= threshold → แสดง area (Circle) แทน dot Marker
 const AREA_ZOOM_THRESHOLD = 17;
 
-// dot icon สไตล์ Google Maps "My Location"
-const userIcon = L.divIcon({
-  className: "",
-  html: `<div style="
-    width: 16px; height: 16px;
-    background: #3b82f6;
-    border: 3px solid white;
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.4);
-  "></div>`,
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-});
-
+// dot icon สร้างใน component เพื่อป้องกัน SSR crash (L.divIcon ต้องการ window)
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function UserMarker({
@@ -28,6 +15,20 @@ export default function UserMarker({
   accuracy,
 }: Readonly<UserMarkerProps>) {
   const { zoom } = useMapZoom();
+
+  // สร้าง icon ใน browser เท่านั้น (ไม่ใช่ module-level)
+  const userIcon = L.divIcon({
+    className: "",
+    html: `<div style="
+      width: 16px; height: 16px;
+      background: #3b82f6;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.4);
+    "></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
 
   // High zoom → แสดงวงกลม accuracy area + dot เล็กตรงกลาง
   if (zoom >= AREA_ZOOM_THRESHOLD) {
