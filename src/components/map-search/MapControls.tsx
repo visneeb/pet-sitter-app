@@ -6,6 +6,7 @@ import ButtonZoomIn from "../Map/ui/Button/ButtonZoomIn";
 import ButtonZoomOut from "../Map/ui/Button/ButtonZoomOut";
 import ButtonFullscreen from "../Map/ui/Button/ButtonFullscreen";
 import MapPinHandler from "../Map/ui/MapPinHandler";
+import ZipSearchMap from "../Map/ui/Input/ZipSearchMap";
 
 // hook อยู่ที่นี่ที่เดียว — เป็น single source of truth สำหรับ userPosition และ accuracy
 export default function MapControls() {
@@ -31,6 +32,8 @@ export default function MapControls() {
         <ButtonZoomOut />
         <ButtonFullscreen />
       </div>
+      {/* Zip Code Search Input */}
+      <ZipSearchMap />
       {/* Map Pin Handler */}
       <MapPinHandler />
     </>
