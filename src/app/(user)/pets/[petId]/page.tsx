@@ -1,9 +1,24 @@
-import PetListPage from "@/views/dashboard/owner/pet/PetListPage";
+"use client";
+
 import { UserProfileHeader } from "@/components/profile/ProfileHeader";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { usePetForm } from "@/hooks/usePetForm";
+import { Form } from "@/components/form";
+import PetFields from "@/components/owner/pet/petFields";
+import { useParams } from "next/navigation";
+import Loading from "@/components/common/loading/loading";
 
-export default function CreatePetPage() {
+export default function EditPetPage() {
+  const params = useParams<{ petId: string }>();
+  const petId = params.petId;
+
+  const { petTypes, methods, handleSubmit, isSubmitting, isLoading } =
+    usePetForm({
+      mode: "edit",
+      petId,
+    });
+
   return (
     <>
       <UserProfileHeader
@@ -14,7 +29,13 @@ export default function CreatePetPage() {
           </Link>
         }
       />
-      {/* Pet create form*/}
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Form methods={methods} onSubmit={handleSubmit} disabled={isSubmitting}>
+          <PetFields mode="edit" petTypes={petTypes} />
+        </Form>
+      )}
     </>
   );
 }

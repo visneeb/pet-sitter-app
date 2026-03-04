@@ -80,7 +80,7 @@ export function Select({
           className,
         )}
       >
-        <span className={!value ? "text-muted-foreground" : ""}>
+        <span className={!value ? "text-gray-400" : ""}>
           {getSelectedText()}
         </span>
         <svg

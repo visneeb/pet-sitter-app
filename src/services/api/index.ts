@@ -12,3 +12,4 @@ export {
 } from "./storageApi";
 export { sitterApi } from "./sitterApi";
 export { userApi } from "./userApi";
+export { petApi } from "./petApi";

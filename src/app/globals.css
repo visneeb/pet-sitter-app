@@ -208,3 +208,32 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #000 !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* FormControl error: icon inside border, single border when wrapped */
+.form-control-error-wrapper input {
+  border-color: transparent;
+}
+
+/* React Day Picker - Calendar Card Style */
+.rdp-root .rdp-day_button:hover {
+  background-color: var(--color-orange-200);
+  cursor: pointer;
+}
+
+.rdp-root .rdp-today .rdp-day_button:hover {
+  background-color: var(--color-orange-300);
+}
+.rdp-root .rdp-selected .rdp-day_button:hover {
+  background-color: var(--color-orange-500);
+  color: var(--color-white);
+}
+
+/* RHFDatePicker: disabled nav buttons (match react-day-picker style) */
+.rdp-root .rdp-button_previous:disabled,
+.rdp-root .rdp-button_previous[aria-disabled="true"],
+.rdp-root .rdp-button_next:disabled,
+.rdp-root .rdp-button_next[aria-disabled="true"] {
+  cursor: revert;
+  opacity: 0.5;
+}
+
