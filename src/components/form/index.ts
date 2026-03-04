@@ -6,6 +6,7 @@ export { RHFPassword as PasswordInput } from "./RHFPassword";
 export { RHFTextarea as Textarea } from "./RHFTextarea";
 export { RHFSelect as Select } from "./RHFSelect";
 export { RHFMultiSelect as MultiSelect } from "./RHFMultiSelect";
+export { RHFDatePicker as DatePicker } from "./RHFDatePicker";
 
 // Form Structure Components
 export { default as FormSection } from "./FormSection";
@@ -23,5 +24,6 @@ export { RHFPassword } from "./RHFPassword";
 export { RHFTextarea } from "./RHFTextarea";
 export { RHFSelect } from "./RHFSelect";
 export { RHFMultiSelect } from "./RHFMultiSelect";
+export { RHFDatePicker } from "./RHFDatePicker";
 export { SubmitButton } from "./FormSubmitButton";
 export { RHFAvatarUpload } from "./image-upload/RHFAvatarUpload";

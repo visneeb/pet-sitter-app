@@ -30,13 +30,14 @@ export function RHFTextarea<T extends FieldValues>({
 
   return (
     <FormField name={name}>
-      <label className="style-label text-black">
+      <label htmlFor={label} className="style-label text-black">
         {label}
         {required && <span>*</span>}
       </label>
 
       <FormControl>
         <Textarea
+        id={label}
           {...register(name, {
             required: required ? `${label} is required` : false,
           })}
