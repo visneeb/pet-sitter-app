@@ -45,10 +45,10 @@ export default function NavbarGuest() {
             ></label>
             <ul className="gap-[16px] px-[16px] py-[40px] menu bg-white h-full w-full p-4 ">
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/register-pet-sitter">Become a Pet Sitter</Link>
+                <Link href="/auth/register">Become a Pet Sitter</Link>
               </li>
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/login">Login</Link>
+                <Link href="/auth/login">Login</Link>
               </li>
               <li className="w-full block">
                 <NavigationButton
