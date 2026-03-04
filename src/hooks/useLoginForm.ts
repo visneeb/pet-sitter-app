@@ -47,11 +47,15 @@ export function useLoginForm() {
 
     try {
       // Use backend API for login
-      const response = await authApi.login(data);
+      const session = await authApi.login(data);
 
+      if (!data) {
+        setServerError("Login succeeded but user data not found.");
+        return;
+      }
       // Save token to localStorage
-      if (response.accessToken) {
-        localStorage.setItem("accessToken", response.accessToken);
+      if (session.accessToken) {
+        localStorage.setItem("accessToken", session.accessToken);
       }
 
       setServerSuccess("Login successful. Redirecting...");
