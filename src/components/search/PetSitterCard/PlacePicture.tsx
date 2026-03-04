@@ -10,6 +10,8 @@ export default function PlacePicture({
   priority = false,
 }: Readonly<{ sitter: PetSitter; priority?: boolean }>) {
   const { isSmall } = useScreenContext();
+
+  
   return (
     <div>
       {sitter.imgUrl ? (
