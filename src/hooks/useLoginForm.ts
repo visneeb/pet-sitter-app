@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { createResolver } from "@/lib/form/createResolver";
 import { validateLogin } from "@/lib/validations/loginFormValidation";
 import { LoginFormValues } from "@/types/authType";
-import { authService } from "@/services/authService";
+import { authApi } from "@/services/api/auth";
+import { useAuth } from "@/contexts/AuthContextBackend";
 
 type AxiosLikeError = {
   message?: string;
@@ -18,6 +19,7 @@ type AxiosLikeError = {
 
 export function useLoginForm() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
 
   const [serverError, setServerError] = useState("");
   const [serverSuccess, setServerSuccess] = useState("");
@@ -45,14 +47,15 @@ export function useLoginForm() {
 
     try {
       // Use backend API for login
-      const session = await authService.login(data.email, data.password);
+      const response = await authApi.login(data);
 
-      if (!session?.user?.email) {
-        setServerError("Login succeeded but user data not found.");
-        return;
+      // Save token to localStorage
+      if (response.accessToken) {
+        localStorage.setItem("accessToken", response.accessToken);
       }
 
       setServerSuccess("Login successful. Redirecting...");
+      await refreshUser();
       setTimeout(() => router.push("/"), 800);
     } catch (err: unknown) {
       const e = err as AxiosLikeError;

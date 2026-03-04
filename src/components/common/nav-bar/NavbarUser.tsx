@@ -13,25 +13,18 @@ import {
   Menu,
   UserRound,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { authApi } from "@/services/api/auth";
-import { useScreenContext } from "@/contexts/ScreenContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContextBackend";
 
 export default function NavbarUser() {
   const { signOut } = useAuth();
-  const router = useRouter();
-  const router = useRouter();
 
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      await signOut();
-      router.push("/");
-    }
+  const closeDropdown = () => {
+    (document.activeElement as HTMLElement)?.blur();
+  };
+
+  const handleLogout = () => {
+    closeDropdown();
+    signOut();
   };
 
   return (
@@ -76,6 +69,7 @@ export default function NavbarUser() {
             <li>
               <Link
                 href="/user-profile"
+                onClick={closeDropdown}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <User className="text-gray-600" />
@@ -85,6 +79,7 @@ export default function NavbarUser() {
             <li>
               <Link
                 href="/pets"
+                onClick={closeDropdown}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <PawPrint className="text-gray-600" />
@@ -94,6 +89,7 @@ export default function NavbarUser() {
             <li>
               <Link
                 href="/booking-history"
+                onClick={closeDropdown}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <History className="text-gray-600" />

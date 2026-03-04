@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContextBackend";
 import { ScreenProvider } from "@/contexts/ScreenContext";
 
 export default function AppProviders({
