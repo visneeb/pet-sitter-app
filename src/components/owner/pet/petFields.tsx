@@ -11,7 +11,7 @@ import {
   Textarea,
 } from "@/components/form";
 import { ActionButton, NavigationButton } from "@/components/ui/Button";
-import { PawPrint } from "lucide-react";
+import { PawPrint, Trash } from "lucide-react";
 import cn from "@/utils/cn";
 
 const sexes = ["Male", "Female", "Unknown"];
@@ -20,6 +20,16 @@ interface Props {
   mode: "create" | "edit";
   petTypes: { id: number; name: string }[];
 }
+
+const deletePetDialog = () => {
+  const dialog = document.getElementById(
+    "delete-pet",
+  ) as HTMLDialogElement | null;
+
+  if (!dialog) return;
+
+  dialog.showModal();
+};
 
 function PetFields(props: Props) {
   const {
@@ -102,6 +112,17 @@ function PetFields(props: Props) {
           placeholder="Describe more about your pet..."
           className="h-35"
         />
+        {props.mode === "edit" && (
+          <ActionButton
+            type="button"
+            onClick={deletePetDialog}
+            variant="ghost"
+            className="w-fit"
+          >
+            <Trash />
+            Delete Pet
+          </ActionButton>
+        )}
         <div className="flex justify-between gap-4">
           <NavigationButton
             variant="secondary"

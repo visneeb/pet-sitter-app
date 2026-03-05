@@ -8,7 +8,7 @@ import { usePetForm } from "@/hooks/usePetForm";
 import PetFields from "@/components/owner/pet/petFields";
 
 export default function CreatePetPage() {
-  const {petTypes, methods, handleSubmit, isSubmitting } = usePetForm({
+  const { petTypes, methods, handleSubmit, isSubmitting } = usePetForm({
     mode: "create",
   });
 

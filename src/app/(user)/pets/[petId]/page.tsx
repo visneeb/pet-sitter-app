@@ -8,16 +8,23 @@ import { Form } from "@/components/form";
 import PetFields from "@/components/owner/pet/petFields";
 import { useParams } from "next/navigation";
 import Loading from "@/components/common/loading/loading";
+import Modal from "@/components/ui/Modal";
 
 export default function EditPetPage() {
   const params = useParams<{ petId: string }>();
   const petId = params.petId;
-
-  const { petTypes, methods, handleSubmit, isSubmitting, isLoading } =
-    usePetForm({
-      mode: "edit",
-      petId,
-    });
+  const {
+    petTypes,
+    methods,
+    handleSubmit,
+    handleDeletePet,
+    isSubmitting,
+    isLoading,
+    isModalLoading,
+  } = usePetForm({
+    mode: "edit",
+    petId,
+  });
 
   return (
     <>
@@ -32,9 +39,24 @@ export default function EditPetPage() {
       {isLoading ? (
         <Loading />
       ) : (
-        <Form methods={methods} onSubmit={handleSubmit} disabled={isSubmitting}>
-          <PetFields mode="edit" petTypes={petTypes} />
-        </Form>
+        <>
+          <Form
+            methods={methods}
+            onSubmit={handleSubmit}
+            disabled={isSubmitting}
+          >
+            <PetFields mode="edit" petTypes={petTypes} />
+          </Form>
+          <Modal
+            id="delete-pet"
+            title="Delete Confirmation"
+            massage="Are you sure to delete this pet?"
+            cancelText="Cancel"
+            confirmText="Delete"
+            onConfirm={handleDeletePet}
+            disabled={isModalLoading}
+          />
+        </>
       )}
     </>
   );
