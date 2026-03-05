@@ -110,7 +110,7 @@ type AxiosLikeError = {
 
 const ROLE_REDIRECT: Record<string, string> = {
   admin: "/admin",
-  sitter: "/sitter/dashboard",
+  sitter: "/petsitter-profile",
   owner: "/",
 };
 
