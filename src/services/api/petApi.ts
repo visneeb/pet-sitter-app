@@ -108,4 +108,11 @@ export const petApi = {
 
     return data;
   },
+
+  deletePet: async (petId: number | string): Promise<PetResponse> => {
+    const { data } = await privateApi.delete<PetResponse>(
+      `/pet-owner/pet/${petId}`,
+    );
+    return data;
+  },
 };

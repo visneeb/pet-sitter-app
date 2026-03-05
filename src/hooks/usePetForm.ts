@@ -6,8 +6,8 @@ import { createResolver } from "@/lib/form/createResolver";
 import { validatePetForm } from "@/lib/validations/petFormValidation";
 import { petApi } from "@/services/api";
 import { showCustomToast } from "@/components/ui/toast/Toast";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { PetDetail } from "@/services/api/petApi";
 
 interface Props {
@@ -18,8 +18,11 @@ interface Props {
 
 export function usePetForm(props: Props) {
   const [isLoading, setIsLoading] = useState<boolean>(props.mode === "edit");
+  const [isModalLoading, setIsModalLoading] = useState<boolean>(false);
   const [petTypes, setPetTypes] = useState<{ id: number; name: string }[]>([]);
   const [pet, setPet] = useState<PetDetail | null>(null);
+  const hasInitialised = useRef(false);
+  const params = useParams<{ petId: string }>();
   const router = useRouter();
   const methods = useForm<PetFormValues>({
     mode: "onSubmit",
@@ -27,7 +30,7 @@ export function usePetForm(props: Props) {
     defaultValues: {
       img_url: null,
       petName: "",
-      petTypeId: NaN,
+      petTypeId: undefined,
       breed: "",
       sex: "",
       dateOfBirth: null,
@@ -76,6 +79,7 @@ export function usePetForm(props: Props) {
   }, [props.mode, props.petId, methods]);
 
   useEffect(() => {
+    if (!pet || hasInitialised.current) return;
     setIsLoading(true);
 
     if (pet) {
@@ -89,21 +93,25 @@ export function usePetForm(props: Props) {
         dateOfBirth: pet.dateOfBirth ? new Date(pet.dateOfBirth) : null,
         color: pet.color,
         weight: String(pet.weight),
-        about: pet.about ?? "",
+        about: pet.about ?? undefined,
       });
 
       setIsLoading(false);
     }
-  }, [pet]);
+
+    hasInitialised.current = true;
+  }, [pet, methods]);
 
   const handleSubmit = async (data: PetFormValues) => {
+    console.log(data);
+
     try {
       if (props.mode === "create") {
-        const response = await petApi.createPet(data);
+        await petApi.createPet(data);
 
         showCustomToast({
           title: "Pet created successfully",
-          description: response.message ?? "Your pet has been created.",
+          description: "Your pet has been created.",
           variant: "success",
         });
 
@@ -113,11 +121,11 @@ export function usePetForm(props: Props) {
           throw new Error("Pet ID is required for updating pet.");
         }
 
-        const response = await petApi.updatePet(props.petId, data);
+        await petApi.updatePet(props.petId, data);
 
         showCustomToast({
           title: "Pet updated successfully",
-          description: response.message ?? "Your pet has been updated.",
+          description: "Your pet has been updated.",
           variant: "success",
         });
 
@@ -144,5 +152,43 @@ export function usePetForm(props: Props) {
     }
   };
 
-  return { petTypes, methods, handleSubmit, isSubmitting, isLoading };
+  const handleDeletePet = async () => {
+    if (!params?.petId) return;
+
+    setIsModalLoading(true);
+    try {
+      await petApi.deletePet(params.petId);
+
+      showCustomToast({
+        title: "Pet deleted successfully",
+        description: "Your pet has been deleted.",
+        variant: "success",
+      });
+
+      router.push("/pets");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to delete pet";
+
+      showCustomToast({
+        title: "Failed to delete pet",
+        description: message,
+        variant: "error",
+      });
+    } finally {
+      setIsModalLoading(false);
+    }
+  };
+
+  return {
+    petTypes,
+    methods,
+    handleSubmit,
+    handleDeletePet,
+    isSubmitting,
+    isLoading,
+    isModalLoading,
+  };
 }
