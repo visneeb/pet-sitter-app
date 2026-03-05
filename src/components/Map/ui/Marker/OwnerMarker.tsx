@@ -40,9 +40,9 @@ function createPinIcon(selected: boolean): L.DivIcon {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function SitterMarker({
+export default function OwnerMarker({
   position,
-  selected = false,
+  selected = true,
   popupContent,
   onClick,
 }: Readonly<SitterMarkerProps>) {

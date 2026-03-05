@@ -11,17 +11,17 @@ interface PinDropMarkerProps {
 export default function PinDropMarker({
   position,
   onClose,
-}: PinDropMarkerProps) {
+}: Readonly<PinDropMarkerProps>) {
   // ใช้ createPinIcon หรือ icon อื่นก็ได้
   const svgString = ReactDOMServer.renderToString(
     <PinMarker selected={true} />,
   );
   const icon = L.divIcon({
-    className: "bg-transparent", 
+    className: "bg-transparent",
     html: svgString,
-    iconSize: [88, 88], 
+    iconSize: [88, 88],
     iconAnchor: [44, 88],
-    popupAnchor: [0, -88], 
+    popupAnchor: [0, -88],
   });
 
   return (

@@ -2,13 +2,7 @@
 
 import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { ReactNode } from "react";
-
-interface MapProps {
-  children?: ReactNode;
-  center?: [number, number];
-  zoom?: number;
-}
+import { MapProps } from "@/types/map";
 
 // ── Main Map Component ────────────────────────────────────────────────────────
 export default function LeafletMap({
@@ -29,7 +23,6 @@ export default function LeafletMap({
         attribution="© OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-
       {children}
     </MapContainer>
   );

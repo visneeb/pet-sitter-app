@@ -1,11 +1,11 @@
 import useUserLocate from "@/hooks/map/useUserLocate";
-import UserMarker from "../Map/ui/Marker/UserMarker";
+import UserMarker from "../Map/ui/PinIcon/UserMarker";
 import SitterMarker from "../Map/ui/Marker/SitterMarker";
 import ButtonLocate from "../Map/ui/Button/ButtonLocate";
 import ButtonZoomIn from "../Map/ui/Button/ButtonZoomIn";
 import ButtonZoomOut from "../Map/ui/Button/ButtonZoomOut";
 import ButtonFullscreen from "../Map/ui/Button/ButtonFullscreen";
-import MapPinHandler from "../Map/ui/MapPinHandler";
+import MapPinHandler from "../Map/ui/Marker/MapPinHandler";
 import ZipSearchMap from "../Map/ui/Input/ZipSearchMap";
 
 // hook อยู่ที่นี่ที่เดียว — เป็น single source of truth สำหรับ userPosition และ accuracy
@@ -20,7 +20,7 @@ export default function MapControls() {
       )}
       {/* Test Custom Marker */}
       {userPosition && accuracy !== null && (
-        <SitterMarker position={userPosition} selected={false} />
+        <SitterMarker position={userPosition} />
       )}
       {/* Button Controls */}
       <div
