@@ -10,7 +10,7 @@ import { useProfileImg } from "@/hooks/image/useProfileImg";
 
 export default function NavbarPetSitterHome() {
   const { signOut } = useAuth();
-  const { profile } = useProfileImg();
+  const { profile, loading } = useProfileImg();
 
   const closeDropdown = () => {
     (document.activeElement as HTMLElement)?.blur();
@@ -53,7 +53,9 @@ export default function NavbarPetSitterHome() {
         <div className="hidden md:block dropdown dropdown-end">
           <div tabIndex={0} role="button" className="avatar cursor-pointer">
             <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition overflow-hidden">
-              {profile?.profileImgUrl ? (
+              {loading ? (
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500" />
+              ) : profile?.profileImgUrl ? (
                 <Image
                   src={profile.profileImgUrl}
                   alt="Profile"
