@@ -5,6 +5,7 @@ import FilterSidebar from "@/components/search/FilterSideBar";
 import MainViewSearch from "@/components/search/MainViewSearch";
 import { usePetSitterSearch } from "@/contexts/PetSitterSearchContext";
 import { Pagination } from "@/components/ui/Pagination";
+import { useSearchParams } from "next/navigation";
 
 // ── Layout Constants ────────────────────────────────────────
 // รวม magic values ไว้ที่เดียว → แก้ไขง่าย สอดคล้องกับ design system
@@ -17,7 +18,9 @@ const LAYOUT = {
 
 export default function SearchPageContent() {
   const { currentPage, totalPages, handlePageChange } = usePetSitterSearch();
-
+  const searchParams = useSearchParams();
+  // Read directly from URL. Default to 'list' if not found.
+  const viewMode = searchParams?.get("view") || "list";
   return (
     <>
       {/* ── Content Container ── */}
@@ -42,11 +45,15 @@ export default function SearchPageContent() {
       </div>
 
       {/* ── Pagination ── */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      {viewMode === "list" ? (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      ) : (
+        <div className="w-full flex justify-center pt-6 pb-[196px]"></div>
+      )}
     </>
   );
 }
