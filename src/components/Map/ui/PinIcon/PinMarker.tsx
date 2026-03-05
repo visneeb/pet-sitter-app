@@ -9,8 +9,10 @@ export const PinMarker = ({
   className = "",
   ...props
 }: PinMarkerProps) => {
-  // Use currentColor for the primary orange, allow overriding via CSS text-color
-  const primaryColor = "currentColor";
+  // primaryColor  = #FF7037 (ส้มอ่อน) → toes, paw pad ทั้งสอง state
+  // selectedPinColor = #E44A0C (ส้มเข้ม) → pin body เฉพาะตอน selected=true
+  const primaryColor = "#FF7037"; // text-[#FF7037] จาก className
+  const selectedPinColor = "#E44A0C"; // ตรงตาม reference SVG
 
   return (
     <svg
@@ -27,7 +29,7 @@ export const PinMarker = ({
           {/* Base Pin Shape */}
           <path
             d="M44.0013 7.3335C36.2216 7.3335 28.7606 10.424 23.2595 15.925C17.7584 21.4261 14.668 28.8871 14.668 36.6668C14.668 56.4668 40.518 78.8335 41.618 79.7868C42.2821 80.3549 43.1273 80.6671 44.0013 80.6671C44.8753 80.6671 45.7205 80.3549 46.3846 79.7868C47.668 78.8335 73.3346 56.4668 73.3346 36.6668C73.3346 28.8871 70.2442 21.4261 64.7431 15.925C59.242 10.424 51.781 7.3335 44.0013 7.3335Z"
-            fill={selected ? primaryColor : "white"}
+            fill={selected ? selectedPinColor : "white"}
           />
           {/* Stroke Outline */}
           <path
