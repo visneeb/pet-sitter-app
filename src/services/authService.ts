@@ -7,20 +7,25 @@ if (!API_URL) {
   throw new Error("NEXT_PUBLIC_API_URL is not defined");
 }
 
-type ApiResponse<T> = {
-  message: string;
-  accessToken?: string;
-  data?: T;
-};
-
 type ApiError = {
   error?: string;
   field?: string;
   message?: string;
 };
 
+type LoginResponse = {
+  message: string;
+  accessToken: string;
+  data?: {
+    email?: string;
+    role?: "owner" | "sitter" | "admin";
+  };
+  role?: "owner" | "sitter" | "admin";
+};
+
 const handleApiError = async (response: Response): Promise<never> => {
   const contentType = response.headers.get("content-type");
+
   if (!contentType?.includes("application/json")) {
     throw new Error("Server error: Invalid response format");
   }
@@ -38,11 +43,20 @@ const handleApiError = async (response: Response): Promise<never> => {
   }
 };
 
+/**
+ * Fix URL to prevent //auth/login
+ */
+const buildUrl = (endpoint: string) => {
+  const base = API_URL!.replace(/\/$/, "");
+  const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  return `${base}${path}`;
+};
+
 const apiRequest = async <T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> => {
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(buildUrl(endpoint), {
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
@@ -59,22 +73,26 @@ const apiRequest = async <T>(
 
 export const authService = {
   login: async (email: string, password: string) => {
-    const data = await apiRequest<{ message: string; accessToken: string }>(
-      "/auth/login",
-      {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      },
-    );
+    const data = await apiRequest<LoginResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
 
-    // Store JWT token
+    // Save token
     if (typeof window !== "undefined") {
       localStorage.setItem("accessToken", data.accessToken);
     }
 
+    const role = data.data?.role ?? data.role;
+
     return {
-      user: { email },
-      session: { access_token: data.accessToken },
+      user: {
+        email: data.data?.email ?? email,
+        role,
+      },
+      session: {
+        access_token: data.accessToken,
+      },
     };
   },
 
@@ -102,8 +120,7 @@ export const authService = {
 
     try {
       return await userApi.getCurrentUser();
-    } catch (error) {
-      // Clear invalid token
+    } catch {
       if (typeof window !== "undefined") {
         localStorage.removeItem("accessToken");
       }
