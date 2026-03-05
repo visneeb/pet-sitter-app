@@ -3,21 +3,14 @@ import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/web-logo.png";
 import { NavigationButton } from "@/components/ui/Button";
-import {
-  MessagesSquare,
-  Bell,
-  User,
-  LogOut,
-  PawPrint,
-  History,
-  Menu,
-  UserRound,
-} from "lucide-react";
+import { MessagesSquare, Bell, LogOut, Menu, UserRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContextBackend";
 import { petsitterSidebarItems } from "@/config/sidebar/petsitter";
+import { useProfileImg } from "@/hooks/image/useProfileImg";
 
 export default function NavbarPetSitterHome() {
   const { signOut } = useAuth();
+  const { profile, loading } = useProfileImg();
 
   const closeDropdown = () => {
     (document.activeElement as HTMLElement)?.blur();
@@ -59,8 +52,20 @@ export default function NavbarPetSitterHome() {
 
         <div className="hidden md:block dropdown dropdown-end">
           <div tabIndex={0} role="button" className="avatar cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition">
-              <UserRound className="w-6 h-6" />
+            <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition overflow-hidden">
+              {loading ? (
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500" />
+              ) : profile?.profileImgUrl ? (
+                <Image
+                  src={profile.profileImgUrl}
+                  alt="Profile"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <UserRound className="w-6 h-6" />
+              )}
             </div>
           </div>
           <ul
