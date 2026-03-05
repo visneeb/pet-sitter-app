@@ -14,9 +14,11 @@ import {
   UserRound,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContextBackend";
+import { useProfileImg } from "@/hooks/image/useProfileImg";
 
 export default function NavbarUser() {
   const { signOut } = useAuth();
+  const { profile } = useProfileImg();
 
   const closeDropdown = () => {
     (document.activeElement as HTMLElement)?.blur();
@@ -58,8 +60,18 @@ export default function NavbarUser() {
 
         <div className="hidden md:block dropdown dropdown-end">
           <div tabIndex={0} role="button" className="avatar cursor-pointer">
-            <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition">
-              <UserRound className="w-6 h-6" />
+            <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition overflow-hidden">
+              {profile?.profileImgUrl ? (
+                <Image
+                  src={profile.profileImgUrl}
+                  alt="Profile"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <UserRound className="w-6 h-6" />
+              )}
             </div>
           </div>
           <ul
