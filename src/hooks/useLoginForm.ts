@@ -7,11 +7,20 @@ import { createResolver } from "@/lib/form/createResolver";
 import { validateLogin } from "@/lib/validations/loginFormValidation";
 import { LoginFormValues } from "@/types/authType";
 import { authApi } from "@/services/api/auth";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContextBackend";
+import waitUntil from "@/utils/waitUntil";
 
-export function useLoginForm() {
+type AxiosLikeError = {
+  message?: string;
+  response?: {
+    status?: number;
+    data?: any;
+  };
+};
+
+export function useLoginForm(isAdmin: boolean = false) {
   const router = useRouter();
-  const { refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
 
   const [serverError, setServerError] = useState("");
   const [serverSuccess, setServerSuccess] = useState("");
@@ -75,13 +84,30 @@ export function useLoginForm() {
         return;
       }
 
-      setServerSuccess("Login successful. Redirecting...");
+      // Check if the user is an admin
+      if (isAdmin) {
+        await refreshUser();
 
+        // Wait until the user is loaded
+        waitUntil(() => user !== null);
+
+        // Check if the user is an admin
+        if (user?.role !== "admin") {
+          throw new Error("You are not authorized to access this page");
+        }
+
+        setServerSuccess("Login successful. Redirecting...");
+        setTimeout(() => router.push("/admin/pet-owner"), 800);
+      } else {
+        setServerSuccess("Login successful. Redirecting...");
+  
       // ✅ redirect ตาม role จริงของ app
       const redirectPath = getRedirectPathByRole(currentUser.role);
-      router.push(redirectPath);
-    } catch (err: any) {
-      const message = err.message || "Invalid email or password";
+        router.push(redirectPath);
+      }
+    } catch (err: unknown) {
+      const e = err as AxiosLikeError;
+      const message = e.message || "Invalid email or password";
 
       setServerError(message);
       setValue("password", "");
