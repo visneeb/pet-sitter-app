@@ -7,8 +7,7 @@ import { createResolver } from "@/lib/form/createResolver";
 import { validateLogin } from "@/lib/validations/loginFormValidation";
 import { LoginFormValues } from "@/types/authType";
 import { authApi } from "@/services/api/auth";
-import { useAuth } from "@/contexts/AuthContextBackend";
-import waitUntil from "@/utils/waitUntil";
+import { useAuth } from "@/contexts/AuthContext";
 
 type AxiosLikeError = {
   message?: string;
@@ -20,7 +19,7 @@ type AxiosLikeError = {
 
 export function useLoginForm(isAdmin: boolean = false) {
   const router = useRouter();
-  const { user, refreshUser } = useAuth();
+  const { refreshUser } = useAuth();
 
   const [serverError, setServerError] = useState("");
   const [serverSuccess, setServerSuccess] = useState("");
@@ -70,29 +69,18 @@ export function useLoginForm(isAdmin: boolean = false) {
         setServerError("Login succeeded but session could not be established.");
         return;
       }
-
-      // ✅ เก็บ token หลัง login สำเร็จ
-      localStorage.setItem("accessToken", token);
-
-      // ✅ ดึง current user จริงจาก AuthContext
-      const currentUser = await refreshUser();
-      
-
-      // ✅ ถ้า profile โหลดไม่ได้ ให้หยุดก่อน
-      if (!currentUser) {
-        setServerError("Login succeeded, but user profile could not be loaded.");
-        return;
+      // Save token to localStorage
+      if (token) {
+        localStorage.setItem("accessToken", token);
       }
+
+      const refreshedUser = await refreshUser();
 
       // Check if the user is an admin
       if (isAdmin) {
-        await refreshUser();
-
-        // Wait until the user is loaded
-        waitUntil(() => user !== null);
-
         // Check if the user is an admin
-        if (user?.role !== "admin") {
+        if (refreshedUser?.role !== "admin") {
+          localStorage.removeItem("accessToken");
           throw new Error("You are not authorized to access this page");
         }
 

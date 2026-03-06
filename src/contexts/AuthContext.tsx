@@ -19,8 +19,6 @@ type AuthContextType = {
   serverError: string;
   setServerError: (error: string) => void;
   signOut: () => Promise<void>;
-
-  // ✅ เปลี่ยนจาก Promise<void> เป็น Promise<User | null>
   refreshUser: () => Promise<User | null>;
 };
 
@@ -30,8 +28,6 @@ const AuthContext = createContext<AuthContextType>({
   serverError: "",
   setServerError: () => {},
   signOut: async () => {},
-
-  // ✅ default ต้อง return null ด้วย
   refreshUser: async () => null,
 });
 
@@ -40,7 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // ✅ เปลี่ยนให้ loadUser return userData/null
   const loadUser = async (): Promise<User | null> => {
     const token =
       typeof window !== "undefined"
@@ -52,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       localStorage.removeItem("cachedUser");
       setLoading(false);
+      return null;
       return null;
     }
 
@@ -66,15 +62,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         localStorage.removeItem("cachedUser");
       }
-
-      // ✅ สำคัญมาก: return userData กลับไปให้ caller ใช้ต่อ
       return userData;
     } catch {
       setUser(null);
       localStorage.removeItem("cachedUser");
       localStorage.removeItem("accessToken");
-
-      // ✅ ถ้าโหลด user ไม่ได้ ให้ return null
       return null;
     } finally {
       setLoading(false);
@@ -100,10 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // ✅ เปลี่ยนให้ refreshUser return ค่าจาก loadUser
-  const refreshUser = async (): Promise<User | null> => {
-    return await loadUser();
-  };
+  const refreshUser = async () => loadUser();
 
   return (
     <AuthContext.Provider

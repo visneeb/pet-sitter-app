@@ -12,14 +12,14 @@ export type InputProps = React.ComponentPropsWithoutRef<"input"> & {
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, error, rightAction, ...props }, ref) => {
     return (
-      <div className="relative w-full">
+      <div className="relative">
         <input
           ref={ref}
           className={cn(
             baseInputStyles,
             error && "border-red",
             rightAction && "pr-10",
-            className,
+            cn("w-full", className),
           )}
           {...props}
         />
