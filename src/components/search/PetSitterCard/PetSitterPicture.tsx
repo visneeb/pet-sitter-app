@@ -17,7 +17,7 @@ export default function PetSitterPicture({
       : "w-16 h-16"
     : "w-9 h-9";
 
-  if (!sitter.imgUrl) {
+  if (!sitter.sitter.profileImgUrl) {
     return (
       <div
         className={cn(
@@ -32,7 +32,7 @@ export default function PetSitterPicture({
 
   return (
     <Image
-      src={sitter.imgUrl}
+      src={sitter.sitter.profileImgUrl}
       alt={sitter.tradeName || "Pet sitter picture"}
       width={64}
       height={64}
