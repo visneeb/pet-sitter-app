@@ -5,6 +5,7 @@ interface ReviewCardProps {
   date: string;
   comment: string;
   avatarUrl?: string;
+  rating: number;
   isLast?: boolean;
 }
 
@@ -13,6 +14,7 @@ export default function ReviewCard({
   date,
   comment,
   avatarUrl,
+  rating,
   isLast = false,
 }: ReviewCardProps) {
   return (
@@ -35,7 +37,11 @@ export default function ReviewCard({
         </div>
       </div>
       <div className="flex flex-col gap-4 w-[516px]">
-        <Star color="#1CCD83" fill="#1CCD83" size={20} />
+        <div className="flex gap-[2px]">
+          {Array.from({ length: rating }).map((_, i) => (
+            <Star key={i} color="#1CCD83" fill="#1CCD83" size={20} />
+          ))}
+        </div>
         <p className="style-body-2 text-gray-500">{comment}</p>
       </div>
     </div>
