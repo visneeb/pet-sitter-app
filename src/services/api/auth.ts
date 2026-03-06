@@ -1,5 +1,6 @@
 import { publicApi, privateApi } from "./client";
 import { RegisterFormValues, Role, LoginFormValues } from "@/types/authType";
+import { userApi } from "@/services/api/userApi";
 
 export type RegisterPayload = RegisterFormValues & { role: Role };
 export type RegisterResponse = { message?: string };
@@ -35,8 +36,13 @@ export const authApi = {
     const token = res.data?.accessToken;
     if (token && typeof window !== "undefined") {
       localStorage.setItem("accessToken", token);
+      document.cookie = `accessToken=${token}; path=/; SameSite=Lax; max-age=86400`;
     }
 
+    const userData = await userApi.getCurrentUser();
+    if (userData?.role && typeof window !== "undefined") {
+      document.cookie = `userRole=${userData.role}; path=/; SameSite=Lax; max-age=86400`;
+    }
     return res.data;
   },
 
@@ -55,6 +61,8 @@ export const authApi = {
     } finally {
       if (typeof window !== "undefined") {
         localStorage.removeItem("accessToken");
+        document.cookie = "accessToken=; path=/; max-age=0";
+        document.cookie = "userRole=; path=/; max-age=0";
       }
     }
   },

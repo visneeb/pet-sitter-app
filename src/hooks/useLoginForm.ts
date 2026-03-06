@@ -45,10 +45,6 @@ export function useLoginForm() {
         setServerError("Login succeeded but session could not be established.");
         return;
       }
-      // Save token to localStorage
-      if (token) {
-        localStorage.setItem("accessToken", token);
-      }
 
       setServerSuccess("Login successful. Redirecting...");
       await refreshUser();
