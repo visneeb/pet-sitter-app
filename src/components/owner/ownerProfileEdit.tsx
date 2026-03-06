@@ -2,7 +2,7 @@
 
 import { FormProvider } from "@/components/form/FormProvider";
 import { Input, AvatarUpload, SubmitButton } from "@/components/form/index";
-import { useUserProfileForm } from "@/hooks/useUserProfileForm";
+import { useOwnerProfileForm } from "@/hooks/profile/useOwnerProfileForm";
 import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
 import { ActionButton } from "@/components/ui/Button";
 
@@ -12,7 +12,6 @@ export default function ProfileEdit() {
     onSubmit,
     isSubmitting,
     isUpdating,
-    isUploadingFile,
     isLoadingProfile,
     profileError,
     handleAvatarChange,
@@ -21,7 +20,7 @@ export default function ProfileEdit() {
     onEmailConfirmed,
     onModalClose,
     isAvatarDirty,
-  } = useUserProfileForm();
+  } = useOwnerProfileForm();
 
   if (isLoadingProfile) {
     return (
@@ -70,11 +69,7 @@ export default function ProfileEdit() {
         disabled={isSubmitting || isUpdating}
       >
         <div className="flex flex-col gap-15">
-          <AvatarUpload
-            name="profile_img_url"
-            onUpload={handleAvatarChange}
-            isUploading={isUploadingFile}
-          />
+          <AvatarUpload name="profile_img_url" onUpload={handleAvatarChange} />
 
           <div className="space-y-10">
             <Input
@@ -104,7 +99,7 @@ export default function ProfileEdit() {
 
           <div className="flex justify-end">
             <SubmitButton
-              isLoading={isSubmitting || isUpdating || isUploadingFile}
+              isLoading={isSubmitting || isUpdating}
               requireValid={true}
               requireDirty={true}
               extraDirty={isAvatarDirty}

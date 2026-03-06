@@ -49,3 +49,20 @@ export interface SittersResponse {
   limit: number;
   sitters: SitterApi[];
 }
+
+export interface SitterProfile {
+  id: number;
+  tradeName: string;
+  experience: number;
+  petTypeIds: number[];
+  introduction?: string;
+  services?: string;
+  description?: string;
+  address: string;
+  provinceId: number;
+  districtId: number;
+  subDistrictId: number;
+  latitude?: number;
+  longitude?: number;
+  images: string[];
+}

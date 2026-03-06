@@ -1,60 +1,104 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabaseClient";
-import { useLogout } from "@/hooks/useLogout";
+import { userApi } from "@/services/api/userApi";
+import { authApi } from "@/services/api/auth";
+
+type User = {
+  id?: string;
+  email: string;
+  name?: string;
+  phone?: string;
+  role?: string;
+};
 
 type AuthContextType = {
   user: User | null;
-  session: Session | null;
   loading: boolean;
   serverError: string;
   setServerError: (error: string) => void;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
   loading: true,
   serverError: "",
   setServerError: () => {},
   signOut: async () => {},
+  refreshUser: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(true);
-  const { logout } = useLogout();
+
+  const loadUser = async () => {
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
+
+    if (!token) {
+      setUser(null);
+      localStorage.removeItem("cachedUser");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const userData = await userApi.getCurrentUser();
+      setUser(userData);
+      if (userData) {
+        localStorage.setItem("cachedUser", JSON.stringify(userData));
+      } else {
+        localStorage.removeItem("cachedUser");
+      }
+    } catch {
+      setUser(null);
+      localStorage.removeItem("cachedUser");
+      localStorage.removeItem("accessToken");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // โหลด session ตอนเปิดเว็บ
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    });
-
-    // subscribe login/logout change
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    loadUser();
   }, []);
 
   const signOut = async () => {
-    await logout();
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error("Logout API failed:", error);
+      localStorage.removeItem("accessToken");
+    } finally {
+      setUser(null);
+      localStorage.removeItem("cachedUser");
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
+    }
+  };
+
+  const refreshUser = async () => {
+    await loadUser();
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut, serverError, setServerError }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signOut,
+        serverError,
+        setServerError,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

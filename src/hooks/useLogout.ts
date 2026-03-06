@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { authApi } from "@/services/api/auth";
 import { supabase } from "@/lib/supabaseClient";
-import { authService } from "@/services/authService";
-
 interface Options {
   onSuccess?: () => void;
   onError?: (error: string) => void;
@@ -26,7 +24,7 @@ export function useLogout({ onSuccess, onError }: Options = {}) {
       }
 
       // Always clear localStorage token
-      authService.logout();
+      authApi.logout();
 
       // Also logout from Supabase to clear local session
       await supabase.auth.signOut();

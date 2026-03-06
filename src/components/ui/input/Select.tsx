@@ -25,8 +25,8 @@ export function Select({
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const [search, setSearch] = React.useState("");
 
-  // close when click outside
   React.useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -41,14 +41,15 @@ export function Select({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Get selected option text from children
   const getSelectedText = () => {
-    if (!value) return placeholder;
+    if (value === "" || value === null || value === undefined)
+      return placeholder;
 
     const childrenArray = React.Children.toArray(children);
     const selectedOption = childrenArray.find((child) => {
       if (React.isValidElement(child) && child.type === "option") {
-        return (child.props as { value: string }).value === value;
+        const childValue = (child.props as { value: string | number }).value;
+        return String(childValue) === String(value);
       }
       return false;
     });
@@ -65,6 +66,8 @@ export function Select({
     onChange(val);
     setOpen(false);
   }
+  const selectedText = getSelectedText();
+  const isPlaceholder = selectedText === placeholder;
 
   return (
     <div ref={containerRef} className="relative">
@@ -80,7 +83,12 @@ export function Select({
           className,
         )}
       >
-        <span className={!value ? "text-gray-400" : ""}>
+        <span
+          className={cn(
+            "style-body-2",
+            isPlaceholder ? "text-gray-400!" : "text-gray-900! style-input",
+          )}
+        >
           {getSelectedText()}
         </span>
         <svg
@@ -101,24 +109,36 @@ export function Select({
       {/* Dropdown */}
       {open && !disabled && (
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-white shadow-md max-h-60 overflow-auto">
+          <div className="p-2">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              className="w-full border border-orange-400 px-2 py-1 rounded-md style-input focus-visible:border-orange-500 focus-visible:outline-none"
+            />
+          </div>
           {React.Children.map(children, (child) => {
             if (React.isValidElement(child) && child.type === "option") {
+              const label = String((child.props as { children: React.ReactNode }).children).toLowerCase();
+              if (!label.includes(search.toLowerCase())) return null;
               const childProps = child.props as {
                 value: string;
                 disabled?: boolean;
                 children: React.ReactNode;
               };
-              const selected = childProps.value === value;
+              const selected = String(childProps.value) === String(value);
               const isDisabled = childProps.disabled;
 
               return (
+                //  key added here
                 <button
                   key={childProps.value}
                   type="button"
                   disabled={isDisabled}
                   onClick={() => handleSelect(childProps.value)}
                   className={cn(
-                    "w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-100",
+                    "w-full text-left px-3 py-2 text-gray-600 style-input hover:bg-gray-100",
                     selected && "bg-gray-100",
                     isDisabled &&
                       "opacity-50 cursor-not-allowed hover:bg-transparent",

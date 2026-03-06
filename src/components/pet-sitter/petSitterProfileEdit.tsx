@@ -1,22 +1,29 @@
 "use client";
 
 import { FormProvider } from "@/components/form/FormProvider";
-import { Input, AvatarUpload, SubmitButton } from "@/components/form/index";
-import { useUserProfileForm } from "@/hooks/useUserProfileForm";
+import {
+  AvatarUpload,
+  Input,
+  SubmitButton,
+  Textarea,
+  MultiSelect,
+  MultiImageUpload,
+  Select,
+} from "@/components/form/index";
+import { useBaseProfileForm } from "@/hooks/profile/useBaseProfileForm";
+import { usePetSitterForm } from "@/hooks/profile/usePetSitterProfileForm";
 import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
 import { ActionProfileHeader } from "@/components/profile/ProfileHeader";
 import { ActionButton } from "../ui/Button";
 import Section from "@/components/form/FormSection";
 import ProfileContainer from "@/components/profile/ProfileContainer";
-import { RHFInput } from "@/components/form/RHFInput";
+import cn from "@/utils/cn";
 
 export default function ProfileEdit() {
   const {
-    methods,
-    onSubmit,
-    isSubmitting,
-    isUpdating,
-    isUploadingFile,
+    methods: baseMethods,
+    isSubmitting: baseIsSubmitting,
+    isUpdating: baseIsUpdating,
     isLoadingProfile,
     profileError,
     handleAvatarChange,
@@ -25,12 +32,37 @@ export default function ProfileEdit() {
     onEmailConfirmed,
     onModalClose,
     isAvatarDirty,
-  } = useUserProfileForm();
+    onSubmit: onBasicSubmit,
+  } = useBaseProfileForm("sitter");
+
+  const {
+    methods: sitterMethods,
+    isSubmitting: sitterIsSubmitting,
+    isUpdating: sitterIsUpdating,
+    onSubmit: onSitterSubmit,
+    petTypes,
+    provinces,
+    districts,
+    subDistricts,
+    statusConfig,
+    status,
+    existingImages,
+    removeExistingImage,
+    reorderExistingImages,
+    imagesChanged,
+  } = usePetSitterForm();
+
+  const postalCode = sitterMethods.watch("postalCode");
+
+  const petTypeOptions = petTypes.map((pet) => ({
+    value: pet.id,
+    label: pet.name,
+  }));
 
   if (isLoadingProfile) {
     return (
       <div className="flex justify-center items-center min-h-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500" />
       </div>
     );
   }
@@ -68,64 +100,212 @@ export default function ProfileEdit() {
 
   return (
     <>
-      <FormProvider methods={methods} onSubmit={onSubmit}>
-        <div className="flex flex-col gap-6">
+      <FormProvider methods={baseMethods} onSubmit={onBasicSubmit}>
+        <div className="flex flex-col gap-6 pb-6">
           <ActionProfileHeader
-            title="Pet Sitter Profile"
-            status={<span className="text-green-500">Approved</span>}
+            title="Basic Information"
             action={
-              <ActionButton variant="primary" disabled={isSubmitting}>
-                Update
-              </ActionButton>
+              <SubmitButton
+                isLoading={baseIsSubmitting || baseIsUpdating}
+                requireValid={true}
+                requireDirty={true}
+                extraDirty={isAvatarDirty}
+              >
+                Update Basic Info
+              </SubmitButton>
             }
           />
-          <div className="pr-8 flex flex-col gap-6">
-            <ProfileContainer>
-              <div className="flex flex-col gap-15 px-6">
-                <Section title="Basic Information">
-                  <AvatarUpload name="profile_img_url" label="Profile Image" />
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <RHFInput name="name" label="Your Name" required />
-                    <RHFInput name="experience" label="Experience" required />
-                    <RHFInput name="petType" label="Pet Type" />
-                    <RHFInput name="phone" label="Phone" type="tel" />
-                  </div>
-                </Section>
-              </div>
-            </ProfileContainer>
-
-            <ProfileContainer>
-              <div className="flex flex-col gap-15 px-6">
-                <Section title="Pet Sitter">
-                  <RHFInput
-                    name="tradeName"
-                    label="Pet Sitter Name (Trade Name)"
+          <ProfileContainer>
+            <div className="flex flex-col gap-15 px-6">
+              <Section title="Basic Information">
+                <AvatarUpload
+                  name="profile_img_url"
+                  label="Profile Image"
+                  onUpload={handleAvatarChange}
+                />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                  <Input
+                    name="name"
+                    label="Your Name"
+                    placeholder="Enter your name"
                     required
                   />
-                  <RHFInput
-                    name="services"
-                    label="Services (Describe all of your services for pet sitting)"
+                  <Input
+                    name="phone"
+                    label="Phone"
+                    type="tel"
+                    placeholder="Enter your phone"
+                    required
                   />
-                  <RHFInput
-                    name="placeDescription"
-                    label="My Place (Describe your place)"
+                  <Input
+                    name="email"
+                    label="Email"
+                    type="email"
+                    placeholder="Enter your email"
+                    required
                   />
-                </Section>
-              </div>
-            </ProfileContainer>
-          </div>
+                </div>
+              </Section>
+            </div>
+          </ProfileContainer>
+        </div>
+      </FormProvider>
 
-          <div className="flex justify-end">
-            <SubmitButton
-              isLoading={isSubmitting || isUpdating || isUploadingFile}
-              requireValid={true}
-              requireDirty={true}
-              extraDirty={isAvatarDirty}
-            >
-              Update Profile
-            </SubmitButton>
-          </div>
+      <FormProvider methods={sitterMethods} onSubmit={onSitterSubmit}>
+        <div className="flex flex-col gap-6 pb-20">
+          <ActionProfileHeader
+            title="Pet Sitter Profile"
+            status={
+              status && (
+                <span className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "w-2 h-2 rounded-full",
+                      statusConfig[status]?.bg,
+                    )}
+                  />
+                  <span className={statusConfig[status]?.text}>{status}</span>
+                </span>
+              )
+            }
+            action={
+              <SubmitButton
+                isLoading={sitterIsSubmitting || sitterIsUpdating}
+                requireValid={true}
+                requireDirty={true}
+                extraDirty={imagesChanged}
+              >
+                Update Sitter Info
+              </SubmitButton>
+            }
+          />
+          <ProfileContainer>
+            <div className="flex flex-col gap-15 px-6">
+              <Section title="Pet Sitter">
+                <Input
+                  name="experience"
+                  label="Experience"
+                  placeholder="Enter your experience"
+                  required
+                />
+                <Input
+                  name="tradeName"
+                  label="Pet Sitter Name (Trade Name)"
+                  placeholder="Enter your trade name"
+                  required
+                />
+                <MultiSelect
+                  options={petTypeOptions}
+                  placeholder="Select pet types"
+                  name="petTypeIds"
+                  label="Pet Types"
+                  convertToNumbers={true}
+                  required
+                />
+                <Textarea
+                  name="introduction"
+                  label="Introduction"
+                  placeholder="Describe yourself as a pet sitter"
+                />
+                <Textarea
+                  rows={6}
+                  name="services"
+                  placeholder="Enter your services"
+                  label="Services"
+                />
+                <Textarea
+                  rows={6}
+                  name="description"
+                  placeholder="Enter your living space and facilities"
+                  label="My Place"
+                />
+                <div className="">
+                  <MultiImageUpload
+                    label="Image Gallery (Maximum 10 images)"
+                    name="images"
+                    existingImages={existingImages}
+                    onDeleteImage={removeExistingImage}
+                    onReorderExisting={reorderExistingImages}
+                  />
+                  <span className="style-body-3 text-gray-300">
+                    **The first image will be used as the sitter card cover.
+                  </span>
+                </div>
+              </Section>
+            </div>
+          </ProfileContainer>
+
+          <ProfileContainer>
+            <div className="flex flex-col gap-15 px-6">
+              <Section title="Address">
+                <Input
+                  name="address"
+                  label="Address detail"
+                  placeholder="Enter your address"
+                  required
+                />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                  <Select
+                    name="provinceId"
+                    label="Province"
+                    placeholder="Select province"
+                    required
+                    asNumber={true}
+                  >
+                    {provinces.map((province) => (
+                      <option
+                        key={province.provinceId}
+                        value={province.provinceId}
+                      >
+                        {province.name}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    name="districtId"
+                    label="District"
+                    placeholder="Select district"
+                    required
+                    asNumber={true}
+                  >
+                    {districts.map((district) => (
+                      <option
+                        key={district.districtId}
+                        value={district.districtId}
+                      >
+                        {district.name}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    name="subDistrictId"
+                    label="Sub District"
+                    placeholder="Select subdistrict"
+                    required
+                    asNumber={true}
+                  >
+                    {subDistricts.map((subDistrict) => (
+                      <option
+                        key={subDistrict.subDistrictId}
+                        value={subDistrict.subDistrictId}
+                      >
+                        {subDistrict.name}
+                      </option>
+                    ))}
+                  </Select>
+                  <Input
+                    label="Postal Code"
+                    name="postalCode"
+                    value={postalCode || ""}
+                    placeholder="Enter postal code"
+                    required
+                  />
+
+                  <></>
+                </div>
+              </Section>
+            </div>
+          </ProfileContainer>
         </div>
       </FormProvider>
 

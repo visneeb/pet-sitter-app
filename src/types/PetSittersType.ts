@@ -8,5 +8,5 @@ export interface PetSitter {
   province: string;
   rating: number;
   sitter: string[];
-  tradeName:string;
+  tradeName: string;
 }

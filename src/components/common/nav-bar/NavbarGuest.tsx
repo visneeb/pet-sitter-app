@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import logo from "@/assets/web-logo.png";
+import logo from "@/assets/web-logo.svg";
 import { NavigationButton } from "@/components/ui/Button";
 import { Menu } from "lucide-react";
 
@@ -13,7 +13,9 @@ export default function NavbarGuest() {
           <Image
             src={logo}
             alt="Logo"
-            className="h-[24px] w-auto lg:h-[40px]"
+            className="h-6 w-auto md:h-10"
+            loading="eager"
+            priority
           />
         </Link>
       </div>

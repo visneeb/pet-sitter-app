@@ -14,7 +14,8 @@ export { SubmitButton as Submit } from "./FormSubmitButton";
 
 // Image Upload Components
 export { RHFAvatarUpload as AvatarUpload } from "./image-upload/RHFAvatarUpload";
-export { MultiImageUpload as MultiImageUpload } from "./image-upload/MultiImageUpload";
+export { RHFMultiImageUpload as MultiImageUpload } from "./image-upload/RHFMultiImageUpload";
+export { MultiImageUpload as BasicMultiImageUpload } from "./image-upload/MultiImageUpload";
 export { AvatarUpload as BasicAvatarUpload } from "./image-upload/AvatarUpload";
 
 // Also export original names for backward compatibility

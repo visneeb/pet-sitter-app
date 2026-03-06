@@ -7,15 +7,7 @@ import { createResolver } from "@/lib/form/createResolver";
 import { validateLogin } from "@/lib/validations/loginFormValidation";
 import { LoginFormValues } from "@/types/authType";
 import { authApi } from "@/services/api/auth";
-import { useAuth } from "@/contexts/AuthContextBackend";
-
-type AxiosLikeError = {
-  message?: string;
-  response?: {
-    status?: number;
-    data?: any;
-  };
-};
+import { useAuth } from "@/contexts/AuthContext";
 
 export function useLoginForm() {
   const router = useRouter();
@@ -46,30 +38,28 @@ export function useLoginForm() {
     setServerSuccess("");
 
     try {
-      // Use backend API for login
-      const session = await authApi.login(data);
+      const response = await authApi.login(data);
+      const token = response.accessToken;
 
-      if (!data) {
-        setServerError("Login succeeded but user data not found.");
+      if (!token) {
+        setServerError("Login succeeded but session could not be established.");
         return;
       }
       // Save token to localStorage
-      if (session.accessToken) {
-        localStorage.setItem("accessToken", session.accessToken);
+      if (token) {
+        localStorage.setItem("accessToken", token);
       }
 
       setServerSuccess("Login successful. Redirecting...");
       await refreshUser();
       setTimeout(() => router.push("/"), 800);
-    } catch (err: unknown) {
-      const e = err as AxiosLikeError;
-      const message = e.message || "Invalid email or password";
+    } catch (err: any) {
+      const message = err.message || "Invalid email or password";
 
       setServerError(message);
       setValue("password", "");
       setFocus("password");
 
-      // Set field-specific errors if the error message indicates the field
       if (message.toLowerCase().includes("email")) {
         setError("email", { type: "server", message });
       } else if (message.toLowerCase().includes("password")) {

@@ -11,7 +11,7 @@ export const Textarea = React.forwardRef<
   return (
     <textarea
       ref={ref}
-      className={cn(baseInputStyles, "min-h-20 resize-none p-3", className)}
+      className={cn(baseInputStyles, "min-h-35 resize-none p-3 placeholder:text-gray-400 placeholder:font-normal placeholder:style-body-2", className)}
       {...props}
     />
   );
