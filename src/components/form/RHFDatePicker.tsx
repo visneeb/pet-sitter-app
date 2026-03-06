@@ -4,6 +4,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { Controller, FieldValues, Path, useFormContext } from "react-hook-form";
+import { formatDatePickerDisplay } from "@/utils/dateFormat";
 import { FormField } from "../ui/form/FormField";
 import { FormControl } from "../ui/form/FormControl";
 import { FormDescription } from "../ui/form/FormDescription";
@@ -12,7 +13,7 @@ import { Input } from "../ui/input/Input";
 
 type RHFDatePickerProps<T extends FieldValues> = {
   name: Path<T>;
-  label: string;
+  label?: string;
   required?: boolean;
   description?: string;
   placeholder?: string;
@@ -66,9 +67,7 @@ export function RHFDatePicker<T extends FieldValues>({
           valueAsDate = rawValue as Date | undefined;
         }
 
-        const formattedValue = valueAsDate
-          ? valueAsDate.toLocaleDateString()
-          : "";
+        const formattedValue = formatDatePickerDisplay(valueAsDate);
 
         return (
           <FormField name={name}>
