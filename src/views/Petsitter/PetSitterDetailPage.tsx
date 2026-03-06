@@ -1,11 +1,20 @@
 "use client";
 
-import Image from "next/image";
-import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import cn from "@/utils/cn";
+import {
+  ImageCarousel,
+  ContentSection,
+  ReviewsSection,
+  PetSitterBookingCard,
+  type CarouselImage,
+  type Review,
+} from "@/components/pet-sitter-detail";
+import Loading from "@/components/common/loading/loading";
+import { useParams } from "next/navigation";
+import { usePetSitterDetail } from "@/hooks/pet-sitter-detail/usePetSitterDetail";
+import type { Sitter } from "@/types/sitter";
+import { ExclamationCircleIcon } from "@/assets/icons/components";
 
-const images = [
+const CAROUSEL_FALLBACK: CarouselImage[] = [
   {
     src: "https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=1600&auto=format&fit=crop",
     alt: "Woman sitting with husky",
@@ -24,233 +33,127 @@ const images = [
   },
 ];
 
+function getCarouselImages(sitter: Sitter | null): CarouselImage[] {
+  if (!sitter) return CAROUSEL_FALLBACK;
+  const urls = sitter.imgUrls?.length
+    ? sitter.imgUrls
+    : sitter.imgUrl
+      ? [sitter.imgUrl]
+      : [];
+  if (urls.length === 0) return CAROUSEL_FALLBACK;
+  return urls.map((src, i) => ({ src, alt: `Pet sitter image ${i + 1}` }));
+}
+
+const REVIEWS: Review[] = [
+  {
+    reviewerName: "David M.",
+    date: "Aug 16,2023",
+    comment:
+      "I recently had the pleasure of entrusting Jane Maison with the care of my two energetic Labrador Retrievers, Max and Bella, while I was away on a business trip. I can confidently say that Jane exceeded all my expectations as a pet sitter.",
+  },
+  {
+    reviewerName: "David M.",
+    date: "Aug 16,2023",
+    comment:
+      "Jane Maison did a great job looking after my energetic dog, Buddy. While I was away, she made sure Buddy got his exercise and kept up with his feeding schedule. I appreciated the updates she sent, although I would have liked a bit more frequent communication. Overall, I'm satisfied with her service and would consider using her again in the future.",
+  },
+  {
+    reviewerName: "David M.",
+    date: "Aug 16,2023",
+    comment:
+      "Jane Maison is a lifesaver! She took care of my rambunctious rabbit, Flopsy, while I was away on vacation. Flopsy can be quite picky, but Jane knew just how to keep her happy and entertained. I received adorable photos of Flopsy munching on her favorite greens and exploring new play areas. I'm so grateful to have found Jane, and I highly recommend her pet sitting services!",
+  },
+  {
+    reviewerName: "David M.",
+    date: "Aug 16,2023",
+    comment:
+      "Jane Maison is a lifesaver! She took care of my rambunctious rabbit, Flopsy, while I was away on vacation. Flopsy can be quite picky, but Jane knew just how to keep her happy and entertained. I received adorable photos of Flopsy munching on her favorite greens and exploring new play areas. I'm so grateful to have found Jane, and I highly recommend her pet sitting services!",
+  },
+  {
+    reviewerName: "David M.",
+    date: "Aug 16,2023",
+    comment:
+      "Jane Maison is a lifesaver! She took care of my rambunctious rabbit, Flopsy, while I was away on vacation. Flopsy can be quite picky, but Jane knew just how to keep her happy and entertained. I received adorable photos of Flopsy munching on her favorite greens and exploring new play areas. I'm so grateful to have found Jane, and I highly recommend her pet sitting services!",
+  },
+];
+
+const MAP_EMBED_URL =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30992.755984367002!2d100.62135467250974!3d13.83336385331918!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29d0c38ddcab5%3A0x277ed5d259125dca!2z4LiL4LmJ4LiH4LmA4Lib4LmH4LiU4Lie4Liw4LmC4Lil4LmJIOC4p-C4seC4h-C4q-C4tOC4mQ!5e0!3m2!1sth!2sth!4v1772592116159!5m2!1sth!2sth";
+
 export default function PetSitterDetailPage() {
-  const total = images.length;
-  const transitionMs = 500;
-  const transitionDelayMs = 80;
+  const params = useParams();
+  const sitterid = params.sitterid;
+  const sitterId = Array.isArray(sitterid) ? sitterid[0] : sitterid;
+  const { sitter, isLoading, error } = usePetSitterDetail(sitterId);
 
-  const [mobileIndex, setMobileIndex] = useState(1);
-  const [desktopIndex, setDesktopIndex] = useState(1);
-  const [isMobileAnimating, setIsMobileAnimating] = useState(true);
-  const [isDesktopAnimating, setIsDesktopAnimating] = useState(true);
-
-  const activeIndex = useMemo(
-    () => (mobileIndex - 1 + total) % total,
-    [mobileIndex, total],
-  );
-
-  const mobileSlides = useMemo(
-    () => [images[total - 1], ...images, images[0]],
-    [total],
-  );
-
-  const desktopSlides = useMemo(
-    () => [...images.slice(-2), ...images, ...images.slice(0, 2)],
-    [],
-  );
-
-  const goPrev = () => {
-    setIsMobileAnimating(true);
-    setIsDesktopAnimating(true);
-    setMobileIndex((current) => (current <= 0 ? current : current - 1));
-    setDesktopIndex((current) => (current <= 0 ? current : current - 1));
-  };
-
-  const goNext = () => {
-    setIsMobileAnimating(true);
-    setIsDesktopAnimating(true);
-    setMobileIndex((current) => (current >= total + 1 ? current : current + 1));
-    setDesktopIndex((current) =>
-      current >= total + 1 ? current : current + 1,
+  if (isLoading) return <Loading />;
+  if (error || !sitter) {
+    return (
+      <div className="min-h-[550px] flex flex-col justify-center items-center style-headline-1 gap-4">
+        <ExclamationCircleIcon className="text-black" size={150} />
+        <p className="style-headline-1">No Pet Sitter found</p>
+      </div>
     );
-  };
+  }
 
-  const handleMobileTransitionEnd = () => {
-    if (mobileIndex === 0) {
-      setIsMobileAnimating(false);
-      setMobileIndex(total);
-      setTimeout(() => setIsMobileAnimating(true), 0);
-    }
-
-    if (mobileIndex === total + 1) {
-      setIsMobileAnimating(false);
-      setMobileIndex(1);
-      setTimeout(() => setIsMobileAnimating(true), 0);
-    }
-  };
-
-  const handleDesktopTransitionEnd = () => {
-    if (desktopIndex === 0) {
-      setIsDesktopAnimating(false);
-      setDesktopIndex(total);
-      setTimeout(() => setIsDesktopAnimating(true), 0);
-    }
-
-    if (desktopIndex === total + 1) {
-      setIsDesktopAnimating(false);
-      setDesktopIndex(1);
-      setTimeout(() => setIsDesktopAnimating(true), 0);
-    }
-  };
+  const carouselImages = getCarouselImages(sitter);
 
   return (
     <>
-      <section className="w-full py-10 md:py-10">
-        <div className="relative flex w-full flex-col gap-6">
-          <div className="relative overflow-hidden md:hidden">
-            <div
-              className={cn(
-                "flex w-full",
-                isMobileAnimating &&
-                  "transition-transform ease-in-out duration-500",
-              )}
-              onTransitionEnd={handleMobileTransitionEnd}
-              style={{
-                transform: `translateX(-${mobileIndex * 100}%)`,
-                transitionDuration: `${transitionMs}ms`,
-                transitionDelay: isMobileAnimating
-                  ? `${transitionDelayMs}ms`
-                  : "0ms",
-              }}
-            >
-              {mobileSlides.map((image, index) => (
-                <div
-                  key={`${image.src}-${index}`}
-                  className="relative aspect-4/3 w-full shrink-0 overflow-hidden rounded-2xl bg-gray-100 shadow-sm"
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 0px"
-                    className="object-cover"
-                    priority={index === mobileIndex}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-4">
-              <button
-                type="button"
-                onClick={goPrev}
-                aria-label="Previous image"
-                className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:bg-white"
-              >
-                <ChevronLeft className="h-5 w-5 text-gray-700" />
-              </button>
-              <button
-                type="button"
-                onClick={goNext}
-                aria-label="Next image"
-                className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:bg-white"
-              >
-                <ChevronRight className="h-5 w-5 text-gray-700" />
-              </button>
-            </div>
+      <div className="bg-gray-50">
+        <section className="w-full py-10 md:py-10">
+          <div className="relative">
+            <ImageCarousel images={carouselImages} />
           </div>
+        </section>
 
-          <div className="relative hidden w-full overflow-hidden md:block">
-            <div
-              className={cn(
-                "flex w-full",
-                isDesktopAnimating &&
-                  "transition-transform ease-in-out duration-500",
-              )}
-              onTransitionEnd={handleDesktopTransitionEnd}
-              style={{
-                transform: `translateX(-${desktopIndex * (100 / 3)}%)`,
-                transitionDuration: `${transitionMs}ms`,
-                transitionDelay: isDesktopAnimating
-                  ? `${transitionDelayMs}ms`
-                  : "0ms",
-              }}
-            >
-              {desktopSlides.map((image, index) => (
-                <div
-                  key={`${image.src}-${index}`}
-                  className="relative aspect-4/3 w-1/3 shrink-0 overflow-hidden bg-gray-100"
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    sizes="(min-width: 768px) 33vw, 0px"
-                    className="object-cover"
-                    priority={index === desktopIndex + 1}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="w-full md:px-20 md:pt-0 flex flex-col md:flex-row md:flex-nowrap md:justify-center md:items-start gap-8">
+          <section className="flex flex-col gap-10">
+            <div className="flex flex-col gap-12 md:px-20 md:py-6 w-full md:max-w-[848px] md:shrink-0">
+              <h1 className="style-headline-1">{sitter.tradeName}</h1>
 
-          <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-50 hidden items-center justify-between px-6 md:flex">
-            <button
-              type="button"
-              onClick={goPrev}
-              aria-label="Previous image"
-              className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:bg-white"
-            >
-              <ChevronLeft className="h-6 w-6 text-gray-700" />
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              aria-label="Next image"
-              className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:bg-white"
-            >
-              <ChevronRight className="h-6 w-6 text-gray-700" />
-            </button>
-          </div>
-        </div>
-      </section>
-      <div className="w-full md:px-20 md:pt-0">
-        <div className="flex flex-col gap-12 md:px-20 md:py-6">
-          <h1 className="style-headline-1">Happy House!</h1>
-          <div className="flex flex-col gap-3">
-            <h3 className="style-headline-3">Introduction</h3>
-            <p className="style-body-2 text-gray-500">
-              Hello there! My name is Jane Maison, and I'm your friendly and
-              reliable pet sitter in Senanikom, Bangkok. I am passionate about
-              animals and have dedicated myself to ensuring the well-being and
-              happiness of your furry, feathery, and hoppy companions. With a
-              big heart and a spacious house, I provide a safe and loving
-              environment for cats, dogs, and rabbits while you're away. Let me
-              introduce myself and tell you a bit more about the pet care
-              services I offer.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <h3 className="style-headline-3">Services</h3>
-            <p className="style-body-2 text-gray-500">
-              🐱 Cat Sitting: Cats are fascinating creatures, and I take joy in
-              catering to their independent yet affectionate nature. Whether
-              your feline friend needs playtime, cuddles, or just a cozy spot to
-              relax, I ensure they feel right at home. <br /> 🐶 Dog Sitting:
-              Dogs are not just pets; they're family. From energetic walks and
-              engaging playtime to soothing belly rubs, I provide a balanced and
-              fun experience for dogs of all sizes and breeds. Safety and
-              happiness are my top priorities. <br />
-              🐇 Rabbit Sitting: With their adorable antics and gentle
-              personalities, rabbits require a special kind of care. I am
-              well-versed in providing them with a comfortable environment,
-              appropriate diet, and ample playtime to keep them content and
-              hopping with joy.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <h3 className="style-headline-3">My places</h3>
-            <p className="style-body-2 text-gray-500">
-              My residence is a spacious house nestled in the serene
-              neighborhood of Senanikom. Your beloved pets will have plenty of
-              room to roam and explore while enjoying a safe and secure
-              environment. I have designated areas for play, relaxation, and
-              sleep, ensuring your pets feel comfortable and at ease throughout
-              their stay.
-            </p>
-          </div>
+              <ContentSection title="Introduction">
+                <p className="style-body-2 text-gray-500">
+                  {sitter.introduction}
+                </p>
+              </ContentSection>
+
+              <ContentSection title="Services">
+                <p className="style-body-2 text-gray-500">{sitter.services}</p>
+              </ContentSection>
+
+              <ContentSection title="My places">
+                <p className="style-body-2 text-gray-500">
+                  {sitter.description}
+                </p>
+                <iframe
+                  src={MAP_EMBED_URL}
+                  width="688"
+                  height="219"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Pet sitter location map"
+                />
+              </ContentSection>
+            </div>
+
+            <ReviewsSection
+              rating={sitter.rating ?? 4.5}
+              reviewCount={27}
+              reviews={REVIEWS}
+              totalPages={3}
+              currentPage={1}
+              onPageChange={() => {}}
+            />
+          </section>
+
+          <aside className="hidden md:block md:shrink-0 md:self-stretch w-full md:w-auto">
+            <PetSitterBookingCard sitter={sitter} />
+          </aside>
         </div>
       </div>
-      
     </>
   );
 }
