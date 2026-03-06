@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createResolver } from "@/lib/form/createResolver";
 import { validateLogin } from "@/lib/validations/loginFormValidation";
 import { LoginFormValues } from "@/types/authType";
@@ -19,6 +19,7 @@ type AxiosLikeError = {
 
 export function useLoginForm(isAdmin: boolean = false) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
 
   const [serverError, setServerError] = useState("");
