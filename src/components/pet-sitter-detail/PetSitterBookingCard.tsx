@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import { MapMarkerIcon } from "@/assets/icons/components";
 import TagPetType from "@/components/search/PetSitterCard/TagPetType";
 import { ActionButton, NavigationButton } from "@/components/ui/Button";
 import { BookingModal, type BookingFormValues } from "./BookingModal";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Sitter } from "@/types/sitter";
 
 interface PetSitterBookingCardProps {
@@ -13,19 +15,38 @@ interface PetSitterBookingCardProps {
     Sitter,
     "tradeName" | "sitter" | "experience" | "rating" | "address" | "petTypes"
   >;
+  sitterId?: string;
+  initialOpenBooking?: boolean;
 }
 
 export default function PetSitterBookingCard({
   sitter,
+  sitterId,
+  initialOpenBooking,
 }: PetSitterBookingCardProps) {
-  const [isBooking, setIsBooking] = useState(false);
+  const router = useRouter();
+  const { user } = useAuth();
+  const [isBooking, setIsBooking] = useState(initialOpenBooking ?? false);
   const sitterName = sitter.sitter?.name ?? "—";
   const avatarUrl = sitter.sitter?.profileImgUrl ?? undefined;
   const experience = `${sitter.experience ?? 0} Years Exp.`;
   const rating = sitter.rating ?? 5;
   const location = sitter.address ?? "—";
 
-  const handleBookNow = () => setIsBooking(true);
+  const handleBookNow = () => {
+    if (!user) {
+      if (sitterId) {
+        const returnUrl = `/petsitter/${sitterId}?openBooking=1`;
+        router.push(
+          `/auth/login?redirect=${encodeURIComponent(returnUrl)}`
+        );
+      } else {
+        router.push("/auth/login");
+      }
+      return;
+    }
+    setIsBooking(true);
+  };
 
   const handleBookingConfirm = (data: BookingFormValues) => {
     // TODO: integrate with booking API

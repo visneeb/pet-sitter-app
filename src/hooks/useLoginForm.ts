@@ -2,15 +2,21 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createResolver } from "@/lib/form/createResolver";
 import { validateLogin } from "@/lib/validations/loginFormValidation";
 import { LoginFormValues } from "@/types/authType";
 import { authApi } from "@/services/api/auth";
 import { useAuth } from "@/contexts/AuthContext";
 
+function isValidRedirect(redirect: string | null): boolean {
+  if (!redirect) return false;
+  return redirect.startsWith("/") && !redirect.startsWith("//");
+}
+
 export function useLoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
 
   const [serverError, setServerError] = useState("");
@@ -48,7 +54,10 @@ export function useLoginForm() {
 
       setServerSuccess("Login successful. Redirecting...");
       await refreshUser();
-      setTimeout(() => router.push("/"), 800);
+      const redirect = searchParams.get("redirect");
+      const target =
+        redirect && isValidRedirect(redirect) ? redirect : "/";
+      setTimeout(() => router.push(target), 800);
     } catch (err: any) {
       const message = err.message || "Invalid email or password";
 

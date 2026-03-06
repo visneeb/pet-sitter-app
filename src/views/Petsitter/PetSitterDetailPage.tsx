@@ -9,7 +9,7 @@ import {
   type Review,
 } from "@/components/pet-sitter-detail";
 import Loading from "@/components/common/loading/loading";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { usePetSitterDetail } from "@/hooks/pet-sitter-detail/usePetSitterDetail";
 import type { Sitter } from "@/types/sitter";
 import { ExclamationCircleIcon } from "@/assets/icons/components";
@@ -82,9 +82,11 @@ const MAP_EMBED_URL =
 
 export default function PetSitterDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const sitterid = params.sitterid;
   const sitterId = Array.isArray(sitterid) ? sitterid[0] : sitterid;
   const { sitter, isLoading, error } = usePetSitterDetail(sitterId);
+  const initialOpenBooking = searchParams.get("openBooking") === "1";
 
   if (isLoading) return <Loading />;
   if (error || !sitter) {
@@ -150,7 +152,11 @@ export default function PetSitterDetailPage() {
           </section>
 
           <aside className="hidden md:block md:shrink-0 md:self-stretch w-full md:w-auto">
-            <PetSitterBookingCard sitter={sitter} />
+            <PetSitterBookingCard
+              sitter={sitter}
+              sitterId={sitterId ?? ""}
+              initialOpenBooking={initialOpenBooking}
+            />
           </aside>
         </div>
       </div>
