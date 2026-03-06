@@ -3,6 +3,7 @@
 import * as React from "react";
 import cn from "@/utils/cn";
 import { baseInputStyles } from "./inputStyle";
+import { CloseIcon } from "@/assets/icons/components";
 
 export type MultiSelectOption = {
   label: string;
@@ -71,7 +72,9 @@ export function MultiSelect({
         )}
       >
         {value.length === 0 && (
-          <span className="text-muted-foreground">{placeholder}</span>
+          <span className="text-gray-400 style-body-2 font-normal">
+            {placeholder}
+          </span>
         )}
 
         {value.map((val) => {
@@ -80,11 +83,29 @@ export function MultiSelect({
             <span
               key={val}
               className={cn(
-                "style-body-3 rounded-full px-4 py-1 text-orange-600 bg-orange-100 hover:bg-orange-200",
-                hasError && "border-red bg-red-50 text-red-700", // Use hasError prop
+                "style-body-3 rounded-full px-4 py-1 text-orange-600 bg-orange-100 hover:bg-orange-200 flex items-center gap-1",
+                hasError && "border-red bg-red-50 text-red-700",
               )}
             >
               {option?.label}
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleValue(val);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleValue(val);
+                  }
+                }}
+                className="hover:text-orange-300 cursor-pointer"
+              >
+                <CloseIcon size={16} />
+              </span>
             </span>
           );
         })}

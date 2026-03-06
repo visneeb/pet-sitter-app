@@ -1,17 +1,19 @@
 "use client";
 
 import { ActionButton } from "../Button";
-import { authService } from "@/services/authService";
-import { useRouter } from "next/navigation";
 import { LogoutIcon } from "@/assets/icons/components";
 import { SidebarRole } from "@/types/sidebarType";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function SidebarLogout({ role }: { role: SidebarRole }) {
-  const router = useRouter();
+  const { signOut } = useAuth();
 
-  const handleLogout = () => {
-    authService.logout();
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (

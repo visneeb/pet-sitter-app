@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
-import { AvatarUpload } from "@/components/form/image-upload/AvatarUpload";
+import { AvatarUpload } from "./AvatarUpload";
 import { ImageFile } from "@/types/imageUploadType";
 
 interface Props {

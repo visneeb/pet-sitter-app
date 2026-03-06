@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import logo from "@/assets/web-logo.png";
+import logo from "@/assets/web-logo.svg";
 import { NavigationButton } from "@/components/ui/Button";
 import { MessagesSquare, Bell, LogOut, Menu, UserRound } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContextBackend";
+import { useAuth } from "@/contexts/AuthContext";
 import { petsitterSidebarItems } from "@/config/sidebar/petsitter";
 import { useProfileImg } from "@/hooks/image/useProfileImg";
 
