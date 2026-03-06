@@ -7,6 +7,7 @@ export { RHFTextarea as Textarea } from "./RHFTextarea";
 export { RHFSelect as Select } from "./RHFSelect";
 export { RHFMultiSelect as MultiSelect } from "./RHFMultiSelect";
 export { RHFDatePicker as DatePicker } from "./RHFDatePicker";
+export { RHFTimePicker as TimePicker } from "./RHFTimePicker";
 
 // Form Structure Components
 export { default as FormSection } from "./FormSection";
@@ -26,5 +27,6 @@ export { RHFTextarea } from "./RHFTextarea";
 export { RHFSelect } from "./RHFSelect";
 export { RHFMultiSelect } from "./RHFMultiSelect";
 export { RHFDatePicker } from "./RHFDatePicker";
+export { RHFTimePicker } from "./RHFTimePicker";
 export { SubmitButton } from "./FormSubmitButton";
 export { RHFAvatarUpload } from "./image-upload/RHFAvatarUpload";

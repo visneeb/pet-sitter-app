@@ -1,17 +1,21 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { getNextTimeSlot } from "@/utils/timeFormat";
 import { ActionButton } from "@/components/ui/Button";
 import {
   FormProvider,
   DatePicker,
-  Textarea,
+  TimePicker,
 } from "@/components/form";
 import type { Sitter } from "@/types/sitter";
 import { CloseIcon, ClockIcon, CalendarIcon } from "@/assets/icons/components";
 export interface BookingFormValues {
   startDate: Date | null;
   endDate: Date | null;
+  startTime: string;
+  endTime: string;
   note: string;
 }
 
@@ -26,6 +30,8 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
     defaultValues: {
       startDate: null,
       endDate: null,
+      startTime: "",
+      endTime: "",
       note: "",
     },
   });
@@ -35,6 +41,19 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
     onClose();
   };
 
+  const startTime = useWatch({ control: methods.control, name: "startTime" });
+  const endTimeMin = startTime ? getNextTimeSlot(startTime, 30) : undefined;
+
+  useEffect(() => {
+    if (!startTime || !endTimeMin) return;
+    const currentEnd = methods.getValues("endTime");
+    if (currentEnd && currentEnd < endTimeMin) {
+      methods.setValue("endTime", "");
+    }
+  }, [startTime, endTimeMin, methods]);
+
+  const oneYearFromNow = new Date(new Date().getFullYear() + 1, new Date().getMonth(), 1);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -42,7 +61,7 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
       role="presentation"
     >
       <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-[560px] mx-4  flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-[560px] mx-4  flex flex-col gap-5 max-h-[90vh] "
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -68,27 +87,33 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
         <FormProvider methods={methods} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4 px-10 py-6">
             <p className="style-body-1 text-gray-600">Select date and time you want to schedule the service.</p>
-            <DatePicker 
-              name="startDate"
-              
-              placeholder="เลือกวันที่"
-              fromDate={new Date()}
-              
-            />
             <div className="flex items-center gap-2">
-              <ClockIcon size={50}  />
-            <Textarea
-              name="startTime"
-              placeholder="ระบุรายละเอียดเพิ่มเติม..."
-              
-              />
-              -
-              <Textarea
-              name="endTime"
-              placeholder="ระบุรายละเอียดเพิ่มเติม..."
-              
+              <CalendarIcon size={20} className="shrink-0 text-gray-500" />
+
+            <DatePicker
+              name="startDate"
+              placeholder="Pet arrival date"
+              disabled={{ before: new Date()}}
+              startMonth={new Date()}
+              endMonth={oneYearFromNow}
               />
               </div>
+            <div className="flex items-center gap-2">
+              <ClockIcon size={20} className="shrink-0 text-gray-500" />
+              <TimePicker
+                name="startTime"
+                placeholder="Pet arrival time"
+                className="flex-1 min-w-0"
+              />
+              <span className="text-gray-500 shrink-0">-</span>
+              <TimePicker
+                name="endTime"
+                placeholder="Pet departure time"
+                className="flex-1 min-w-0"
+                minTime={endTimeMin}
+                stepMinutes={30}
+              />
+            </div>
 
             <div className="flex justify-around gap-4 pt-2">
              
