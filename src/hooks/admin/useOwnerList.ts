@@ -2,34 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { privateApi } from "@/services/api/client";
+import { adminApi } from "@/services/api/admin";
+import type { OwnerItem, OwnerStatus } from "@/types/admin";
 
-export type OwnerStatus = "Normal" | "Banned";
-
-export interface OwnerItem {
-  id: string;
-  name: string;
-  phone: string;
-  profileImgUrl: string | null;
-  email: string;
-  status: OwnerStatus;
-  petCount: number;
-}
-
-interface OwnerListResponse {
-  totalOwners: number;
-  totalPages: number;
-  currentPage: number;
-  limit: number;
-  owners: OwnerItem[];
-}
-
-interface UseOwnerListOptions {
+export interface UseOwnerListOptions {
   seed?: string;
   limit?: number;
 }
 
-interface UseOwnerListResult {
+export interface UseOwnerListResult {
   owners: OwnerItem[];
   totalOwners: number;
   totalPages: number;
@@ -58,7 +39,11 @@ export function useOwnerList(
   const [state, setState] = useState<
     Omit<
       UseOwnerListResult,
-      "searchKeyword" | "statusFilter" | "setSearchKeyword" | "setStatusFilter" | "setPage"
+      | "searchKeyword"
+      | "statusFilter"
+      | "setSearchKeyword"
+      | "setStatusFilter"
+      | "setPage"
     >
   >({
     owners: [],
@@ -97,13 +82,7 @@ export function useOwnerList(
           ...(statusFilter ? { status: statusFilter } : {}),
         };
 
-        const { data } = await privateApi.get<OwnerListResponse>(
-          "/admin/pet-owner",
-          {
-            params,
-            signal: controller.signal,
-          },
-        );
+        const data = await adminApi.getOwnerList(params, controller.signal);
 
         setState({
           owners: Array.isArray(data.owners) ? data.owners : [],

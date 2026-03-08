@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { OwnerItem } from "@/hooks/admin/useOwnerList";
+import type { OwnerItem } from "@/types/admin";
 import cn from "@/utils/cn";
 import { Dot } from "lucide-react";
 

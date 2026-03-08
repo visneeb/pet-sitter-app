@@ -4,6 +4,7 @@ import { useOwnerList } from "@/hooks/admin/useOwnerList";
 import OwnerListTile from "@/components/admin/pet-owner/OwnerListTile";
 import { Input } from "@/components/ui/input/Input";
 import { Pagination } from "@/components/ui/Pagination";
+import cn from "@/utils/cn";
 import { Filter, Search } from "lucide-react";
 
 export default function PetOwnerPage() {
@@ -44,9 +45,10 @@ export default function PetOwnerPage() {
             <li>
               <button
                 type="button"
-                className={`style-body-2 ${
-                  statusFilter === null ? "text-orange-500" : ""
-                }`}
+                className={cn(
+                  "style-body-2",
+                  statusFilter === null && "text-orange-500",
+                )}
                 onClick={() => setStatusFilter(null)}
               >
                 All
@@ -55,9 +57,10 @@ export default function PetOwnerPage() {
             <li>
               <button
                 type="button"
-                className={`style-body-2 ${
-                  statusFilter === "Normal" ? "text-orange-500" : ""
-                }`}
+                className={cn(
+                  "style-body-2",
+                  statusFilter === "Normal" && "text-orange-500",
+                )}
                 onClick={() => setStatusFilter("Normal")}
               >
                 Normal
@@ -66,9 +69,10 @@ export default function PetOwnerPage() {
             <li>
               <button
                 type="button"
-                className={`style-body-2 ${
-                  statusFilter === "Banned" ? "text-orange-500" : ""
-                }`}
+                className={cn(
+                  "style-body-2",
+                  statusFilter === "Banned" && "text-orange-500",
+                )}
                 onClick={() => setStatusFilter("Banned")}
               >
                 Banned
