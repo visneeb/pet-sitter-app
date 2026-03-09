@@ -4,6 +4,7 @@ export interface MapProps {
   children?: ReactNode;
   center?: [number, number];
   zoom?: number;
+  className?: string;
 }
 
 export interface UserMarkerProps {

@@ -2,6 +2,7 @@
 "use client";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/assets/icons/components";
 import { usePagination } from "@/hooks/usePagination";
+import cn from "@/utils/cn";
 
 interface PaginationProps {
   /** จำนวนหน้าทั้งหมด (มักได้จาก API response) - default 100 สำหรับ demo */
@@ -10,12 +11,14 @@ interface PaginationProps {
   currentPage?: number;
   /** Controlled: callback เมื่อเปลี่ยนหน้า - ให้ parent fetch ข้อมูลใหม่ */
   onPageChange?: (page: number) => void;
+  className?: string;
 }
 
 export const Pagination = ({
   totalPages ,
   currentPage,
   onPageChange,
+  className,
 }: PaginationProps) => {
   const {
     currentPage: page,
@@ -29,7 +32,7 @@ export const Pagination = ({
   });
 
   return (
-    <div className="w-full flex justify-center pt-6 pb-[196px]">
+    <div className={cn("w-full flex justify-center pt-6 pb-[196px]",className)}>
       <div className="flex justify-center items-center gap-2 ">
         <button
           onClick={() => handlePageClick(page - 1)}

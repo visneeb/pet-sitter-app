@@ -41,7 +41,7 @@ export default function PetSitterInfo({
               : "style-body-3",
           )}
         >
-          By {sitter.sitter[0]}
+          By {sitter.sitter.name}
         </p>
       </div>
     </div>

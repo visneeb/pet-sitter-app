@@ -18,24 +18,14 @@ export default function MapControls() {
       {userPosition && accuracy !== null && (
         <UserMarker position={userPosition} accuracy={accuracy} />
       )}
-      {/* Test Custom Marker */}
-      {userPosition && accuracy !== null && (
-        <SitterMarker position={userPosition} />
-      )}
+
       {/* Button Controls */}
-      <div
-        className="leaflet-top leaflet-right flex flex-row gap-[8px]"
-        style={{ marginTop: "10px", marginLeft: "10px" }}
-      >
+      <div className="absolute top-4 right-4 z-[1000] flex flex-row gap-[8px] pointer-events-none">
         <ButtonLocate loading={loading} handleLocate={handleLocate} />
         <ButtonZoomIn />
         <ButtonZoomOut />
         <ButtonFullscreen />
       </div>
-      {/* Zip Code Search Input */}
-      <ZipSearchMap />
-      {/* Map Pin Handler */}
-      <MapPinHandler />
     </>
   );
 }

@@ -24,7 +24,7 @@ export function useSearchFilterUrl() {
       const base = new URLSearchParams(searchParams?.toString() ?? "");
       const params = buildURLSearchParamsFromFilters(base, filters);
       const qs = params.toString();
-      router.push(qs ? `?${qs}` : "?");
+      router.push(qs ? `?${qs}` : "?",{ scroll: false });
     },
     [router, searchParams],
   );
