@@ -39,6 +39,7 @@ export default function FilterRatingList({
         {dataRating.map((star) => {
           return (
             <button
+              type="button"
               className={cn(
                 styleButton,
                 ActiveStar(star) &&

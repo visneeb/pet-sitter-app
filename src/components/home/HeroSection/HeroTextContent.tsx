@@ -19,9 +19,9 @@ const HEADLINE_PARTS: HeadlinePart[] = [
 
 const SUBHEADING_TEXT = "Find your perfect pet sitter with us.";
 
-export function HeroTextContent() {
+export function HeroTextContent({className}: {className?: string}) {
   return (
-    <div className={STYLES.container}>
+    <div className={`${STYLES.container} ${className}`}>
       {HEADLINE_PARTS.map(({ text, accentColor, accentChar }) => (
         <h1 key={text} className={STYLES.heading}>
           {text}

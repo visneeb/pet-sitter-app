@@ -4,11 +4,9 @@
 
 import { Maximize, Minimize } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useMap } from "react-leaflet";
 import MapIconButton from "./MapIconButton";
 
 export default function ButtonFullscreen() {
-  const map = useMap();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // sync state กับ browser fullscreen event
@@ -22,14 +20,13 @@ export default function ButtonFullscreen() {
   }, []);
 
   const handleToggle = () => {
-    const container = map.getContainer();
-
     if (document.fullscreenElement) {
       // ออก fullscreen
       document.exitFullscreen();
     } else {
-      // เข้า fullscreen
-      container.requestFullscreen().catch((err) => {
+      // ขอ fullscreen ที่ wrapper ทั้งก้อน (map + slider) แทน map container เดิม
+      const wrapper = document.getElementById("map-fullscreen-wrapper");
+      wrapper?.requestFullscreen().catch((err) => {
         console.error("Fullscreen error:", err);
       });
     }

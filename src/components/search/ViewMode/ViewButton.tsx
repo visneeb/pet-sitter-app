@@ -1,20 +1,19 @@
 "use client";
 
 import { ViewMode } from "@/constants/viewMode";
-import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
 
+const BASE_STYLE =
+  "h-10 w-20 rounded-lg border transition hover:ring-4 shadow-sm";
 
-// --- Styles ---
-const BASE_STYLE = "w-20 h-10 rounded-lg transition shadow- hover:ring-4";
 const getButtonStyle = (isActive: boolean) =>
-  `${BASE_STYLE} ${
+  cn(
+    BASE_STYLE,
     isActive
-      ? "hover:ring-orange-200 text-orange-500 border border-orange-500"
-      : "hover:ring-gray-200 text-gray-300 border border-gray-300"
-  }`;
+      ? "border-orange-500 text-orange-500 hover:ring-orange-200"
+      : "border-gray-300 text-gray-300 hover:ring-gray-200",
+  );
 
-// --- Sub-Component ---
 interface ViewButtonProps {
   mode: ViewMode;
   currentView: ViewMode;
@@ -30,19 +29,20 @@ export default function ViewButton({
   label,
   onClick,
 }: ViewButtonProps) {
-    const { isSmall, isMedium, isLarge } = useScreenContext();
-  const isWebView = isSmall && isMedium && isLarge;
+  const isActive = currentView === mode;
+
   return (
     <button
+      type="button"
       onClick={() => onClick(mode)}
-      className={cn(getButtonStyle(currentView === mode),!isWebView &&"w-[165px]")}
-      aria-pressed={currentView === mode}
+      className={cn(getButtonStyle(isActive), "max-lg:w-[165px]")}
+      aria-pressed={isActive}
       aria-label={`Switch to ${label} view`}
     >
-      <div className="flex flex-row gap-2 justify-center items-center">
+      <span className="flex flex-row items-center justify-center gap-2">
         {icon}
         <span className="style-body-2">{label}</span>
-      </div>
+      </span>
     </button>
   );
 }

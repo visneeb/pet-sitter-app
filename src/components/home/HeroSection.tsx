@@ -33,16 +33,16 @@ export default function HeroSection() {
   return (
     <>
       <section
-        className={cn("hidden xxl:flex flex-row justify-center items-center")}
+        className={cn("hidden xl:flex flex-row justify-center items-center")}
       >
         <HeroLeftPanel />
-        <HeroTextContent />
+        <HeroTextContent className="w-[543px] shrink-0"/>
         <HeroRightPanel />
       </section>
 
       <section
         className={cn(
-          "flex xxl:hidden flex-col justify-center items-center gap-[50px] overflow-x-hidden w-full",
+          "flex xl:hidden flex-col justify-center items-center gap-[50px] overflow-x-hidden w-full",
         )}
       >
         <HeroTextContent />

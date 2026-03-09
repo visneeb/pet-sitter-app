@@ -1,7 +1,7 @@
 "use client";
 
 import HeaderSearchViewMode from "@/components/search/HeaderSearchViewMode";
-import FilterSidebar from "@/components/search/FilterSideBar";
+import FilterSideBar from "@/components/search/FilterSideBar";
 import MainViewSearch from "@/components/search/MainViewSearch";
 import { usePetSitterSearch } from "@/contexts/PetSitterSearchContext";
 import { Pagination } from "@/components/ui/Pagination";
@@ -34,7 +34,7 @@ export default function SearchPageContent() {
         <div
           className={`order-1 lg:order-2 flex flex-col  items-center lg:flex-row  lg:items-start justify-center ${LAYOUT.desktopSidePadding} ${LAYOUT.sidebarGap}`}
         >
-          <FilterSidebar />
+          <FilterSideBar />
           <div className="block lg:hidden mt-10 mb-6">
             <HeaderSearchViewMode />
           </div>

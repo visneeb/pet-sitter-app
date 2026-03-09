@@ -4,10 +4,21 @@ import FilterRatingList from "./FilterSideBar/FilterRatingList";
 import FilterActions from "./FilterSideBar/FilterActions";
 import FilterExperience from "./FilterSideBar/FilterExperience";
 import { usePetSitterSearch } from "@/contexts/PetSitterSearchContext";
-import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
+import { useId } from "react";
+import { useForm, useController } from "react-hook-form";
+import { Form } from "@/components/form";
 
-export default function FilterSidebar() {
+type SearchFilterFormValues = {
+  searchText: string;
+  petTypes: string[];
+  rating: number[];
+  experience: string;
+};
+
+export default function FilterSideBar() {
+  const headingId = useId();
+
   const {
     searchText,
     petTypes,
@@ -20,33 +31,97 @@ export default function FilterSidebar() {
     handleClear,
     handleSearch,
   } = usePetSitterSearch();
-  const { isSmall, isMedium, isLarge } = useScreenContext();
-  const isWebView = isSmall && isMedium && isLarge;
+
+  const methods = useForm<SearchFilterFormValues>({
+    defaultValues: {
+      searchText,
+      petTypes,
+      rating,
+      experience,
+    },
+  });
+
+  const { control, reset } = methods;
+
+  const { field: searchTextField } = useController({
+    name: "searchText",
+    control,
+  });
+
+  const { field: petTypesField } = useController({
+    name: "petTypes",
+    control,
+  });
+
+  const { field: ratingField } = useController({
+    name: "rating",
+    control,
+  });
+
+  const { field: experienceField } = useController({
+    name: "experience",
+    control,
+  });
+
+  const handleFormSubmit = (values: SearchFilterFormValues) => {
+    // Sync RHF state back into context, then trigger search
+    handleSearchChange(values.searchText);
+    handlePetTypesChange(values.petTypes);
+    handleRatingChange(values.rating);
+    handleExperienceChange(values.experience);
+    handleSearch();
+  };
+
+  const handleFormClear = () => {
+    const emptyValues: SearchFilterFormValues = {
+      searchText: "",
+      petTypes: [],
+      rating: [],
+      experience: "",
+    };
+
+    reset(emptyValues);
+
+    // Keep context and URL/query in sync with cleared filters
+    handleSearchChange(emptyValues.searchText);
+    handlePetTypesChange(emptyValues.petTypes);
+    handleRatingChange(emptyValues.rating);
+    handleExperienceChange(emptyValues.experience);
+    handleClear();
+  };
 
   return (
     <aside
       className={cn(
-        "h-fit flex flex-col gap-8",
-        isWebView
-          ? "sticky top-3 w-98 bg-white shadow-lg rounded-2xl px-6 py-6"
-          : "w-[375px] px-4 py-4",
+        "h-fit flex flex-col gap-8 w-[375px] px-4 py-4",
+        "lg:sticky lg:top-3 lg:w-[392px] lg:bg-white lg:rounded-2xl lg:px-6 lg:py-6 lg:shadow-[4px_4px_24px_0_rgba(0,0,0,0.04)]",
       )}
+      aria-labelledby={headingId}
     >
-      <FilterSearchInput
-        searchText={searchText}
-        onSearchChange={handleSearchChange}
-        label="Search"
-      />
-      <FilterSearchTypeList
-        petTypes={petTypes}
-        onPetTypesChange={handlePetTypesChange}
-      />
-      <FilterRatingList rating={rating} onRatingChange={handleRatingChange} />
-      <FilterExperience
-        experience={experience}
-        onExperienceChange={handleExperienceChange}
-      />
-      <FilterActions onClear={handleClear} onSearch={handleSearch} />
+      <Form
+        methods={methods}
+        onSubmit={handleFormSubmit}
+        className="flex flex-col gap-8"
+      >
+        <FilterSearchInput
+          searchText={searchTextField.value}
+          onSearchChange={(value) => searchTextField.onChange(value)}
+          label="Search"
+        />
+        <FilterSearchTypeList
+          petTypes={petTypesField.value}
+          onPetTypesChange={(value) => petTypesField.onChange(value)}
+        />
+        <FilterRatingList
+          rating={ratingField.value}
+          onRatingChange={(value) => ratingField.onChange(value)}
+        />
+        <FilterExperience
+          experience={experienceField.value}
+          onExperienceChange={(value) => experienceField.onChange(value)}
+        />
+        <FilterActions onClear={handleFormClear} />
+      </Form>
     </aside>
   );
 }
