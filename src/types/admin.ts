@@ -1,4 +1,4 @@
-export type OwnerStatus = "Normal" | "Banned";
+import { SitterStatus, UserStatus } from "@/constants/status";
 
 export interface OwnerItem {
   id: string;
@@ -6,7 +6,7 @@ export interface OwnerItem {
   phone: string;
   profileImgUrl: string | null;
   email: string;
-  status: OwnerStatus;
+  status: UserStatus;
   petCount: number;
 }
 
@@ -23,5 +23,28 @@ export interface GetOwnerListParams {
   page: number;
   limit: number;
   keyword?: string;
-  status?: OwnerStatus;
+  status?: UserStatus;
+}
+
+export interface SitterItem {
+  id: string;
+  sitter: Pick<OwnerItem, "name" | "profileImgUrl" | "email" | "status">;
+  tradeName: string;
+  status: SitterStatus;
+}
+
+export interface SitterListResponse {
+  totalSitters: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  sitters: SitterItem[];
+}
+
+export interface GetSitterListParams {
+  seed?: string;
+  page: number;
+  limit: number;
+  keyword?: string;
+  status?: SitterStatus | Extract<UserStatus, "Banned">;
 }
