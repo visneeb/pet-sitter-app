@@ -53,7 +53,7 @@ export function useLoginForm() {
 
     try {
       const response = await authApi.login(data);
-      console.log("login response:", response);
+      
 
       const token = response.accessToken;
 
@@ -67,7 +67,7 @@ export function useLoginForm() {
 
       // ✅ ดึง current user จริงจาก AuthContext
       const currentUser = await refreshUser();
-      console.log("refreshUser response:", currentUser);
+      
 
       // ✅ ถ้า profile โหลดไม่ได้ ให้หยุดก่อน
       if (!currentUser) {
