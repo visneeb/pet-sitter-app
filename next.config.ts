@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "lyakfpgmbpcyutseykwn.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "static.scientificamerican.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.natgeofe.com",
+      },
     ],
   },
 };

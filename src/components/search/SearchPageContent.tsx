@@ -54,6 +54,7 @@ export default function SearchPageContent() {
       ) : (
         <div className="w-full flex justify-center pt-6 pb-[196px]"></div>
       )}
+
     </>
   );
 }
