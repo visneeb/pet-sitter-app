@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SeedProvider } from "@/contexts/SeedContext";
 import { ScreenProvider } from "@/contexts/ScreenContext";
 
 export default function AppProviders({
@@ -11,7 +12,9 @@ export default function AppProviders({
 }) {
   return (
     <ScreenProvider>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        <SeedProvider>{children}</SeedProvider>
+      </AuthProvider>
     </ScreenProvider>
   );
 }
