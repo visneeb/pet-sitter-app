@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input/Input";
 import { Pagination } from "@/components/ui/Pagination";
 import cn from "@/utils/cn";
 import { Filter, Search } from "lucide-react";
+import { userStatusVariant } from "@/constants/status";
 
 export default function PetOwnerPage() {
   const {
@@ -17,15 +18,15 @@ export default function PetOwnerPage() {
     error,
     searchKeyword,
     statusFilter,
-    setSearchKeyword,
-    setStatusFilter,
+    handleKeywordChange,
+    handleStatusChange,
     setPage,
   } = useOwnerList();
 
   return (
     <section className="flex flex-col gap-6 min-h-[calc(100vh-40px)] px-4 pt-10 pb-20 md:px-10 lg:p-0">
-      <header className="flex justify-between items-center w-full gap-4">
-        <p className="style-headline-3">Pet Owner</p>
+      <header className="flex flex-col items-start justify-between w-full gap-4 sm:flex-row sm:items-center">
+        <p className="style-headline-3 text-gray-600">Pet Owner</p>
         <div className="flex gap-4">
           <button
             className="btn p-0 size-12 bg-white rounded-lg"
@@ -46,10 +47,10 @@ export default function PetOwnerPage() {
               <button
                 type="button"
                 className={cn(
-                  "style-body-2",
-                  statusFilter === null && "text-orange-500",
+                  "style-body-2 text-black",
+                  statusFilter === null && "bg-gray-200",
                 )}
-                onClick={() => setStatusFilter(null)}
+                onClick={() => handleStatusChange(null)}
               >
                 All
               </button>
@@ -59,9 +60,10 @@ export default function PetOwnerPage() {
                 type="button"
                 className={cn(
                   "style-body-2",
-                  statusFilter === "Normal" && "text-orange-500",
+                  userStatusVariant["Normal"],
+                  statusFilter === "Normal" && "bg-gray-200",
                 )}
-                onClick={() => setStatusFilter("Normal")}
+                onClick={() => handleStatusChange("Normal")}
               >
                 Normal
               </button>
@@ -71,9 +73,10 @@ export default function PetOwnerPage() {
                 type="button"
                 className={cn(
                   "style-body-2",
-                  statusFilter === "Banned" && "text-orange-500",
+                  userStatusVariant["Banned"],
+                  statusFilter === "Banned" && "bg-gray-200",
                 )}
-                onClick={() => setStatusFilter("Banned")}
+                onClick={() => handleStatusChange("Banned")}
               >
                 Banned
               </button>
@@ -81,16 +84,16 @@ export default function PetOwnerPage() {
           </ul>
           <Input
             value={searchKeyword}
-            onChange={(event) => setSearchKeyword(event.target.value)}
+            onChange={(event) => handleKeywordChange(event.target.value)}
             rightAction={<Search className="text-gray-300" />}
             placeholder="Search..."
-            className="max-w-60"
+            className="w-60"
           />
         </div>
       </header>
       <article className="min-w-full">
         <header className="flex py-3 bg-black rounded-t-2xl">
-          <p className="flex-1 px-4 style-body-3 text-white">Pet Owner</p>
+          <p className="flex-1 px-4 style-body-3 text-white">Full Name</p>
           <p className="flex-1 px-4 style-body-3 text-white md:w-[calc(207/1120*100%)]">
             Phone
           </p>

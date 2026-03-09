@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { useSeed } from "@/contexts/SeedContext";
 import { adminApi } from "@/services/api/admin";
-import type { OwnerItem, OwnerStatus } from "@/types/admin";
+import type { OwnerItem } from "@/types/admin";
+import { UserStatus } from "@/constants/status";
 
 export interface UseOwnerListOptions {
-  seed?: string;
   limit?: number;
 }
 
@@ -18,9 +19,9 @@ export interface UseOwnerListResult {
   isLoading: boolean;
   error: string | null;
   searchKeyword: string;
-  statusFilter: OwnerStatus | null;
-  setSearchKeyword: (value: string) => void;
-  setStatusFilter: (value: OwnerStatus | null) => void;
+  statusFilter: UserStatus | null;
+  handleKeywordChange: (value: string) => void;
+  handleStatusChange: (value: UserStatus | null) => void;
   setPage: (page: number) => void;
 }
 
@@ -29,20 +30,20 @@ const DEFAULT_LIMIT = 8;
 export function useOwnerList(
   options?: UseOwnerListOptions,
 ): UseOwnerListResult {
-  const seed = options?.seed;
+  const { seed } = useSeed();
   const limit = options?.limit ?? DEFAULT_LIMIT;
 
   const [searchKeyword, setSearchKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState<OwnerStatus | null>(null);
+  const [statusFilter, setStatusFilter] = useState<UserStatus | null>(null);
   const [page, setPage] = useState(1);
   const [state, setState] = useState<
     Omit<
       UseOwnerListResult,
       | "searchKeyword"
       | "statusFilter"
-      | "setSearchKeyword"
-      | "setStatusFilter"
+      | "handleKeywordChange"
+      | "handleStatusChange"
       | "setPage"
     >
   >({
@@ -58,7 +59,7 @@ export function useOwnerList(
     const timeoutId = window.setTimeout(() => {
       setDebouncedKeyword(searchKeyword.trim());
       setPage(1);
-    }, 400);
+    }, 800);
 
     return () => window.clearTimeout(timeoutId);
   }, [searchKeyword]);
@@ -115,13 +116,21 @@ export function useOwnerList(
     };
   }, [debouncedKeyword, limit, page, seed, statusFilter]);
 
+  const handleKeywordChange = (value: string) => {
+    setSearchKeyword(value);
+  };
+
+  const handleStatusChange = (status: UserStatus | null) => {
+    setStatusFilter(status);
+  };
+
   return useMemo(
     () => ({
       ...state,
       searchKeyword,
       statusFilter,
-      setSearchKeyword,
-      setStatusFilter,
+      handleKeywordChange,
+      handleStatusChange,
       setPage,
     }),
     [searchKeyword, state, statusFilter],

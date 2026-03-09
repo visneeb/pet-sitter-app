@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { OwnerItem } from "@/types/admin";
 import cn from "@/utils/cn";
-import { Dot } from "lucide-react";
+import { userStatusVariant } from "@/constants/status";
 
 interface OwnerListTileProps {
   owner: OwnerItem;
@@ -45,11 +45,11 @@ function OwnerListTile({ owner, isLast }: OwnerListTileProps) {
       </div>
       <div
         className={cn(
-          "flex items-center w-[calc(120/1120*100%)] min-w-25 px-4 style-body-2",
-          status === "Banned" ? "text-red" : "text-green-500",
+          "flex items-center gap-2 w-[calc(120/1120*100%)] min-w-25 px-4 style-body-2",
+          userStatusVariant[status],
         )}
       >
-        <Dot className="size-10" />
+        <span>•</span>
         {status}
       </div>
     </li>
