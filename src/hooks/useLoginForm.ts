@@ -33,12 +33,28 @@ export function useLoginForm() {
     formState: { isSubmitting },
   } = methods;
 
+  // ✅ helper สำหรับ map role -> path
+  const getRedirectPathByRole = (role?: string) => {
+    switch (role) {
+      case "owner":
+        return "/";
+      case "sitter":
+        return "/petsitter-profile";
+      case "admin":
+        return "/admin";
+      default:
+        return "/";
+    }
+  };
+
   const onSubmit = async (data: LoginFormValues) => {
     setServerError("");
     setServerSuccess("");
 
     try {
       const response = await authApi.login(data);
+      
+
       const token = response.accessToken;
 
       if (!token) {
@@ -46,9 +62,24 @@ export function useLoginForm() {
         return;
       }
 
+      // ✅ เก็บ token หลัง login สำเร็จ
+      localStorage.setItem("accessToken", token);
+
+      // ✅ ดึง current user จริงจาก AuthContext
+      const currentUser = await refreshUser();
+      
+
+      // ✅ ถ้า profile โหลดไม่ได้ ให้หยุดก่อน
+      if (!currentUser) {
+        setServerError("Login succeeded, but user profile could not be loaded.");
+        return;
+      }
+
       setServerSuccess("Login successful. Redirecting...");
-      await refreshUser();
-      setTimeout(() => router.push("/"), 800);
+
+      // ✅ redirect ตาม role จริงของ app
+      const redirectPath = getRedirectPathByRole(currentUser.role);
+      router.push(redirectPath);
     } catch (err: any) {
       const message = err.message || "Invalid email or password";
 

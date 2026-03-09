@@ -10,6 +10,7 @@ type User = {
   name?: string;
   phone?: string;
   role?: string;
+  profileImgUrl?: string;
 };
 
 type AuthContextType = {
@@ -18,7 +19,9 @@ type AuthContextType = {
   serverError: string;
   setServerError: (error: string) => void;
   signOut: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+
+  // ✅ เปลี่ยนจาก Promise<void> เป็น Promise<User | null>
+  refreshUser: () => Promise<User | null>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -27,7 +30,9 @@ const AuthContext = createContext<AuthContextType>({
   serverError: "",
   setServerError: () => {},
   signOut: async () => {},
-  refreshUser: async () => {},
+
+  // ✅ default ต้อง return null ด้วย
+  refreshUser: async () => null,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -35,31 +40,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const loadUser = async () => {
+  // ✅ เปลี่ยนให้ loadUser return userData/null
+  const loadUser = async (): Promise<User | null> => {
     const token =
       typeof window !== "undefined"
         ? localStorage.getItem("accessToken")
         : null;
 
+    // ✅ ถ้าไม่มี token ให้ clear user แล้ว return null
     if (!token) {
       setUser(null);
       localStorage.removeItem("cachedUser");
       setLoading(false);
-      return;
+      return null;
     }
 
     try {
+      // ✅ ดึง current user จริงจาก backend/profile table
       const userData = await userApi.getCurrentUser();
+
       setUser(userData);
+
       if (userData) {
         localStorage.setItem("cachedUser", JSON.stringify(userData));
       } else {
         localStorage.removeItem("cachedUser");
       }
+
+      // ✅ สำคัญมาก: return userData กลับไปให้ caller ใช้ต่อ
+      return userData;
     } catch {
       setUser(null);
       localStorage.removeItem("cachedUser");
       localStorage.removeItem("accessToken");
+
+      // ✅ ถ้าโหลด user ไม่ได้ ให้ return null
+      return null;
     } finally {
       setLoading(false);
     }
@@ -84,8 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const refreshUser = async () => {
-    await loadUser();
+  // ✅ เปลี่ยนให้ refreshUser return ค่าจาก loadUser
+  const refreshUser = async (): Promise<User | null> => {
+    return await loadUser();
   };
 
   return (
