@@ -14,6 +14,8 @@ import { usePetSitterDetail } from "@/hooks/pet-sitter-detail/usePetSitterDetail
 import type { Sitter } from "@/types/sitter";
 import { ExclamationCircleIcon } from "@/assets/icons/components";
 import { useScreenContext } from "@/contexts/ScreenContext";
+import LeafletMap from "@/components/Map/LeafletMap";
+import SitterMarker from "@/components/Map/ui/Marker/SitterMarker";
 
 const CAROUSEL_FALLBACK: CarouselImage[] = [
   {
@@ -132,16 +134,8 @@ export default function PetSitterDetailPage() {
 
               <ContentSection title="My places">
                 <p>{sitter.description}</p>
-                {/* <iframe
-                  src={MAP_EMBED_URL}
-                  width="688"
-                  height="219"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Pet sitter location map"
-                /> */}
+               
+                <LeafletMap center={[13.7563, 100.5018]} zoom={22} ><SitterMarker position={[13.7563, 100.5018]} /></LeafletMap>
               </ContentSection>
             </div>
             <div className=" md:hidden md:shrink-0 md:self-stretch w-full md:w-auto">
