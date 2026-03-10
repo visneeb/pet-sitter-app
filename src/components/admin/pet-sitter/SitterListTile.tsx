@@ -10,10 +10,11 @@ import {
 interface SitterListTileProps {
   sitter: SitterItem;
   isLast: boolean;
+  onClick: () => void;
 }
 
-function SitterListTile({ sitter, isLast }: SitterListTileProps) {
-  const { sitter: user, tradeName, status } = sitter;
+function SitterListTile(props: SitterListTileProps) {
+  const { sitter: user, tradeName, status } = props.sitter;
 
   let sitterStatus: SitterStatus | Extract<UserStatus, "Banned">;
   if (user.status === "Banned") {
@@ -26,8 +27,9 @@ function SitterListTile({ sitter, isLast }: SitterListTileProps) {
     <li
       className={cn(
         "flex items-center w-full h-23 bg-white",
-        isLast ? "rounded-b-2xl" : "border-b border-gray-200",
+        props.isLast ? "rounded-b-2xl" : "border-b border-gray-200",
       )}
+      onClick={props.onClick}
     >
       <div className="flex flex-1 items-center gap-2.5 px-4 py-6 overflow-hidden">
         {user.profileImgUrl ? (

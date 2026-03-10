@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import type { OwnerItem } from "@/types/admin";
 import cn from "@/utils/cn";
@@ -6,17 +8,19 @@ import { userStatusVariant } from "@/constants/status";
 interface OwnerListTileProps {
   owner: OwnerItem;
   isLast: boolean;
+  onClick: () => void;
 }
 
-function OwnerListTile({ owner, isLast }: OwnerListTileProps) {
-  const { name, phone, email, petCount, status, profileImgUrl } = owner;
+function OwnerListTile(props: OwnerListTileProps) {
+  const { name, phone, email, petCount, status, profileImgUrl } = props.owner;
 
   return (
     <li
       className={cn(
         "flex items-center w-full h-23 bg-white",
-        isLast ? "rounded-b-2xl" : "border-b border-gray-200",
+        props.isLast ? "rounded-b-2xl" : "border-b border-gray-200",
       )}
+      onClick={props.onClick}
     >
       <div className="flex flex-1 items-center gap-2.5 px-4 py-6 overflow-hidden">
         {profileImgUrl ? (

@@ -1,7 +1,8 @@
 import { SitterStatus, UserStatus } from "@/constants/status";
+import { PetFormValues } from "./pet";
 
 export interface OwnerItem {
-  id: string;
+  readonly id: string;
   name: string;
   phone: string;
   profileImgUrl: string | null;
@@ -26,8 +27,20 @@ export interface GetOwnerListParams {
   status?: UserStatus;
 }
 
+export interface OwnerProfileResponse {
+  readonly id: string;
+  name: string;
+  phone: string;
+  profileImgUrl?: string;
+  idNumber?: string;
+  dateOfBirth?: string;
+  email: string;
+  status: UserStatus;
+  pets: PetFormValues[];
+}
+
 export interface SitterItem {
-  id: string;
+  readonly id: string;
   sitter: Pick<OwnerItem, "name" | "profileImgUrl" | "email" | "status">;
   tradeName: string;
   status: SitterStatus;
@@ -47,4 +60,31 @@ export interface GetSitterListParams {
   limit: number;
   keyword?: string;
   status?: SitterStatus | Extract<UserStatus, "Banned">;
+}
+
+export interface SitterProfileResponse {
+  readonly id: number;
+  sitter: {
+    name: string;
+    phone: string;
+    profileImgUrl?: string;
+    idNumber?: string;
+    dateOfBirth?: string;
+    email: string;
+    status: UserStatus;
+  };
+  imgUrls: string[];
+  tradeName?: string;
+  experience?: number;
+  petTypes: string[];
+  introduction?: string;
+  services?: string;
+  description?: string;
+  address?: string;
+  latitude?: number;
+  province?: string;
+  district?: string;
+  subDistrict?: string;
+  postCode?: number;
+  status: string;
 }

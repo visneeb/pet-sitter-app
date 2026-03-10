@@ -7,6 +7,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import cn from "@/utils/cn";
 import { Filter, Search } from "lucide-react";
 import { userStatusVariant } from "@/constants/status";
+import { useRouter } from "next/navigation";
 
 export default function PetOwnerPage() {
   const {
@@ -22,6 +23,7 @@ export default function PetOwnerPage() {
     handleStatusChange,
     setPage,
   } = useOwnerList();
+  const router = useRouter();
 
   return (
     <section className="flex flex-col gap-6 min-h-[calc(100vh-40px)] px-4 pt-10 pb-20 md:px-10 lg:p-0">
@@ -113,6 +115,7 @@ export default function PetOwnerPage() {
               key={owner.id}
               owner={owner}
               isLast={index + 1 === array.length}
+              onClick={() => router.push(`/admin/pet-owner/${owner.id}`)}
             />
           ))}
         </ul>

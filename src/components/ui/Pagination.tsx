@@ -2,7 +2,6 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@/assets/icons/components";
 import { usePagination } from "@/hooks/usePagination";
 import cn from "@/utils/cn";
-import cn from "@/utils/cn";
 
 interface PaginationProps {
   /** จำนวนหน้าทั้งหมด (มักได้จาก API response) - default 100 สำหรับ demo */
@@ -12,14 +11,12 @@ interface PaginationProps {
   /** Controlled: callback เมื่อเปลี่ยนหน้า - ให้ parent fetch ข้อมูลใหม่ */
   onPageChange?: (page: number) => void;
   className?: string;
-  className?: string;
 }
 
 export const Pagination = ({
   totalPages,
   currentPage,
   onPageChange,
-  className,
   className,
 }: PaginationProps) => {
   const {

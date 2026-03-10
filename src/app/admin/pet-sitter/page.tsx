@@ -7,6 +7,7 @@ import { sitterStatusVariant, userStatusVariant } from "@/constants/status";
 import { useSitterList } from "@/hooks/admin/useSitterList";
 import cn from "@/utils/cn";
 import { Filter, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function PetOwnerPage() {
   const {
@@ -22,6 +23,7 @@ export default function PetOwnerPage() {
     handleStatusChange,
     setPage,
   } = useSitterList();
+  const router = useRouter();
 
   return (
     <section className="flex flex-col gap-6 min-h-[calc(100vh-40px)] px-4 pt-10 pb-20 md:px-10 lg:p-0">
@@ -136,6 +138,7 @@ export default function PetOwnerPage() {
               key={sitter.id}
               sitter={sitter}
               isLast={index + 1 === array.length}
+              onClick={() => router.push(`/admin/pet-sitter/${sitter.id}`)}
             />
           ))}
         </ul>

@@ -49,7 +49,7 @@ export function useLoginForm(isAdmin: boolean = false) {
       case "sitter":
         return "/petsitter-profile";
       case "admin":
-        return "/admin";
+        return "/admin/pet-owner";
       default:
         return "/";
     }
@@ -61,7 +61,6 @@ export function useLoginForm(isAdmin: boolean = false) {
 
     try {
       const response = await authApi.login(data);
-      
 
       const token = response.accessToken;
 
@@ -69,17 +68,24 @@ export function useLoginForm(isAdmin: boolean = false) {
         setServerError("Login succeeded but session could not be established.");
         return;
       }
-      // Save token to localStorage
-      if (token) {
-        localStorage.setItem("accessToken", token);
+
+      // ✅ เก็บ token หลัง login สำเร็จ
+      localStorage.setItem("accessToken", token);
+
+      // ✅ ดึง current user จริงจาก AuthContext
+      const currentUser = await refreshUser();
+
+      // ✅ ถ้า profile โหลดไม่ได้ ให้หยุดก่อน
+      if (!currentUser) {
+        setServerError(
+          "Login succeeded, but user profile could not be loaded.",
+        );
+        return;
       }
 
-      const refreshedUser = await refreshUser();
-
-      // Check if the user is an admin
       if (isAdmin) {
         // Check if the user is an admin
-        if (refreshedUser?.role !== "admin") {
+        if (currentUser?.role !== "admin") {
           localStorage.removeItem("accessToken");
           throw new Error("You are not authorized to access this page");
         }
@@ -88,10 +94,10 @@ export function useLoginForm(isAdmin: boolean = false) {
         setTimeout(() => router.push("/admin/pet-owner"), 800);
       } else {
         setServerSuccess("Login successful. Redirecting...");
-  
-      // ✅ redirect ตาม role จริงของ app
-      const redirectPath = getRedirectPathByRole(currentUser.role);
-        router.push(redirectPath);
+
+        // ✅ redirect ตาม role จริงของ app
+        const redirectPath = getRedirectPathByRole(currentUser.role);
+        setTimeout(() => router.push(redirectPath), 800);
       }
     } catch (err: unknown) {
       const e = err as AxiosLikeError;
