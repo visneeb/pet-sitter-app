@@ -1,4 +1,3 @@
-
 "use client";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/assets/icons/components";
 import { usePagination } from "@/hooks/usePagination";
@@ -15,7 +14,7 @@ interface PaginationProps {
 }
 
 export const Pagination = ({
-  totalPages ,
+  totalPages,
   currentPage,
   onPageChange,
   className,
@@ -32,7 +31,9 @@ export const Pagination = ({
   });
 
   return (
-    <div className={cn("w-full flex justify-center pt-6 pb-[196px]",className)}>
+    <div
+      className={cn("w-full flex justify-center pt-6 pb-[196px]", className)}
+    >
       <div className="flex justify-center items-center gap-2 ">
         <button
           onClick={() => handlePageClick(page - 1)}
@@ -59,7 +60,11 @@ export const Pagination = ({
               key={item}
               onClick={() => handlePageClick(item)}
               className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-[16px] hover:bg-gray-100 hover:cursor-pointer transition-all duration-300
-                ${page === item ? "bg-orange-100 text-orange-600 hover:bg-orange-100 disabled:cursor-default" : "bg-white text-gray-300 hover:bg-gray-100"}
+                ${
+                  page === item
+                    ? "bg-orange-100 text-orange-600 hover:bg-orange-100 disabled:cursor-default"
+                    : "bg-white text-gray-300 hover:bg-gray-100"
+                }
                 `}
             >
               {item}

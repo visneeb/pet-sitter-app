@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import type { PetFormValues } from "@/types/pet";
 import {

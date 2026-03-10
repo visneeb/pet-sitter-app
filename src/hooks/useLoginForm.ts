@@ -9,7 +9,15 @@ import { LoginFormValues } from "@/types/authType";
 import { authApi } from "@/services/api/auth";
 import { useAuth } from "@/contexts/AuthContext";
 
-export function useLoginForm() {
+type AxiosLikeError = {
+  message?: string;
+  response?: {
+    status?: number;
+    data?: any;
+  };
+};
+
+export function useLoginForm(isAdmin: boolean = false) {
   const router = useRouter();
   const { refreshUser } = useAuth();
 
@@ -41,7 +49,7 @@ export function useLoginForm() {
       case "sitter":
         return "/petsitter-profile";
       case "admin":
-        return "/admin";
+        return "/admin/pet-owner";
       default:
         return "/";
     }
@@ -53,7 +61,6 @@ export function useLoginForm() {
 
     try {
       const response = await authApi.login(data);
-      
 
       const token = response.accessToken;
 
@@ -67,21 +74,34 @@ export function useLoginForm() {
 
       // ✅ ดึง current user จริงจาก AuthContext
       const currentUser = await refreshUser();
-      
 
       // ✅ ถ้า profile โหลดไม่ได้ ให้หยุดก่อน
       if (!currentUser) {
-        setServerError("Login succeeded, but user profile could not be loaded.");
+        setServerError(
+          "Login succeeded, but user profile could not be loaded.",
+        );
         return;
       }
 
-      setServerSuccess("Login successful. Redirecting...");
+      if (isAdmin) {
+        // Check if the user is an admin
+        if (currentUser?.role !== "admin") {
+          localStorage.removeItem("accessToken");
+          throw new Error("You are not authorized to access this page");
+        }
 
-      // ✅ redirect ตาม role จริงของ app
-      const redirectPath = getRedirectPathByRole(currentUser.role);
-      router.push(redirectPath);
-    } catch (err: any) {
-      const message = err.message || "Invalid email or password";
+        setServerSuccess("Login successful. Redirecting...");
+        setTimeout(() => router.push("/admin/pet-owner"), 800);
+      } else {
+        setServerSuccess("Login successful. Redirecting...");
+
+        // ✅ redirect ตาม role จริงของ app
+        const redirectPath = getRedirectPathByRole(currentUser.role);
+        setTimeout(() => router.push(redirectPath), 800);
+      }
+    } catch (err: unknown) {
+      const e = err as AxiosLikeError;
+      const message = e.message || "Invalid email or password";
 
       setServerError(message);
       setValue("password", "");
