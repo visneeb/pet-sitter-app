@@ -13,6 +13,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { usePetSitterDetail } from "@/hooks/pet-sitter-detail/usePetSitterDetail";
 import type { Sitter } from "@/types/sitter";
 import { ExclamationCircleIcon } from "@/assets/icons/components";
+import { useScreenContext } from "@/contexts/ScreenContext";
 
 const CAROUSEL_FALLBACK: CarouselImage[] = [
   {
@@ -104,36 +105,34 @@ export default function PetSitterDetailPage() {
   }
 
   const carouselImages = getCarouselImages(sitter);
-
+  const { isMedium } = useScreenContext();
   return (
     <>
       <div className="bg-gray-50">
-        <section className="w-full py-10 md:py-10">
+        <section className="w-full md:py-10">
           <div className="relative">
             <ImageCarousel images={carouselImages} />
           </div>
         </section>
 
-        <div className="w-full md:px-20 md:pt-0 flex flex-col md:flex-row md:flex-nowrap md:justify-center md:items-start gap-8">
+        <div className="w-full md:px-20 pt-10 md:pt-0 flex flex-col md:flex-row md:flex-nowrap md:justify-center md:items-start gap-8">
           <section className="flex flex-col gap-10">
-            <div className="flex flex-col gap-12 md:px-20 md:py-6 w-full md:max-w-[848px] md:shrink-0">
-              <h1 className="style-headline-1">{sitter.tradeName}</h1>
+            <div className="flex flex-col gap-6 md:gap-12 px-4 md:px-20 md:py-6 w-full md:max-w-[848px] md:shrink-0">
+              <h1 className="style-headline-2 md:style-headline-1">
+                {sitter.tradeName}
+              </h1>
 
               <ContentSection title="Introduction">
-                <p className="style-body-2 text-gray-500">
-                  {sitter.introduction}
-                </p>
+                <p>{sitter.introduction}</p>
               </ContentSection>
 
               <ContentSection title="Services">
-                <p className="style-body-2 text-gray-500">{sitter.services}</p>
+                <p>{sitter.services}</p>
               </ContentSection>
 
               <ContentSection title="My places">
-                <p className="style-body-2 text-gray-500">
-                  {sitter.description}
-                </p>
-                <iframe
+                <p>{sitter.description}</p>
+                {/* <iframe
                   src={MAP_EMBED_URL}
                   width="688"
                   height="219"
@@ -142,10 +141,16 @@ export default function PetSitterDetailPage() {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Pet sitter location map"
-                />
+                /> */}
               </ContentSection>
             </div>
-
+            <div className=" md:hidden md:shrink-0 md:self-stretch w-full md:w-auto">
+                <PetSitterBookingCard
+                  sitter={sitter}
+                  sitterId={sitterId ?? ""}
+                  initialOpenBooking={initialOpenBooking}
+                />
+              </div>
             <ReviewsSection
               rating={sitter.rating ?? 4.5}
               reviewCount={27}

@@ -55,7 +55,7 @@ export default function PetSitterBookingCard({
 
   return (
     <>
-    <div className="sticky top-4 flex flex-col w-full md:w-[416px] min-h-[562px] gap-6 px-6 py-10 items-center text-center bg-white rounded-2xl shadow-sm">
+    <div className="sticky top-4 flex flex-col w-full md:w-[416px] min-h-[562px] gap-6 px-6 py-10 items-center text-center bg-white md:rounded-2xl shadow-sm">
       <div
         className="bg-gray-100 rounded-full w-[160px] h-[160px] shrink-0 overflow-hidden"
         style={
@@ -65,8 +65,8 @@ export default function PetSitterBookingCard({
         }
       />
       <div className="flex flex-col gap-4 w-full items-center">
-        <h2 className="style-headline-2">{sitter.tradeName ?? "—"}</h2>
-        <h4 className="style-headline-4">
+        <h2 className="style-headline-3 md:style-headline-2">{sitter.tradeName ?? "—"}</h2>
+        <h4 className="style-body-1 md:style-headline-4">
           {sitterName}{" "}
           <span className="style-body-2 text-green-500">{experience}</span>
         </h4>
@@ -80,14 +80,14 @@ export default function PetSitterBookingCard({
             />
           ))}
         </div>
-        <div className="flex items-center gap-2">
-          <MapMarkerIcon color="#AEB1C3" size={20} />
-          <p className="style-body-2 text-gray-500">{location}</p>
+        <div className="flex items-center md:gap-2">
+        <MapMarkerIcon color="#AEB1C3" size={20} />
+          <p className="style-body-3 md:style-body-2 text-gray-500">{location}</p>
         </div>
         <TagPetType sitter={{ petTypes: sitter.petTypes ?? [] }} />
       </div>
-      <div className="flex gap-4 border-t border-gray-200 w-full pt-4">
-        <NavigationButton variant="secondary" href="/messages" className="w-full">
+      <div className="้flex flex gap-4 border-t border-gray-200 w-full pt-4">
+        <NavigationButton variant="secondary" href="/messages" className="w-full hidden md:block">
           Message
         </NavigationButton>
         <ActionButton variant="primary" onClick={handleBookNow} className="w-full">

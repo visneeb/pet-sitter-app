@@ -38,7 +38,7 @@ export default function ReviewsSection({
 
   return (
     <section className="flex flex-col gap-4 bg-gray-100 w-full px-6 py-6 rounded-tl-[120px] rounded-2xl">
-      <div className="px-6 py-6 bg-white rounded-l-full flex w-full max-w-[800px] gap-10">
+      <div className="px-6 py-6 bg-white rounded-xl rounded-tl-[99px] md:rounded-l-full flex flex-col md:flex-row w-full max-w-[800px] gap-10 md:items-center ">
         <div className="flex flex-col bg-black rounded-t-full rounded-l-full w-[146px] h-[146px] items-center justify-center shrink-0">
           <h2 className="style-headline-2 text-white text-center">{rating}</h2>
           <p className="style-body-3 text-white">{reviewCount} Reviews</p>

@@ -80,7 +80,7 @@ export default function ImageCarousel({
   };
 
   const navButtonClass =
-    "pointer-events-auto flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:bg-white";
+    "pointer-events-auto flex h-14 w-14 md:h-12 md:w-12 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:bg-white";
 
   return (
     <div className="relative flex w-full flex-col gap-6">
@@ -104,7 +104,7 @@ export default function ImageCarousel({
           {mobileSlides.map((image, index) => (
             <div
               key={`${image.src}-mobile-${index}`}
-              className="relative aspect-4/3 w-full shrink-0 overflow-hidden rounded-2xl bg-gray-100 shadow-sm"
+              className="relative aspect-4/3 w-full shrink-0 overflow-hidden  bg-gray-100 shadow-sm"
             >
               <Image
                 src={image.src}
@@ -117,14 +117,14 @@ export default function ImageCarousel({
             </div>
           ))}
         </div>
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-4">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-4 opacity-50">
           <button
             type="button"
             onClick={goPrev}
             aria-label="Previous image"
             className={navButtonClass}
           >
-            <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 text-gray-700" />
+            <ChevronLeft className="h-10 w-10 md:h-6 md:w-6 text-gray-700" />
           </button>
           <button
             type="button"
@@ -132,7 +132,7 @@ export default function ImageCarousel({
             aria-label="Next image"
             className={navButtonClass}
           >
-            <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-gray-700" />
+            <ChevronRight className="h-10 w-10 md:h-6 md:w-6 text-gray-700" />
           </button>
         </div>
       </div>
