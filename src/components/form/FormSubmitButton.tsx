@@ -2,7 +2,7 @@
 
 import { useFormState } from "react-hook-form";
 import { ActionButton } from "../ui/Button";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 
 type Props = {
   children: React.ReactNode;
@@ -26,8 +26,12 @@ export function SubmitButton({
   extraDirty = false,
 }: Props) {
   const { isValid, isDirty, isSubmitting, isValidating } = useFormState();
+  const [buttonState, setButtonState] = useState({
+    loading: false,
+    disabled: false,
+  });
 
-  const buttonState = useMemo(() => {
+  useEffect(() => {
     const loading = isLoading || isSubmitting;
     const effectiveDirty = isDirty || extraDirty;
 
@@ -38,7 +42,7 @@ export function SubmitButton({
       (requireValid && !isValid) ||
       (requireDirty && !effectiveDirty);
 
-    return { loading, disabled };
+    setButtonState({ loading, disabled });
   }, [
     isLoading,
     isSubmitting,

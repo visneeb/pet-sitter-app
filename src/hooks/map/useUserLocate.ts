@@ -14,7 +14,7 @@ export default function useUserLocate() {
 
   const handleLocate = () => {
     if (!navigator.geolocation) {
-      setErrorMessage(["เบราว์เซอร์นี้ไม่รองรับ Geolocation"]);
+      setErrorMessage(["This bronwser does not support Geolocation"]);
       return;
     }
 
@@ -33,7 +33,7 @@ export default function useUserLocate() {
         setLoading(false);
       },
       (err) => {
-        setErrorMessage(["ไม่สามารถขอตำแหน่งได้: " + err.message]);
+        setErrorMessage(["Could not get your location: " + err.message]);
         setLoading(false);
       },
       { enableHighAccuracy: true, timeout: 10000 },

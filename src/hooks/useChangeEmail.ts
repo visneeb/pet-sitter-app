@@ -46,8 +46,6 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
   } = methods;
 
   const onSubmit = async (data: ConfirmPasswordValues) => {
-    console.log("Submitting password confirmation:", data);
-
     if (!data.password.trim()) {
       setError("password", {
         type: "required",
@@ -68,9 +66,6 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
         return;
       }
 
-      console.log("Current user:", currentUser);
-      console.log("Updating email from:", currentUser.email, "to:", newEmail);
-
       // Update email using backend API
       const formData = localBuildFormData({
         name: currentUser.name,
@@ -81,9 +76,6 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
 
       const result = await userApi.updateProfile(formData);
 
-      console.log("Email update response:", result);
-
-      console.log("Email update successful");
       methods.reset();
       setTimeout(() => {
         setIsSuccess(true);

@@ -82,7 +82,7 @@ export default function useZipSearch() {
 
         if (data.length === 0) {
           setStatus("error");
-          setErrorMsg("ไม่พบรหัสไปรษณีย์นี้");
+          setErrorMsg("Not found this postal code");
           return;
         }
 
@@ -100,7 +100,7 @@ export default function useZipSearch() {
         map.flyToBounds(leafletBounds, { padding: [40, 40], duration: 0.8 });
       } catch (err) {
         setStatus("error");
-        setErrorMsg("เกิดข้อผิดพลาด กรุณาลองใหม่");
+        setErrorMsg("An error occurred. Please try again.");
         console.error("[useZipSearch]", err);
       }
     },

@@ -36,13 +36,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // ✅ Read role from cookie instead of JWT
   const role = request.cookies.get("userRole")?.value;
-
-  console.log("📍 pathname:", pathname);
-  console.log("🎭 role:", role);
-  console.log("🔒 isSitterRoute:", isSitterRoute);
-  console.log("🔒 isOwnerRoute:", isOwnerRoute);
 
   if (isOwnerRoute && role !== "owner") {
     return NextResponse.redirect(new URL("/petsitter-profile", request.url));

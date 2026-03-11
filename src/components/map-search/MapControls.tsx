@@ -20,7 +20,7 @@ export default function MapControls() {
       )}
 
       {/* Button Controls */}
-      <div className="absolute top-4 right-4 z-[1000] flex flex-row gap-[8px] pointer-events-none">
+      <div className="absolute top-4 right-4 z-1000 flex flex-row gap-2 pointer-events-none">
         <ButtonLocate loading={loading} handleLocate={handleLocate} />
         <ButtonZoomIn />
         <ButtonZoomOut />

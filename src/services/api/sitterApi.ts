@@ -92,21 +92,52 @@ export interface PetSitterDetail {
   province: string | null;
   district: string | null;
   subDistrict: string | null;
-  status: string;
+  postCode: number | null;
+  status?: string;
+  provinceId?: number | null;
+  districtId?: number | null;
+  subDistrictId?: number | null;
 }
 
 export async function getPetSitterById(
   sitterId: string,
+  options?: { onlyApproved?: boolean },
 ): Promise<{ data?: PetSitterDetail; error?: string }> {
   try {
-    const res = await publicApi.get<PetSitterDetail>(`/pet-sitter/${sitterId}`);
+    const params = new URLSearchParams();
+    if (options?.onlyApproved === false) {
+      params.set("onlyApproved", "false");
+    }
+    const queryString = params.toString();
+    const res = await privateApi.get<PetSitterDetail>(
+      `/pet-sitter/${sitterId}${queryString ? `?${queryString}` : ""}`,
+    );
     return { data: res.data };
   } catch (err: any) {
     return {
       error:
+        err.response?.data?.error ??
         err.response?.data?.message ??
         err.message ??
         "Failed to fetch pet sitter",
+    };
+  }
+}
+
+export async function getCurrentSitter(): Promise<{
+  data?: PetSitterDetail;
+  error?: string;
+}> {
+  try {
+    const res = await privateApi.get<PetSitterDetail>("/pet-sitter/profile");
+    return { data: res.data };
+  } catch (err: any) {
+    return {
+      error:
+        err.response?.data?.error ??
+        err.response?.data?.message ??
+        err.message ??
+        "Failed to fetch current sitter profile",
     };
   }
 }
@@ -169,7 +200,7 @@ export async function updatePetSitterProfile(
     images?.forEach((img) => formData.append("images", img));
 
     const res = await privateApi.put<{ message: string }>(
-      `/pet-sitter/${sitterId}`,
+      `/pet-sitter/profile`,
       formData,
     );
 
