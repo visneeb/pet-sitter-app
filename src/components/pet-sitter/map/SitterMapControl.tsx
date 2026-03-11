@@ -153,7 +153,6 @@ export default function MapControls({
     if (isForwardGeocoding.current) return; // forwardGeocode already handled pin + flyTo
 
     const pos: [number, number] = [latitude, longitude];
-    console.log(`📍 Form → Map: updating external pin`, pos);
     setExternalPinPosition(pos);
     map.flyTo(pos, 15, { animate: true, duration: 1 });
   }, [latitude, longitude]);
@@ -304,13 +303,6 @@ export default function MapControls({
     const provinceName = extract(addressDetails, "state");
     const districtName = extract(addressDetails, "district");
     const subDistrictName = extract(addressDetails, "subdistrict");
-
-    console.log("🔍 Nominatim raw fields:", {
-      provinceName,
-      districtName,
-      subDistrictName,
-      addressDetails,
-    });
 
     // Build province candidates — try extracted field first, then all values
     const provinceCandidates: string[] = [];

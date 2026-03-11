@@ -69,7 +69,6 @@ export default function useReverseGeo({
         // data.address       → structured breakdown (requires addressdetails=1)
         setAddress(data.display_name ?? null);
         setAddressDetails(data.address ?? null);
-
       } catch (err: any) {
         if (err.name === "AbortError") return;
         console.error("Reverse geocode failed:", err);
