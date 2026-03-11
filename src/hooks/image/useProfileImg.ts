@@ -21,7 +21,6 @@ export function useProfileImg() {
       const response = await userApi.getCurrentUser();
       setProfile(response);
     } catch (error) {
-      console.log(error);
       setError("Failed to fetch profile image");
     } finally {
       setLoading(false);

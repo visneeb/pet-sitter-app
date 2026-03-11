@@ -18,6 +18,7 @@ import { ActionButton } from "../ui/Button";
 import Section from "@/components/form/FormSection";
 import ProfileContainer from "@/components/profile/ProfileContainer";
 import cn from "@/utils/cn";
+import SitterProfileMap from "./map/SitterProfileMap";
 
 export default function ProfileEdit() {
   const {
@@ -50,9 +51,10 @@ export default function ProfileEdit() {
     removeExistingImage,
     reorderExistingImages,
     imagesChanged,
+    setExternalUpdate,
+    setDistricts,
+    setSubDistricts,
   } = usePetSitterForm();
-
-  const postalCode = sitterMethods.watch("postalCode");
 
   const petTypeOptions = petTypes.map((pet) => ({
     value: pet.id,
@@ -206,6 +208,7 @@ export default function ProfileEdit() {
                   name="introduction"
                   label="Introduction"
                   placeholder="Describe yourself as a pet sitter"
+                  required
                 />
                 <Textarea
                   rows={6}
@@ -296,13 +299,19 @@ export default function ProfileEdit() {
                   <Input
                     label="Postal Code"
                     name="postalCode"
-                    value={postalCode || ""}
                     placeholder="Enter postal code"
                     required
                   />
-
-                  <></>
                 </div>
+                <SitterProfileMap
+                  sitterMethods={sitterMethods}
+                  provinces={provinces}
+                  districts={districts}
+                  subDistricts={subDistricts}
+                  setExternalUpdate={setExternalUpdate}
+                  setDistricts={setDistricts}
+                  setSubDistricts={setSubDistricts}
+                />
               </Section>
             </div>
           </ProfileContainer>

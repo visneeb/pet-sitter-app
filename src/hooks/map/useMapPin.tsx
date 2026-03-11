@@ -6,16 +6,24 @@ export default function useMapPin() {
 
   useMapEvents({
     click(e) {
-      // ป้องกันการปักหมุดเมื่อ click มาจากปุ่มหรือ UI element อื่นๆ บนแผนที่
+      // Ignore clicks that originate from buttons or other UI elements on the map
       const target = e.originalEvent.target as HTMLElement;
-      if (target.closest("button, a, input, [role='button']")) return;
+      if (target.closest("button, a, input, [role='button']")) {
+        return;
+      }
 
       const { lat, lng } = e.latlng;
       setPinPosition([lat, lng]);
     },
   });
 
-  const clearPin = () => setPinPosition(null);
+  const setPin = (position: [number, number] | null) => {
+    setPinPosition(position);
+  };
 
-  return { pinPosition, clearPin };
+  const clearPin = () => {
+    setPinPosition(null);
+  };
+
+  return { pinPosition, setPin, clearPin };
 }

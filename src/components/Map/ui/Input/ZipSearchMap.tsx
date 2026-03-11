@@ -96,7 +96,7 @@ export default function ZipSearchMap() {
             type="text"
             inputMode="numeric"
             maxLength={5}
-            placeholder="รหัสไปรษณีย์ไทย…"
+            placeholder="Postal Code"
             value={inputValue}
             onChange={(e) =>
               setInputValue(e.target.value.replaceAll(/\D/g, "").slice(0, 5))

@@ -1,162 +1,90 @@
+// src/hooks/map/useReverseGeo.ts
 import { useState, useEffect, useRef } from "react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface ReverseGeoProps {
-  lat: number | undefined;
-  lon: number | undefined;
-}
-
-/** Structured address breakdown returned by Nominatim */
-interface NominatimAddress {
-  road?: string;
-  suburb?: string;
-  city?: string;
-  state?: string;
-  postcode?: string;
-  country?: string;
-  country_code?: string;
-}
-
 interface ReverseGeoResult {
-  address: string;
-  addressDetails: NominatimAddress | null;
+  address: string | null;
+  addressDetails: Record<string, string> | null;
   loading: boolean;
   error: string | null;
 }
 
-/** Partial shape of the Nominatim API response we care about */
-interface NominatimResponse {
-  display_name: string;
-  address: NominatimAddress;
+interface UseReverseGeoParams {
+  lat?: number;
+  lon?: number;
+  debounceMs?: number;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/reverse";
-
-/**
- * Rate limit: Nominatim usage policy requires max 1 request/second.
- * We debounce the hook so it waits this long after the last coordinate
- * change before firing a real HTTP request.
- */
-const DEBOUNCE_DELAY_MS = 1000;
-
-/**
- * Precision (decimal places) used when building cache keys.
- * 5 decimal places ≈ 1 metre accuracy — good enough to share cache hits
- * across nearly-identical coordinates while not losing meaningful location detail.
- */
-const CACHE_PRECISION = 5;
-
-// ─── Module-level cache (survives re-renders, cleared on page reload) ─────────
-
-const geoCache = new Map<string, string>();
-
-function getCacheKey(lat: number, lon: number): string {
-  return `${lat.toFixed(CACHE_PRECISION)},${lon.toFixed(CACHE_PRECISION)}`;
-}
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
-
-/**
- * useReverseGeo
- *
- * Converts a lat/lon pair into a human-readable address using the
- * free Nominatim API. Includes:
- *   - Guard: skips fetch when coordinates are not yet defined
- *   - Debounce: waits DEBOUNCE_DELAY_MS after the last change before fetching
- *     (respects Nominatim's 1 req/s rate limit)
- *   - Abort Controller: cancels in-flight requests when coordinates change
- *     or the component unmounts (prevents stale-state race conditions)
- *   - In-memory cache: avoids re-fetching coordinates already resolved
- */
 export default function useReverseGeo({
   lat,
   lon,
-}: ReverseGeoProps): ReverseGeoResult {
-  const [address, setAddress] = useState<string>("");
-  const [addressDetails, setAddressDetails] = useState<NominatimAddress | null>(
-    null,
-  );
-  const [loading, setLoading] = useState<boolean>(false);
+  debounceMs = 1000,
+}: UseReverseGeoParams): ReverseGeoResult {
+  const [address, setAddress] = useState<string | null>(null);
+  const [addressDetails, setAddressDetails] = useState<Record<
+    string,
+    string
+  > | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortController = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    // Guard: skip when coordinates are not yet available
     if (lat === undefined || lon === undefined) return;
 
-    // Cache hit: return immediately without a network round-trip
-    const cacheKey = getCacheKey(lat, lon);
-    const cached = geoCache.get(cacheKey);
-    if (cached !== undefined) {
-      setAddress(cached);
-      setError(null);
-      return;
-    }
+    // Debounce — wait before hitting Nominatim
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
-    // Clear any pending debounce timer from a previous render
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    // Debounce: only fire after the user stops moving the pin for 1 second
-    debounceTimerRef.current = setTimeout(async () => {
-      // Cancel any previous in-flight request to avoid race conditions
-      abortControllerRef.current?.abort();
-      abortControllerRef.current = new AbortController();
+    debounceTimer.current = setTimeout(async () => {
+      // Cancel any in-flight request
+      abortController.current?.abort();
+      abortController.current = new AbortController();
 
       setLoading(true);
       setError(null);
 
       try {
-        const url = `${NOMINATIM_BASE_URL}?lat=${lat}&lon=${lon}&format=json`;
-        const response = await fetch(url, {
-          signal: abortControllerRef.current.signal,
-          headers: {
-            // Nominatim requires a descriptive User-Agent per their usage policy
-            "User-Agent": "PetSitterApp/1.0",
-            "Accept-Language": "th,en",
-          },
+        // KEY FIX: addressdetails=1 returns data.address object
+        // Without this param Nominatim only returns display_name (the formatted
+        // string) and omits the structured address breakdown entirely.
+        const url =
+          `https://nominatim.openstreetmap.org/reverse` +
+          `?format=json` +
+          `&lat=${lat}` +
+          `&lon=${lon}` +
+          `&addressdetails=1` +
+          `&accept-language=en,th`;
+
+        const res = await fetch(url, {
+          headers: { "User-Agent": "PetSitterApp/1.0" },
+          signal: abortController.current.signal,
         });
 
-        if (!response.ok) {
-          throw new Error(
-            `Geocoding failed: ${response.status} ${response.statusText}`,
-          );
-        }
+        if (!res.ok) throw new Error(`Nominatim error: ${res.status}`);
 
-        const data: NominatimResponse = await response.json();
-        const resolvedAddress = data.display_name;
-        const resolvedAddressDetails = data.address;
+        const data = await res.json();
 
-        // Store result in cache for future lookups
-        geoCache.set(cacheKey, resolvedAddress);
-        setAddress(resolvedAddress);
-        setAddressDetails(resolvedAddressDetails);
-      } catch (err) {
-        // AbortError is expected when the request is intentionally cancelled
-        if (err instanceof DOMException && err.name === "AbortError") return;
+        // data.display_name  → formatted address string
+        // data.address       → structured breakdown (requires addressdetails=1)
+        setAddress(data.display_name ?? null);
+        setAddressDetails(data.address ?? null);
 
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred",
-        );
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
+        console.error("Reverse geocode failed:", err);
+        setError(err.message ?? "Reverse geocode failed");
+        setAddress(null);
+        setAddressDetails(null);
       } finally {
         setLoading(false);
       }
-    }, DEBOUNCE_DELAY_MS);
+    }, debounceMs);
 
-    // Cleanup: cancel debounce timer and any in-flight request
     return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      abortControllerRef.current?.abort();
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
-  }, [lat, lon]);
+  }, [lat, lon, debounceMs]);
 
   return { address, addressDetails, loading, error };
 }

@@ -10,6 +10,7 @@ import { useForm, UseFormReturn, useWatch } from "react-hook-form";
 import {
   updatePetSitterProfile,
   getPetSitterById,
+  getCurrentSitter,
   PetSitterDetail,
 } from "@/services/api/sitterApi";
 import { petApi } from "@/services/api/petApi";
@@ -20,6 +21,7 @@ import {
   SubDistrict,
 } from "@/services/api/addressApi";
 import { userApi } from "@/services/api/userApi";
+import React from "react";
 
 export interface SitterProfileFormReturn {
   methods: UseFormReturn<SitterProfileFormValues>;
@@ -36,6 +38,9 @@ export interface SitterProfileFormReturn {
   removeExistingImage: (url: string) => void;
   reorderExistingImages: (urls: string[]) => void;
   imagesChanged: boolean;
+  setExternalUpdate: (isExternal: boolean) => void;
+  setDistricts: React.Dispatch<React.SetStateAction<District[]>>;
+  setSubDistricts: React.Dispatch<React.SetStateAction<SubDistrict[]>>;
 }
 
 const statusConfig: Record<
@@ -43,11 +48,6 @@ const statusConfig: Record<
   { text: string; bg: string; label: string }
 > = {
   "Waiting for approval": {
-    text: "text-pink-500",
-    bg: "bg-pink-500",
-    label: "Waiting for approval",
-  },
-  PENDING: {
     text: "text-pink-500",
     bg: "bg-pink-500",
     label: "Waiting for approval",
@@ -99,9 +99,12 @@ export function usePetSitterForm(): SitterProfileFormReturn {
   const [imagesChanged, setImagesChanged] = useState(false);
   const [sitterData, setSitterData] = useState<PetSitterDetail | null>(null);
 
-  // Tracks whether we're currently populating from server data
-  // to prevent the provinceId watcher from resetting districts
+
   const isPopulating = useRef(false);
+  const isExternalUpdate = useRef(false);
+   const setExternalUpdate = useCallback((isExternal: boolean) => {
+    isExternalUpdate.current = isExternal;
+  }, []);
 
   const removeExistingImage = useCallback((url: string) => {
     setExistingImages((prev) => prev.filter((img) => img !== url));
@@ -117,98 +120,29 @@ export function usePetSitterForm(): SitterProfileFormReturn {
   useEffect(() => {
     const loadSitterProfile = async () => {
       try {
-        const currentUser = await userApi.getCurrentUser();
-        const id = currentUser.sitterId;
-        if (!id) return;
-
-        setSitterId(Number(id));
-
-        const { data, error } = await getPetSitterById(String(id));
+        const { data, error } = await getCurrentSitter();
         if (error || !data) return;
 
-        // Check if backend is now returning status
-        console.log("Backend status check:", data.status);
-        console.log("Status field exists:", "status" in data);
-
-        // Backend is not returning status field, use fallback
-        if (!("status" in data) || data.status === undefined) {
-          (data as any).status = "Waiting for approval";
-          console.log("Using fallback status");
-        } else {
-          console.log("Using backend status:", data.status);
-        }
-
+        setSitterId(data.id);
         setSitterData(data);
-        setStatus((data as any).status ?? null);
+        setStatus(data.status || "Waiting for approval");
         setExistingImages(data.imgUrls || []);
 
-        // Use setTimeout to ensure this runs after all initial renders
-        setTimeout(() => {
-          isPopulating.current = true;
+        methods.setValue("experience", data.experience ?? 0, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("tradeName", data.tradeName ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("introduction", data.introduction ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("services", data.services ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("description", data.description ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        // Split DB address into free-text prefix and structured suffix.
+        // DB stores: "75/85, moo 6, Sao Thong Hin, Bang Yai, Nonthaburi"
+        // We extract everything BEFORE the sub-district name as the user's custom detail.
+        // If no sub-district is known yet, we store the whole string and refine later.
+        methods.setValue("address", data.address ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
 
-          const experience = data.experience ?? 0;
-          const tradeName = data.tradeName ?? "";
-          const introduction = data.introduction ?? "";
-          const services = data.services ?? "";
-          const description = data.description ?? "";
-          const address = data.address ?? "";
-          const latitude = data.latitude ?? 0;
-          const longitude = data.longitude ?? 0;
-          const status = data.status ?? "";
-
-          methods.setValue("experience", experience, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("tradeName", tradeName, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("introduction", introduction, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("services", services, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("description", description, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("address", address, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("latitude", latitude, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("longitude", longitude, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("status", status, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-          methods.setValue("images", [], {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
-
-          isPopulating.current = false;
-        }, 100);
+        methods.setValue("latitude", data.latitude ?? 0, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("longitude", data.longitude ?? 0, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("status", data.status ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("images", [], { shouldDirty: false, shouldTouch: false, shouldValidate: false });
       } catch (err) {
         console.error("Failed to load sitter profile:", err);
       }
@@ -217,7 +151,57 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     loadSitterProfile();
   }, []);
 
-  // Step 2: resolve petType IDs once petTypes list is loaded
+  // Reusable: populate address dropdowns from a PetSitterDetail object.
+  // Called on initial load AND after every successful save so the UI always
+  // reflects what is actually stored in the database.
+  const populateAddressFields = useCallback(async (data: PetSitterDetail) => {
+    if (provinces.length === 0) return;
+    isPopulating.current = true;
+    try {
+      if (!data.province) return;
+      const matchedProvince = provinces.find(
+        (p) => p.name.toLowerCase() === data.province!.toLowerCase(),
+      );
+      if (!matchedProvince) return;
+      methods.setValue("provinceId", matchedProvince.provinceId, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+
+      const fetchedDistricts = await addressApi.getDistrictsByProvince(matchedProvince.provinceId);
+      setDistricts(fetchedDistricts);
+      if (!data.district || fetchedDistricts.length === 0) return;
+
+      const matchedDistrict = fetchedDistricts.find(
+        (d) => d.name.toLowerCase() === data.district!.toLowerCase(),
+      );
+      if (!matchedDistrict) return;
+      methods.setValue("districtId", matchedDistrict.districtId, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+
+      const fetchedSubDistricts = await addressApi.getSubDistrictsByDistrict(matchedDistrict.districtId);
+      setSubDistricts(fetchedSubDistricts);
+      if (!data.subDistrict || fetchedSubDistricts.length === 0) return;
+
+      const matchedSubDistrict = fetchedSubDistricts.find(
+        (sd) => sd.name.toLowerCase() === data.subDistrict!.toLowerCase(),
+      );
+      if (!matchedSubDistrict) return;
+      methods.setValue("subDistrictId", matchedSubDistrict.subDistrictId, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+      methods.setValue(
+        "postalCode",
+        String(data.postCode || matchedSubDistrict.postCode || ""),
+        { shouldDirty: false, shouldTouch: false, shouldValidate: false },
+      );
+
+    } finally {
+      setTimeout(() => { isPopulating.current = false; }, 0);
+    }
+  }, [provinces, methods]);
+
+  // populate address dropdowns once provinces are loaded
+  useEffect(() => {
+    if (!sitterData || provinces.length === 0) return;
+    populateAddressFields(sitterData);
+  }, [sitterData, provinces]);
+
+  // resolve petType IDs once petTypes list is loaded
   useEffect(() => {
     if (!sitterData || petTypes.length === 0) return;
 
@@ -229,73 +213,21 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     methods.setValue("petTypeIds", petTypeIds);
   }, [sitterData, petTypes]);
 
-  // Step 3: resolve province/district/subDistrict once provinces list is loaded
   useEffect(() => {
-    if (!sitterData || provinces.length === 0) return;
-
-    const resolveAddress = async () => {
-      const province = provinces.find((p) => p.name === sitterData.province);
-      if (!province) return;
-
-      isPopulating.current = true;
-      methods.setValue("provinceId", province.provinceId);
-
-      const fetchedDistricts = await addressApi.getDistrictsByProvince(
-        province.provinceId,
-      );
-      setDistricts(fetchedDistricts);
-
-      const district = fetchedDistricts.find(
-        (d) => d.name === sitterData.district,
-      );
-      if (district) {
-        methods.setValue("districtId", district.districtId);
-
-        const fetchedSubDistricts = await addressApi.getSubDistrictsByDistrict(
-          district.districtId,
-        );
-        setSubDistricts(fetchedSubDistricts);
-
-        const subDistrict = fetchedSubDistricts.find(
-          (sd) => sd.name === sitterData.subDistrict,
-        );
-        if (subDistrict) {
-          methods.setValue("subDistrictId", subDistrict.subDistrictId);
-          methods.setValue("postalCode", String(subDistrict.postCode));
-        }
-      }
-
-      isPopulating.current = false;
-    };
-
-    resolveAddress();
-  }, [sitterData, provinces]);
-
-  // Load petTypes and provinces
-  useEffect(() => {
-    petApi
-      .getTypes()
-      .then((data) => setPetTypes(data))
-      .catch(() => setPetTypes([]));
+    petApi.getTypes().then((data) => setPetTypes(data)).catch(() => setPetTypes([]));
   }, []);
 
   useEffect(() => {
-    addressApi
-      .getProvinces()
-      .then((data) => setProvinces(data))
-      .catch(() => setProvinces([]));
+    addressApi.getProvinces().then((data) => setProvinces(data)).catch(() => setProvinces([]));
   }, []);
 
   const provinceId = useWatch({ control: methods.control, name: "provinceId" });
   const districtId = useWatch({ control: methods.control, name: "districtId" });
-  const subDistrictId = useWatch({
-    control: methods.control,
-    name: "subDistrictId",
-  });
+  const subDistrictId = useWatch({ control: methods.control, name: "subDistrictId" });
 
-  // Province change by user (not during population)
+  // Province change by user (not during population or external update)
   useEffect(() => {
-    if (isPopulating.current) return;
+    if (isPopulating.current || isExternalUpdate.current) return;
     if (provinceId && provinceId > 0) {
       addressApi
         .getDistrictsByProvince(provinceId)
@@ -308,9 +240,9 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     methods.setValue("subDistrictId", 0);
   }, [provinceId]);
 
-  // District change by user (not during population)
+  // District change by user (not during population or external update)
   useEffect(() => {
-    if (isPopulating.current) return;
+    if (isPopulating.current || isExternalUpdate.current) return;
     if (districtId && districtId > 0) {
       addressApi
         .getSubDistrictsByDistrict(districtId)
@@ -322,21 +254,29 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     methods.setValue("subDistrictId", 0);
   }, [districtId]);
 
-  // SubDistrict change — update postal code
+  // SubDistrict change — update postal code and address
   useEffect(() => {
-    if (isPopulating.current) return;
+    if (isPopulating.current || isExternalUpdate.current) return;
+
     if (subDistrictId && subDistrictId > 0) {
-      const selectedSubDistrict = subDistricts.find(
-        (sd) => sd.subDistrictId === subDistrictId,
-      );
-      methods.setValue(
-        "postalCode",
-        selectedSubDistrict ? String(selectedSubDistrict.postCode) : "",
-      );
+      const selectedSubDistrict = subDistricts.find((sd) => sd.subDistrictId === subDistrictId);
+
+      // Always sync postalCode when subDistrict changes — works for user dropdown
+      // selection, map pin, AND DB load (populateAddressFields also sets it explicitly
+      // so there is no conflict; last write wins and both write the same value)
+      methods.setValue("postalCode", selectedSubDistrict ? String(selectedSubDistrict.postCode) : "", {
+        shouldDirty: !isPopulating.current,
+        shouldValidate: !isPopulating.current,
+      });
+
     } else {
-      methods.setValue("postalCode", "");
+      methods.setValue("postalCode", "", {
+        shouldDirty: !isPopulating.current,
+        shouldValidate: !isPopulating.current,
+      });
     }
-  }, [subDistrictId, subDistricts]);
+
+  }, [subDistrictId, subDistricts, methods]);
 
   const onSubmit = async (data: SitterProfileFormValues) => {
     if (isUpdating) return;
@@ -355,10 +295,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     }
 
     if (!sitterId) {
-      setError("root", {
-        type: "server",
-        message: "No sitter profile found. Please contact support.",
-      });
+      setError("root", { type: "server", message: "No sitter profile found. Please contact support." });
       return;
     }
 
@@ -380,10 +317,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
           provinceId: Number(data.provinceId),
           districtId: Number(data.districtId),
           subDistrictId: Number(data.subDistrictId),
-          existingImages: existingImages.map((url, index) => ({
-            url,
-            order: index,
-          })),
+          existingImages: existingImages.map((url, index) => ({ url, order: index })),
         },
         data.images && data.images.length > 0 ? data.images : undefined,
       );
@@ -401,10 +335,39 @@ export function usePetSitterForm(): SitterProfileFormReturn {
 
       methods.setValue("images", []);
 
+      // Re-fetch from DB and re-sync ALL form fields + dropdowns
       const { data: updatedData } = await getPetSitterById(String(sitterId));
       if (updatedData) {
+        // Basic scalar fields
+        methods.setValue("experience", updatedData.experience ?? 0, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("tradeName", updatedData.tradeName ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("introduction", updatedData.introduction ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("services", updatedData.services ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("description", updatedData.description ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("address", updatedData.address ?? "", { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+
+        methods.setValue("latitude", updatedData.latitude ?? 0, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        methods.setValue("longitude", updatedData.longitude ?? 0, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+
+        // Images
         setExistingImages(updatedData.imgUrls || []);
         setImagesChanged(false);
+
+        // Address dropdowns — re-populate from fresh DB data
+        await populateAddressFields(updatedData);
+
+        // Pet types
+        if (petTypes.length > 0) {
+          const updatedPetTypeIds: number[] = [];
+          (updatedData.petTypes || []).forEach((name: string) => {
+            const pt = petTypes.find((p) => p.name === name);
+            if (pt) updatedPetTypeIds.push(pt.id);
+          });
+          methods.setValue("petTypeIds", updatedPetTypeIds, { shouldDirty: false });
+        }
+
+        // Mark form as pristine so the Save button disables again
+        methods.reset(methods.getValues(), { keepValues: true, keepDirty: false, keepDefaultValues: false });
       }
     } catch (error: any) {
       setError("root", {
@@ -435,5 +398,8 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     removeExistingImage,
     reorderExistingImages,
     imagesChanged,
+    setExternalUpdate,
+    setDistricts,
+    setSubDistricts,
   };
 }
