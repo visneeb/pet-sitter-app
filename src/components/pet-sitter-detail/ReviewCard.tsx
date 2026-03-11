@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import { Star } from "lucide-react";
+import { AVATAR_PLACEHOLDER } from "@/constants/placeholders";
 
 interface ReviewCardProps {
   reviewerName: string;
@@ -17,7 +21,10 @@ export default function ReviewCard({
   rating,
   isLast = false,
 }: ReviewCardProps) {
-  
+  const [imgError, setImgError] = useState(false);
+  const showPlaceholder = !avatarUrl || imgError;
+  const imgSrc = showPlaceholder ? AVATAR_PLACEHOLDER : avatarUrl;
+
   const renderStars = (className: string) => (
     <div className={`flex gap-[2px] ${className}`}>
       {Array.from({ length: rating }).map((_, i) => (
@@ -36,13 +43,12 @@ export default function ReviewCard({
       <div className="flex justify-between md:justify-start w-full md:w-[220px] shrink-0">
         <div className="flex gap-4">
           <div className="bg-gray-200 rounded-full w-[56px] h-[56px] shrink-0 overflow-hidden">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={reviewerName}
-                className="w-full h-full object-cover"
-              />
-            ) : null}
+            <img
+              src={imgSrc}
+              alt={reviewerName}
+              className="w-full h-full object-cover"
+              onError={() => setImgError(true)}
+            />
           </div>
           <div className="flex flex-col">
             <p className="style-body-1">{reviewerName}</p>

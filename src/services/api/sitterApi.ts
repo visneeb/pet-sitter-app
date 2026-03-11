@@ -164,6 +164,60 @@ export async function getPetSitterByUserIdSimple(
   return getPetSitterByUserId(userId);
 }
 
+// ─── Sitter Reviews ─────────────────────────────────────────────────────────
+
+export interface ReviewApi {
+  reviewer: {
+    name: string;
+    profileImgUrl?: string;
+  };
+  createdAt: string;  
+  comment: string;
+  rating: number;
+}
+
+export interface SitterReviewsParams {
+  page?: number;
+  limit?: number;
+  rating?: number;
+}
+
+export interface SitterReviewsResponse {
+  reviews: ReviewApi[];
+  totalPages: number;
+  currentPage: number;
+  totalReviews: number;
+}
+
+
+
+export async function getSitterReviewsById(
+  sitterId: string,
+  params?: SitterReviewsParams,
+): Promise<{ data?: SitterReviewsResponse; error?: string }> {
+  try {
+    const query = new URLSearchParams();
+    if (params?.page !== undefined) query.set("page", String(params.page));
+    if (params?.limit !== undefined) query.set("limit", String(params.limit));
+    if (params?.rating !== undefined)
+      query.set("rating", String(params.rating));
+
+    const qs = query.toString();
+    const res = await publicApi.get<SitterReviewsResponse>(
+      `/pet-sitter/${sitterId}/reviews${qs ? `?${qs}` : ""}`,
+    );
+
+    return { data: res.data };
+  } catch (err: any) {
+    return {
+      error:
+        err.response?.data?.message ??
+        err.message ??
+        "Failed to fetch sitter reviews",
+    };
+  }
+}
+
 export interface ExistingImage {
   url: string;
   order: number;

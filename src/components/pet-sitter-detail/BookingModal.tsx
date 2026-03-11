@@ -91,7 +91,7 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
         }
       `}</style>
       <div
-        className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 transition-opacity"
+        className="fixed inset-0 z-1000 flex items-end md:items-center justify-center bg-black/50 transition-opacity"
         onClick={handleClose}
         role="presentation"
       >

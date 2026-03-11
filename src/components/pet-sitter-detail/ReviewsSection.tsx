@@ -2,24 +2,23 @@
 
 import { useState } from "react";
 import ReviewCard from "./ReviewCard";
+import ReviewCardSkeleton from "./ReviewCardSkeleton";
 import { Pagination } from "@/components/ui/Pagination";
+import { formatReviewDate } from "@/utils/dateFormat";
 import FilterRatingList from "@/components/search/FilterSideBar/FilterRatingList";
+import { ReviewApi } from "@/services/api/sitterApi"; 
 
-export interface Review {
-  reviewerName: string;
-  date: string;
-  comment: string;
-  avatarUrl?: string;
-  rating: number;
-}
 
 interface ReviewsSectionProps {
   rating: number;
   reviewCount: number;
-  reviews: Review[];
+  reviews: ReviewApi[];
   totalPages?: number;
   currentPage?: number;
   onPageChange?: (page: number) => void;
+  ratingFilter?: number[];
+  onRatingFilterChange?: (rating: number[]) => void;
+  isLoading?: boolean;
 }
 
 export default function ReviewsSection({
@@ -29,12 +28,22 @@ export default function ReviewsSection({
   totalPages = 1,
   currentPage = 1,
   onPageChange,
+  ratingFilter: ratingFilterProp,
+  onRatingFilterChange,
+  isLoading = false,
 }: ReviewsSectionProps) {
-  const [ratingFilter, setRatingFilter] = useState<number[]>([]);
-  const filteredReviews =
-    ratingFilter.length === 0
-      ? reviews
-      : reviews.filter((r) => r.rating === ratingFilter[0]);
+  const [internalRatingFilter, setInternalRatingFilter] = useState<number[]>([]);
+
+  const isControlled = onRatingFilterChange != null;
+  const ratingFilter = isControlled ? ratingFilterProp ?? [] : internalRatingFilter;
+  const handleRatingChange = isControlled
+    ? onRatingFilterChange!
+    : setInternalRatingFilter;
+
+  const displayReviews =
+    !isControlled && ratingFilter.length > 0
+      ? reviews.filter((review) => review.rating === ratingFilter[0])
+      : reviews;
 
   return (
     <section className="flex flex-col gap-4 bg-gray-100 w-full px-6 py-6 rounded-tl-[120px] rounded-2xl">
@@ -47,7 +56,7 @@ export default function ReviewsSection({
           <div className="style-headline-3">Rating & Reviews</div>
           <FilterRatingList
             rating={ratingFilter}
-            onRatingChange={setRatingFilter}
+            onRatingChange={handleRatingChange}
             allOptionLabel="All Reviews"
             label=""
             contentStyle="flex-row flex-wrap items-center gap-2"
@@ -56,17 +65,25 @@ export default function ReviewsSection({
         </div>
       </div>
 
-      {filteredReviews.map((review, index) => (
-        <ReviewCard
-          key={`${review.reviewerName}-${index}`}
-          reviewerName={review.reviewerName}
-          date={review.date}
-          comment={review.comment}
-          avatarUrl={review.avatarUrl}
-          rating={review.rating}
-          isLast={index === filteredReviews.length - 1}
-        />
-      ))}
+      {isLoading ? (
+        <>
+          <ReviewCardSkeleton />
+          <ReviewCardSkeleton />
+          <ReviewCardSkeleton isLast />
+        </>
+      ) : (
+        displayReviews.map((review: ReviewApi, index: number) => (
+          <ReviewCard
+            key={`${review.reviewer.name}-${index}`}
+            reviewerName={review.reviewer.name}
+            date={formatReviewDate(review.createdAt)}
+            comment={review.comment}
+            avatarUrl={review.reviewer.profileImgUrl}
+            rating={review.rating}
+            isLast={index === displayReviews.length - 1}
+          />
+        ))
+      )}
 
       <Pagination
         totalPages={totalPages}

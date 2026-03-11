@@ -1,92 +1,38 @@
 "use client";
 
+import { useState } from "react";
 import {
   ImageCarousel,
   ContentSection,
   ReviewsSection,
   PetSitterBookingCard,
   type CarouselImage,
-  type Review,
 } from "@/components/pet-sitter-detail";
 import Loading from "@/components/common/loading/loading";
 import { useParams, useSearchParams } from "next/navigation";
 import { usePetSitterDetail } from "@/hooks/pet-sitter-detail/usePetSitterDetail";
+import { useReviews } from "@/hooks/pet-sitter-detail/useReviews";
 import type { Sitter } from "@/types/sitter";
 import { ExclamationCircleIcon } from "@/assets/icons/components";
-import { useScreenContext } from "@/contexts/ScreenContext";
-import LeafletMap from "@/components/Map/LeafletMap";
-import SitterMarker from "@/components/Map/ui/Marker/SitterMarker";
+import dynamic from "next/dynamic";
 
-const CAROUSEL_FALLBACK: CarouselImage[] = [
-  {
-    src: "https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=1600&auto=format&fit=crop",
-    alt: "Woman sitting with husky",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?q=80&w=1600&auto=format&fit=crop",
-    alt: "Golden retriever on a bed",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=1600&auto=format&fit=crop",
-    alt: "Cat relaxing on a sofa",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1600&auto=format&fit=crop",
-    alt: "Dog outside",
-  },
-];
+const LeafletMap = dynamic(() => import("@/components/Map/LeafletMap"), { ssr: false });
+const SitterMarker = dynamic(() => import("@/components/Map/ui/Marker/SitterMarker"), { ssr: false });
 
-function getCarouselImages(sitter: Sitter | null): CarouselImage[] {
-  if (!sitter) return CAROUSEL_FALLBACK;
+const PLACEHOLDER_IMAGE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e5e7eb' width='400' height='300'/%3E%3C/svg%3E";
+
+function getCarouselImages(sitter: Sitter): CarouselImage[] {
   const urls = sitter.imgUrls?.length
     ? sitter.imgUrls
     : sitter.imgUrl
       ? [sitter.imgUrl]
       : [];
-  if (urls.length === 0) return CAROUSEL_FALLBACK;
+  if (urls.length === 0) {
+    return [{ src: PLACEHOLDER_IMAGE, alt: "No image available" }];
+  }
   return urls.map((src, i) => ({ src, alt: `Pet sitter image ${i + 1}` }));
 }
-
-const REVIEWS: Review[] = [
-  {
-    reviewerName: "David M.",
-    date: "Aug 16,2023",
-    comment:
-      "I recently had the pleasure of entrusting Jane Maison with the care of my two energetic Labrador Retrievers, Max and Bella, while I was away on a business trip. I can confidently say that Jane exceeded all my expectations as a pet sitter.",
-    rating: 5,
-  },
-  {
-    reviewerName: "David M.",
-    date: "Aug 16,2023",
-    comment:
-      "Jane Maison did a great job looking after my energetic dog, Buddy. While I was away, she made sure Buddy got his exercise and kept up with his feeding schedule. I appreciated the updates she sent, although I would have liked a bit more frequent communication. Overall, I'm satisfied with her service and would consider using her again in the future.",
-    rating: 4,
-  },
-  {
-    reviewerName: "David M.",
-    date: "Aug 16,2023",
-    comment:
-      "Jane Maison is a lifesaver! She took care of my rambunctious rabbit, Flopsy, while I was away on vacation. Flopsy can be quite picky, but Jane knew just how to keep her happy and entertained. I received adorable photos of Flopsy munching on her favorite greens and exploring new play areas. I'm so grateful to have found Jane, and I highly recommend her pet sitting services!",
-    rating: 5,
-  },
-  {
-    reviewerName: "David M.",
-    date: "Aug 16,2023",
-    comment:
-      "Jane Maison is a lifesaver! She took care of my rambunctious rabbit, Flopsy, while I was away on vacation. Flopsy can be quite picky, but Jane knew just how to keep her happy and entertained. I received adorable photos of Flopsy munching on her favorite greens and exploring new play areas. I'm so grateful to have found Jane, and I highly recommend her pet sitting services!",
-    rating: 3,
-  },
-  {
-    reviewerName: "David M.",
-    date: "Aug 16,2023",
-    comment:
-      "Jane Maison is a lifesaver! She took care of my rambunctious rabbit, Flopsy, while I was away on vacation. Flopsy can be quite picky, but Jane knew just how to keep her happy and entertained. I received adorable photos of Flopsy munching on her favorite greens and exploring new play areas. I'm so grateful to have found Jane, and I highly recommend her pet sitting services!",
-    rating: 5,
-  },
-];
-
-const MAP_EMBED_URL =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30992.755984367002!2d100.62135467250974!3d13.83336385331918!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29d0c38ddcab5%3A0x277ed5d259125dca!2z4LiL4LmJ4LiH4LmA4Lib4LmH4LiU4Lie4Liw4LmC4Lil4LmJIOC4p-C4seC4h-C4q-C4tOC4mQ!5e0!3m2!1sth!2sth!4v1772592116159!5m2!1sth!2sth";
 
 export default function PetSitterDetailPage() {
   const params = useParams();
@@ -95,6 +41,25 @@ export default function PetSitterDetailPage() {
   const sitterId = Array.isArray(sitterid) ? sitterid[0] : sitterid;
   const { sitter, isLoading, error } = usePetSitterDetail(sitterId);
   const initialOpenBooking = searchParams.get("openBooking") === "1";
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ratingFilter, setRatingFilter] = useState<number[]>([]);
+
+  const {
+    reviews,
+    totalPages,
+    totalReviews,
+    isLoading: isReviewsLoading,
+  } = useReviews(sitterId ?? null, {
+    page: currentPage,
+    limit: 5,
+    rating: ratingFilter[0],
+  });
+
+  const handleRatingFilterChange = (newRating: number[]) => {
+    setRatingFilter(newRating);
+    setCurrentPage(1);
+  };
 
   if (isLoading) return <Loading />;
   if (error || !sitter) {
@@ -107,7 +72,7 @@ export default function PetSitterDetailPage() {
   }
 
   const carouselImages = getCarouselImages(sitter);
-  const { isMedium } = useScreenContext();
+
   return (
     <>
       <div className="bg-gray-50">
@@ -134,24 +99,41 @@ export default function PetSitterDetailPage() {
 
               <ContentSection title="My places">
                 <p>{sitter.description}</p>
-               
-                <LeafletMap center={[13.7563, 100.5018]} zoom={22} ><SitterMarker position={[13.7563, 100.5018]} /></LeafletMap>
+
+                <LeafletMap
+                  center={[
+                    sitter.latitude ?? 13.7563,
+                    sitter.longitude ?? 100.5018,
+                  ]}
+                  zoom={20}
+                  className="w-full max-h-[219px] rounded-2xl"
+                >
+                  <SitterMarker
+                    position={[
+                      sitter.latitude ?? 13.7563,
+                      sitter.longitude ?? 100.5018,
+                    ]}
+                  />
+                </LeafletMap>
               </ContentSection>
             </div>
             <div className=" md:hidden md:shrink-0 md:self-stretch w-full md:w-auto">
-                <PetSitterBookingCard
-                  sitter={sitter}
-                  sitterId={sitterId ?? ""}
-                  initialOpenBooking={initialOpenBooking}
-                />
-              </div>
+              <PetSitterBookingCard
+                sitter={sitter}
+                sitterId={sitterId ?? ""}
+                initialOpenBooking={initialOpenBooking}
+              />
+            </div>
             <ReviewsSection
               rating={sitter.rating ?? 4.5}
-              reviewCount={27}
-              reviews={REVIEWS}
-              totalPages={3}
-              currentPage={1}
-              onPageChange={() => {}}
+              reviewCount={totalReviews || 0}
+              reviews={reviews}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              ratingFilter={ratingFilter}
+              onRatingFilterChange={handleRatingFilterChange}
+              isLoading={isReviewsLoading}
             />
           </section>
 

@@ -1,4 +1,3 @@
-import cn from "@/utils/cn";
 interface ContentSectionProps {
   title: string;
   children: React.ReactNode;
