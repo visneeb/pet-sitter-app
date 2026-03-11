@@ -13,3 +13,4 @@ export {
   updatePetSitterProfile,
 } from "./sitterApi";
 export { petApi } from "./petApi";
+export { reviewApi } from "./reviewApi"; 
