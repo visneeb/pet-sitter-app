@@ -96,8 +96,12 @@ export function useLoginForm(isAdmin: boolean = false) {
       } else {
         setServerSuccess("Login successful. Redirecting...");
 
-        // ✅ redirect ตาม role จริงของ app
-        const redirectPath = getRedirectPathByRole(currentUser.role);
+        // ✅ ถ้ามี redirect query param (เช่น จาก BookingModal) ให้ redirect ไปที่นั่นก่อน
+        const redirectParam = searchParams.get("redirect");
+        const redirectPath =
+          redirectParam && redirectParam.startsWith("/")
+            ? redirectParam
+            : getRedirectPathByRole(currentUser.role);
         setTimeout(() => router.push(redirectPath), 800);
       }
     } catch (err: unknown) {
