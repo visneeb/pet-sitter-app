@@ -1,9 +1,8 @@
-import ProfileContainer from "@/components/profile/ProfileContainer";
+
+import { BookingHistory } from "@/views/dashboard/owner/ิbooking-history/BookingHistory";
 
 export default function UserProfilePage() {
   return (
-    <ProfileContainer>
-      <p>Booking History</p>
-    </ProfileContainer>
+      <BookingHistory />
   );
 }

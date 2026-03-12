@@ -20,9 +20,7 @@ export function generateTimeOptions(stepMinutes = 30): TimeOption[] {
 /**
  * Convert 24h "HH:mm" to 12h "h:mm AM/PM"
  */
-export function format24hTo12h(
-  value: string | null | undefined
-): string {
+export function format24hTo12h(value: string | null | undefined): string {
   if (!value || typeof value !== "string") return "";
   const [hStr, mStr] = value.split(":");
   const h = parseInt(hStr ?? "0", 10);
@@ -41,7 +39,7 @@ export function format24hTo12h(
  */
 export function getNextTimeSlot(
   time: string | null | undefined,
-  stepMinutes = 30
+  stepMinutes = 30,
 ): string {
   if (!time || typeof time !== "string") return "";
   const [hStr, mStr] = time.split(":");
@@ -69,4 +67,40 @@ export function parse12hTo24h(display: string): string {
   if (h === 12) h = period === "AM" ? 0 : 12;
   else if (period === "PM") h += 12;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+export function formatDateRange(startTime: string, endTime: string) {
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+  const date = start.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+  const startHour = start.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    hour12: true,
+  });
+  const endHour = end.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    hour12: true,
+  });
+  return `${date}  |  ${startHour} - ${endHour}`;
+}
+
+export function formatDuration(startTime: string, endTime: string) {
+  const diffMs = new Date(endTime).getTime() - new Date(startTime).getTime();
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  if (minutes === 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
+  return `${hours}h ${minutes}m`;
+}
+
+export function formatTransactionDate(createdAt: string) {
+  return new Date(createdAt).toLocaleDateString("en-US", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
