@@ -5,6 +5,7 @@ import PetSitterInfo from "./PetSitterCard/PetSitterInfo";
 import cn from "@/utils/cn";
 import { PetSitter } from "@/types/PetSittersType";
 import Link from "next/link";
+
 export default function PetSitterCard({
   sitter,
   priority = false,

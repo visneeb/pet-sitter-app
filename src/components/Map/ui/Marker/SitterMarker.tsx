@@ -51,7 +51,7 @@ export default function SitterMarker({
   const icon = useMemo(() => createPinIcon(selected), [selected]);
 
   return (
-    <Marker position={position} icon={icon} eventHandlers={{ click: onClick }}>
+    <Marker position={position} icon={icon} eventHandlers={{ click: onClick }} zIndexOffset={0}>
       {popupContent && <Popup>{popupContent}</Popup>}
     </Marker>
   );

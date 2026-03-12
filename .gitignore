@@ -44,3 +44,5 @@ next-env.d.ts
 
 .Documents/
 /.cursor/
+.vscode/
+.cursor/

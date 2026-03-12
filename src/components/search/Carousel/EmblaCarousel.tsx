@@ -1,10 +1,13 @@
-import React, { useEffect } from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { usePetSitterSearch } from "@/contexts/PetSitterSearchContext";
 import type { PetSitterDetail } from "@/hooks/search/map/useSelectMaker";
 import PetTypesList from "./ui/PetTypesList";
 import RatingSitter from "./ui/RatingSitter";
 import PicturePlace from "./ui/PicturePlace";
+import { useRouter } from "next/navigation";
 
 interface EmblaCarouselProps {
   readonly selectedMarker: PetSitterDetail | null;
@@ -20,7 +23,7 @@ export function EmblaCarousel({
     loop: true,
   });
   const { petSitters } = usePetSitterSearch();
-
+  const router = useRouter();
   useEffect(() => {
     if (!emblaApi || !selectedMarker) return;
 
@@ -33,18 +36,25 @@ export function EmblaCarousel({
     }
   }, [emblaApi, petSitters, selectedMarker]);
 
-  const handleCardClick = (index: number) => {
+  const handleCardClick = (index: number, id: number) => {
     if (!emblaApi) return;
-    emblaApi.scrollTo(index);
 
-    const sitter = petSitters[index];
-    if (!sitter) return;
 
-    handleSelectPetSitter({
-      id: sitter.id,
-      position: [sitter.latitude, sitter.longitude],
-      selected: true,
-    });
+      emblaApi.scrollTo(index);
+      
+      const sitter = petSitters[index];
+      if (!sitter) return;
+      
+      handleSelectPetSitter({
+        id: sitter.id,
+        position: [sitter.latitude, sitter.longitude],
+        selected: true,
+      });
+
+  };
+
+  const handleDoubleClick = (id: number) => {
+    router.push(`/petsitter/${id}`);
   };
 
   return (
@@ -60,7 +70,8 @@ export function EmblaCarousel({
             return (
               <article
                 key={sitter.id}
-                onClick={() => handleCardClick(index)}
+                onClick={() => handleCardClick(index,sitter.id)}
+                onDoubleClick={() => handleDoubleClick(sitter.id)}
                 className={`flex-none flex flex-col gap-2 w-[330px] sm:w-[471px] min-w-0  h-[148px] sm:h-[138px] bg-white ml-1 sm:ml-3 rounded-2xl items-center py-[15px] px-[12px] hover:border-orange-500 hover:border-2 hover:border-solid ${
                   isSelected ? "border-orange-600 border-2" : ""
                 }`}

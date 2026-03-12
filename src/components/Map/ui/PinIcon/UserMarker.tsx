@@ -64,7 +64,7 @@ export default function UserMarker({
 
   // Low zoom → แสดง dot Marker เดิม
   return (
-    <Marker position={position} icon={userIcon}>
+    <Marker position={position} icon={userIcon} zIndexOffset={1000}>
       <Popup>📍 ตำแหน่งของคุณ</Popup>
     </Marker>
   );

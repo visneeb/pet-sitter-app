@@ -36,7 +36,6 @@ export default function MapMode({
           selectedMarker={selectedMarker}
           handleSelectPetSitter={handleSelectPetSitter}
         />
-        <RecenterOnMarker position={selectedMarker?.position} />
       </LeafletMap>
       {/* slider อยู่ใน wrapper → ติดตามเข้า fullscreen ด้วย */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-1000 flex flex-col justify-center items-center overflow-hidden">
