@@ -23,6 +23,7 @@ export function EmblaCarousel({
     loop: true,
   });
   const { petSitters } = usePetSitterSearch();
+  const [indexSelected, setIndexSelected] = useState<number | null>(null);
   const router = useRouter();
   useEffect(() => {
     if (!emblaApi || !selectedMarker) return;
@@ -39,22 +40,21 @@ export function EmblaCarousel({
   const handleCardClick = (index: number, id: number) => {
     if (!emblaApi) return;
 
-
+    if (indexSelected === id) {
+      router.push(`/petsitter/${id}`);
+    } else {
       emblaApi.scrollTo(index);
-      
+
       const sitter = petSitters[index];
       if (!sitter) return;
-      
+
       handleSelectPetSitter({
         id: sitter.id,
         position: [sitter.latitude, sitter.longitude],
         selected: true,
       });
-
-  };
-
-  const handleDoubleClick = (id: number) => {
-    router.push(`/petsitter/${id}`);
+      setIndexSelected(id);
+    }
   };
 
   return (
@@ -70,8 +70,7 @@ export function EmblaCarousel({
             return (
               <article
                 key={sitter.id}
-                onClick={() => handleCardClick(index,sitter.id)}
-                onDoubleClick={() => handleDoubleClick(sitter.id)}
+                onClick={() => handleCardClick(index, sitter.id)}
                 className={`flex-none flex flex-col gap-2 w-[330px] sm:w-[471px] min-w-0  h-[148px] sm:h-[138px] bg-white ml-1 sm:ml-3 rounded-2xl items-center py-[15px] px-[12px] hover:border-orange-500 hover:border-2 hover:border-solid ${
                   isSelected ? "border-orange-600 border-2" : ""
                 }`}
