@@ -21,7 +21,6 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <AppProviders>
           {children}
-          <script src="./assets/vendor/canvas-confetti/dist/confetti.browser.js"></script>
           <Toaster />
         </AppProviders>
       </body>

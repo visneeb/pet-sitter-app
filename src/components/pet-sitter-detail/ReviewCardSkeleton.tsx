@@ -14,11 +14,11 @@ export default function ReviewCardSkeleton({
 }) {
   return (
     <div
-      className={`flex flex-col md:flex-row gap-4 md:px-6 pt-6 pb-10 ${
+      className={`flex flex-col lg:flex-row gap-4 lg:px-6 pt-6 pb-10 ${
         isLast ? "" : "border-b border-gray-200"
       }`}
     >
-      <div className="flex justify-between md:justify-start w-full md:w-[220px] shrink-0">
+      <div className="flex justify-between lg:justify-start w-full lg:w-[220px] shrink-0">
         <div className="flex gap-4">
           <Bone className="rounded-full w-[56px] h-[56px] shrink-0" />
           <div className="flex flex-col gap-2">
@@ -27,7 +27,7 @@ export default function ReviewCardSkeleton({
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-4 w-full md:max-w-[516px]">
+      <div className="flex flex-col gap-4 w-full lg:max-w-[516px]">
         <div className="flex gap-[2px]">
           <Bone className="h-5 w-5 rounded-sm" />
           <Bone className="h-5 w-5 rounded-sm" />
