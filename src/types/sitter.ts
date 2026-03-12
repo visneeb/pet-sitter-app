@@ -19,6 +19,7 @@ export interface Sitter {
   district: string | null;
   subDistrict: string | null;
   postCode: number | null;
+  reviewCount: number | null;
 }
 
 export interface SitterApi {
@@ -40,6 +41,7 @@ export interface SitterApi {
   district?: string;
   subDistrict?: string;
   postCode?: number;
+  reviewCount?: number;
 }
 
 export interface SittersResponse {

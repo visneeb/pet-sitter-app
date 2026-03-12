@@ -14,7 +14,6 @@ export function useReviews(
 ) {
   const [reviews, setReviews] = useState<ReviewApi[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalReviews, setTotalReviews] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,7 +36,6 @@ export function useReviews(
         } else if (response.data) {
           setReviews(response.data.reviews);
           setTotalPages(response.data.totalPages);
-          setTotalReviews(response.data.totalReviews);
           setError(null);
         }
       })
@@ -54,5 +52,5 @@ export function useReviews(
       });
   }, [sitterId, page, limit, rating]);
 
-  return { reviews, totalPages, totalReviews, isLoading, error };
+  return { reviews, totalPages, isLoading, error };
 }

@@ -48,7 +48,6 @@ export default function PetSitterDetailPage() {
   const {
     reviews,
     totalPages,
-    totalReviews,
     isLoading: isReviewsLoading,
   } = useReviews(sitterId ?? null, {
     page: currentPage,
@@ -126,7 +125,7 @@ export default function PetSitterDetailPage() {
             </div>
             <ReviewsSection
               rating={sitter.rating ?? 4.5}
-              reviewCount={totalReviews || 0}
+              reviewCount={sitter.reviewCount ?? 0}
               reviews={reviews}
               totalPages={totalPages}
               currentPage={currentPage}
