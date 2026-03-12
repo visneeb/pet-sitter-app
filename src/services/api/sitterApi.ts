@@ -1,4 +1,5 @@
 import { publicApi, privateApi } from "./client";
+import type { SitterApi } from "@/types/sitter";
 
 export interface PetSitterListParams {
   page?: number;
@@ -74,29 +75,26 @@ export const PET_SITTER_STATUS = {
 
 export type PetSitterStatus =
   (typeof PET_SITTER_STATUS)[keyof typeof PET_SITTER_STATUS];
-export interface PetSitterDetail {
-  id: number;
-  sitter: Sitter;
-  imgUrls: string[];
-  tradeName: string;
-  experience: number | null;
-  reviewCount: number;
-  rating: number | null;
-  petTypes: string[];
-  introduction: string | null;
-  services: string | null;
-  description: string | null;
-  address: string;
-  latitude: number | null;
-  longitude: number | null;
-  province: string | null;
-  district: string | null;
-  subDistrict: string | null;
-  postCode: number | null;
+
+/** API response shape for pet-sitter detail; derives from SitterApi for type compatibility with toSitter() */
+export type PetSitterDetail = SitterApi & {
   status?: string;
   provinceId?: number | null;
   districtId?: number | null;
   subDistrictId?: number | null;
+};
+
+function buildPetSitterDetailPath(
+  sitterId: string,
+  options?: { onlyApproved?: boolean },
+) {
+  const params = new URLSearchParams();
+  if (options?.onlyApproved === false) {
+    params.set("onlyApproved", "false");
+  }
+
+  const queryString = params.toString();
+  return `/pet-sitter/${sitterId}${queryString ? `?${queryString}` : ""}`;
 }
 
 export async function getPetSitterById(
@@ -104,13 +102,30 @@ export async function getPetSitterById(
   options?: { onlyApproved?: boolean },
 ): Promise<{ data?: PetSitterDetail; error?: string }> {
   try {
-    const params = new URLSearchParams();
-    if (options?.onlyApproved === false) {
-      params.set("onlyApproved", "false");
-    }
-    const queryString = params.toString();
     const res = await privateApi.get<PetSitterDetail>(
-      `/pet-sitter/${sitterId}${queryString ? `?${queryString}` : ""}`,
+      buildPetSitterDetailPath(sitterId, options),
+    );
+    return { data: res.data };
+  } catch (err: any) {
+    return {
+      error:
+        err.response?.data?.error ??
+        err.response?.data?.message ??
+        err.message ??
+        "Failed to fetch pet sitter",
+    };
+  }
+}
+
+export const getPrivatePetSitterById = getPetSitterById;
+
+export async function getPublicPetSitterById(
+  sitterId: string,
+  options?: { onlyApproved?: boolean },
+): Promise<{ data?: PetSitterDetail; error?: string }> {
+  try {
+    const res = await publicApi.get<PetSitterDetail>(
+      buildPetSitterDetailPath(sitterId, options),
     );
     return { data: res.data };
   } catch (err: any) {
@@ -162,6 +177,60 @@ export async function getPetSitterByUserIdSimple(
   userId: string,
 ): Promise<{ data?: PetSitterDetail; error?: string }> {
   return getPetSitterByUserId(userId);
+}
+
+// ─── Sitter Reviews ─────────────────────────────────────────────────────────
+
+export interface ReviewApi {
+  reviewer: {
+    name: string;
+    profileImgUrl?: string;
+  };
+  createdAt: string;  
+  comment: string;
+  rating: number;
+}
+
+export interface SitterReviewsParams {
+  page?: number;
+  limit?: number;
+  rating?: number;
+}
+
+export interface SitterReviewsResponse {
+  reviews: ReviewApi[];
+  totalPages: number;
+  currentPage: number;
+  totalReviews: number;
+}
+
+
+
+export async function getSitterReviewsById(
+  sitterId: string,
+  params?: SitterReviewsParams,
+): Promise<{ data?: SitterReviewsResponse; error?: string }> {
+  try {
+    const query = new URLSearchParams();
+    if (params?.page !== undefined) query.set("page", String(params.page));
+    if (params?.limit !== undefined) query.set("limit", String(params.limit));
+    if (params?.rating !== undefined)
+      query.set("rating", String(params.rating));
+
+    const qs = query.toString();
+    const res = await publicApi.get<SitterReviewsResponse>(
+      `/pet-sitter/${sitterId}/reviews${qs ? `?${qs}` : ""}`,
+    );
+
+    return { data: res.data };
+  } catch (err: any) {
+    return {
+      error:
+        err.response?.data?.message ??
+        err.message ??
+        "Failed to fetch sitter reviews",
+    };
+  }
 }
 
 export interface ExistingImage {

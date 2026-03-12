@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useForm, UseFormReturn, useWatch } from "react-hook-form";
 import {
   updatePetSitterProfile,
-  getPetSitterById,
+  getPrivatePetSitterById,
   getCurrentSitter,
   PetSitterDetail,
 } from "@/services/api/sitterApi";
@@ -336,7 +336,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
       methods.setValue("images", []);
 
       // Re-fetch from DB and re-sync ALL form fields + dropdowns
-      const { data: updatedData } = await getPetSitterById(String(sitterId));
+      const { data: updatedData } = await getPrivatePetSitterById(String(sitterId));
       if (updatedData) {
         // Basic scalar fields
         methods.setValue("experience", updatedData.experience ?? 0, { shouldDirty: false, shouldTouch: false, shouldValidate: false });

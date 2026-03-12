@@ -1,12 +1,11 @@
 import LocationPetSitter from "./PetSitterCard/LocationPetSitter";
-
 import TagPetType from "./PetSitterCard/TagPetType";
 import PlacePicture from "./PetSitterCard/PlacePicture";
 import PetSitterInfo from "./PetSitterCard/PetSitterInfo";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
 import { PetSitter } from "@/types/PetSittersType";
-
+import Link from "next/link";
 export default function PetSitterCard({
   sitter,
   priority = false,
@@ -15,7 +14,8 @@ export default function PetSitterCard({
   const isWebView = isSmall && isMedium;
   const isWebViewMini = isLarge && !isXLarge;
   return (
-    <div
+    <Link
+      href={`/petsitter/${sitter.id}`}
       className={cn(
         "p-4 justify-start rounded-xl overflow-hidden shadow-md border border-gray-100 hover:shadow-xl hover:border-orange-500 transition-shadow duration-300",
         isWebView
@@ -31,6 +31,6 @@ export default function PetSitterCard({
         <LocationPetSitter sitter={sitter} />
         <TagPetType sitter={sitter} />
       </div>
-    </div>
+    </Link>
   );
 }

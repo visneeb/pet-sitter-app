@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createResolver } from "@/lib/form/createResolver";
 import { validateLogin } from "@/lib/validations/loginFormValidation";
 import { LoginFormValues } from "@/types/authType";
@@ -19,6 +19,7 @@ type AxiosLikeError = {
 
 export function useLoginForm(isAdmin: boolean = false) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
 
   const [serverError, setServerError] = useState("");
@@ -41,7 +42,16 @@ export function useLoginForm(isAdmin: boolean = false) {
     formState: { isSubmitting },
   } = methods;
 
-  // ✅ helper สำหรับ map role -> path
+  // ✅ อ่าน redirect จาก URL (รองรับทั้ง redirect และ redirectTo จาก proxy)
+  const getRedirectFromUrl = () => {
+    const redirect =
+      searchParams.get("redirect") ?? searchParams.get("redirectTo");
+    if (!redirect) return null;
+    // เฉพาะ path ที่ขึ้นต้นด้วย / เพื่อความปลอดภัย
+    return redirect.startsWith("/") ? redirect : null;
+  };
+
+  // ✅ helper สำหรับ map role -> path (เมื่อไม่มี redirect ใน URL)
   const getRedirectPathByRole = (role?: string) => {
     switch (role) {
       case "owner":
@@ -84,7 +94,7 @@ export function useLoginForm(isAdmin: boolean = false) {
       }
 
       if (isAdmin) {
-        // Check if the user is an admin
+        // Admin login: เฉพาะ admin เท่านั้น
         if (currentUser?.role !== "admin") {
           localStorage.removeItem("accessToken");
           throw new Error("You are not authorized to access this page");
@@ -95,8 +105,10 @@ export function useLoginForm(isAdmin: boolean = false) {
       } else {
         setServerSuccess("Login successful. Redirecting...");
 
-        // ✅ redirect ตาม role จริงของ app
-        const redirectPath = getRedirectPathByRole(currentUser.role);
+        // ✅ ถ้ามี redirect ใน URL ให้กลับไปหน้านั้น (เช่น จาก Book now หรือ proxy)
+        const redirectFromUrl = getRedirectFromUrl();
+        const redirectPath =
+          redirectFromUrl ?? getRedirectPathByRole(currentUser.role);
         setTimeout(() => router.push(redirectPath), 800);
       }
     } catch (err: unknown) {

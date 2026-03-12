@@ -1,11 +1,18 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import logo from "@/assets/web-logo.svg";
 import { NavigationButton } from "@/components/ui/Button";
 import { Menu } from "lucide-react";
 
 export default function NavbarGuest() {
+  const pathname = usePathname();
+  const loginHref =
+    pathname && pathname !== "/auth/login"
+      ? `/auth/login?redirect=${encodeURIComponent(pathname)}`
+      : "/auth/login";
+
   return (
     <div className="relative flex items-center justify-between bg-white w-full px-[20px] style-body-2 lg:h-[80px] lg:px-[80px]">
       <div>
@@ -25,7 +32,7 @@ export default function NavbarGuest() {
             <Link href="auth/register">Become a Pet Sitter</Link>
           </div>
           <div className="px-[24px] py-[16px] style-body-1 text-black">
-            <Link href="auth/login">Login</Link>
+            <Link href={loginHref}>Login</Link>
           </div>
         </div>
 
@@ -50,7 +57,7 @@ export default function NavbarGuest() {
                 <Link href="/auth/register">Become a Pet Sitter</Link>
               </li>
               <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/auth/login">Login</Link>
+                <Link href={loginHref}>Login</Link>
               </li>
               <li className="w-full block">
                 <NavigationButton

@@ -231,6 +231,20 @@ input:-webkit-autofill:active {
   color: var(--color-white);
 }
 
+/* RHFDatePicker: disabled days - ไม่ควรคลิกได้ และดูเหมือน disabled */
+.rdp-root .rdp-disabled .rdp-day_button,
+.rdp-root [aria-disabled="true"] .rdp-day_button {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.rdp-root .rdp-disabled .rdp-day_button:hover,
+.rdp-root [aria-disabled="true"] .rdp-day_button:hover {
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
 /* RHFDatePicker: disabled nav buttons (match react-day-picker style) */
 .rdp-root .rdp-button_previous:disabled,
 .rdp-root .rdp-button_previous[aria-disabled="true"],

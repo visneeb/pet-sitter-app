@@ -22,7 +22,7 @@ export default function MapMode() {
         <MapControls />
       </LeafletMap>
       {/* slider อยู่ใน wrapper → ติดตามเข้า fullscreen ด้วย */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1000] flex flex-col justify-center items-center overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-900 flex flex-col justify-center items-center overflow-hidden">
         <div className="w-full pointer-events-auto pb-4">
           <EmblaCarousel />
         </div>
