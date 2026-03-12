@@ -1,6 +1,7 @@
 import cn from "@/utils/cn";
 import { Star, StarIcon } from "lucide-react";
 
+
 interface FilterRatingListProps {
   rating: number[];
   onRatingChange: (rating: number[]) => void;
