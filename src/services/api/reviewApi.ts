@@ -1,28 +1,31 @@
+import axios from "axios";
 
-import { privateApi } from "./client";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export type CreateReviewPayload = {
+type CreateReviewPayload = {
   booking_id: number;
   rating: number;
   comment: string;
 };
 
-export type CreateReviewResponse = {
-  message: string;
-  data: {
-    review_id: number;
-    booking_id: number;
-    rating: number;
-    comment: string;
-    created_at: string;
-  };
-};
-
 export const reviewApi = {
-  createReview: async (
-    payload: CreateReviewPayload
-  ): Promise<CreateReviewResponse> => {
-    const response = await privateApi.post("/reviews", payload);
+  createReview: async (payload: CreateReviewPayload) => {
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("accessToken")
+        : null;
+
+    if (!token) {
+      throw new Error("No access token found");
+    }
+
+    const response = await axios.post(`${API_URL}/reviews`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
     return response.data;
   },
 };

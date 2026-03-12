@@ -14,6 +14,7 @@ type ReviewModalProps = {
   bookingId: number;
   onClose: () => void;
   onSuccess?: () => void;
+  className?: string;
 };
 
 export default function ReviewModal({
@@ -21,6 +22,7 @@ export default function ReviewModal({
   bookingId,
   onClose,
   onSuccess,
+  className
 }: ReviewModalProps) {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -91,7 +93,7 @@ export default function ReviewModal({
       const message =
         error?.response?.data?.message ||
         error?.response?.data?.error ||
-        "Unable to submit review. Please try again.";
+        "Session expired. Please log in again.";
 
       setErrorMessage(message);
       console.error("Create review failed:", error);
