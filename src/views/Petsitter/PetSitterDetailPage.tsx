@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ImageCarousel,
   ContentSection,
@@ -19,18 +19,12 @@ import dynamic from "next/dynamic";
 const LeafletMap = dynamic(() => import("@/components/Map/LeafletMap"), { ssr: false });
 const SitterMarker = dynamic(() => import("@/components/Map/ui/Marker/SitterMarker"), { ssr: false });
 
-const PLACEHOLDER_IMAGE =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e5e7eb' width='400' height='300'/%3E%3C/svg%3E";
-
 function getCarouselImages(sitter: Sitter): CarouselImage[] {
   const urls = sitter.imgUrls?.length
     ? sitter.imgUrls
     : sitter.imgUrl
       ? [sitter.imgUrl]
       : [];
-  if (urls.length === 0) {
-    return [{ src: PLACEHOLDER_IMAGE, alt: "No image available" }];
-  }
   return urls.map((src, i) => ({ src, alt: `Pet sitter image ${i + 1}` }));
 }
 
@@ -44,6 +38,11 @@ export default function PetSitterDetailPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [ratingFilter, setRatingFilter] = useState<number[]>([]);
+  const [isMapReady, setIsMapReady] = useState(false);
+
+  useEffect(() => {
+    setIsMapReady(true);
+  }, []);
 
   const {
     reviews,
@@ -75,16 +74,16 @@ export default function PetSitterDetailPage() {
   return (
     <>
       <div className="bg-gray-50">
-        <section className="w-full md:py-10">
+        <section className="w-full lg:py-10">
           <div className="relative">
             <ImageCarousel images={carouselImages} />
           </div>
         </section>
 
-        <div className="w-full md:px-20 pt-10 md:pt-0 flex flex-col md:flex-row md:flex-nowrap md:justify-center md:items-start gap-8">
+        <div className="w-full lg:px-20 pt-10 lg:pt-0 flex flex-col lg:flex-row lg:flex-nowrap lg:justify-center lg:items-start gap-8">
           <section className="flex flex-col gap-10">
-            <div className="flex flex-col gap-6 md:gap-12 px-4 md:px-20 md:py-6 w-full md:max-w-[848px] md:shrink-0">
-              <h1 className="style-headline-2 md:style-headline-1">
+            <div className="flex flex-col gap-6 lg:gap-12 px-4 lg:px-20 lg:py-6 w-full lg:max-w-[848px] lg:shrink-0">
+              <h1 className="style-headline-2 lg:style-headline-1">
                 {sitter.tradeName}
               </h1>
 
@@ -99,24 +98,29 @@ export default function PetSitterDetailPage() {
               <ContentSection title="My places">
                 <p>{sitter.description}</p>
 
-                <LeafletMap
-                  center={[
-                    sitter.latitude ?? 13.7563,
-                    sitter.longitude ?? 100.5018,
-                  ]}
-                  zoom={20}
-                  className="w-full max-h-[219px] rounded-2xl"
-                >
-                  <SitterMarker
-                    position={[
-                      sitter.latitude ?? 13.7563,
-                      sitter.longitude ?? 100.5018,
-                    ]}
-                  />
-                </LeafletMap>
+                <div className="relative h-[219px] w-full overflow-hidden rounded-2xl">
+                  {isMapReady && (
+                    <LeafletMap
+                      key="sitter-detail-map"
+                      center={[
+                        sitter.latitude ?? 13.7563,
+                        sitter.longitude ?? 100.5018,
+                      ]}
+                      zoom={20}
+                      className="h-full w-full"
+                    >
+                      <SitterMarker
+                        position={[
+                          sitter.latitude ?? 13.7563,
+                          sitter.longitude ?? 100.5018,
+                        ]}
+                      />
+                    </LeafletMap>
+                  )}
+                </div>
               </ContentSection>
             </div>
-            <div className=" md:hidden md:shrink-0 md:self-stretch w-full md:w-auto">
+            <div className="lg:hidden lg:shrink-0 lg:self-stretch w-full lg:w-auto">
               <PetSitterBookingCard
                 sitter={sitter}
                 sitterId={sitterId ?? ""}
@@ -136,7 +140,7 @@ export default function PetSitterDetailPage() {
             />
           </section>
 
-          <aside className="hidden md:block md:shrink-0 md:self-stretch w-full md:w-auto">
+          <aside className="hidden lg:block lg:shrink-0 lg:self-stretch w-full lg:w-auto">
             <PetSitterBookingCard
               sitter={sitter}
               sitterId={sitterId ?? ""}
