@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AVATAR_PLACEHOLDER } from "@/constants/placeholders";
 import { Star } from "lucide-react";
@@ -27,8 +27,23 @@ export default function PetSitterBookingCard({
 }: PetSitterBookingCardProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const [isBooking, setIsBooking] = useState(initialOpenBooking ?? false);
+  // ✅ เฉพาะ owner เท่านั้นที่ book ได้; sitter และ admin ไม่สามารถกด Book now ได้
+  const canBook = user?.role === "owner";
+  const [isBooking, setIsBooking] = useState(false);
+  const hasOpenedFromRedirect = useRef(false);
   const [avatarError, setAvatarError] = useState(false);
+
+  // เปิด modal เมื่อ redirect กลับมาหน้า petsitter พร้อม openBooking=1 และ user เป็น owner
+  useEffect(() => {
+    if (
+      initialOpenBooking &&
+      user?.role === "owner" &&
+      !hasOpenedFromRedirect.current
+    ) {
+      hasOpenedFromRedirect.current = true;
+      setIsBooking(true);
+    }
+  }, [initialOpenBooking, user?.role]);
   const sitterName = sitter.sitter?.name ?? "—";
   const avatarUrl = sitter.sitter?.profileImgUrl ?? undefined;
   const experience = `${sitter.experience ?? 0} Years Exp.`;
@@ -39,14 +54,13 @@ export default function PetSitterBookingCard({
     if (!user) {
       if (sitterId) {
         const returnUrl = `/petsitter/${sitterId}?openBooking=1`;
-        router.push(
-          `/auth/login?redirect=${encodeURIComponent(returnUrl)}`
-        );
+        router.push(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
       } else {
         router.push("/auth/login");
       }
       return;
     }
+    if (!canBook) return;
     setIsBooking(true);
   };
 
@@ -91,7 +105,12 @@ export default function PetSitterBookingCard({
         <NavigationButton variant="secondary" href="/messages" className="w-full hidden md:block">
           Message
         </NavigationButton>
-        <ActionButton variant="primary" onClick={handleBookNow} className="w-full">
+        <ActionButton
+          variant="primary"
+          onClick={handleBookNow}
+          className="w-full"
+          disabled={user ? !canBook : false}
+        >
           Book now
         </ActionButton>
       </div>

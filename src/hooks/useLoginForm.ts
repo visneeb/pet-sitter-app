@@ -42,7 +42,16 @@ export function useLoginForm(isAdmin: boolean = false) {
     formState: { isSubmitting },
   } = methods;
 
-  // ✅ helper สำหรับ map role -> path
+  // ✅ อ่าน redirect จาก URL (รองรับทั้ง redirect และ redirectTo จาก proxy)
+  const getRedirectFromUrl = () => {
+    const redirect =
+      searchParams.get("redirect") ?? searchParams.get("redirectTo");
+    if (!redirect) return null;
+    // เฉพาะ path ที่ขึ้นต้นด้วย / เพื่อความปลอดภัย
+    return redirect.startsWith("/") ? redirect : null;
+  };
+
+  // ✅ helper สำหรับ map role -> path (เมื่อไม่มี redirect ใน URL)
   const getRedirectPathByRole = (role?: string) => {
     switch (role) {
       case "owner":
@@ -85,7 +94,7 @@ export function useLoginForm(isAdmin: boolean = false) {
       }
 
       if (isAdmin) {
-        // Check if the user is an admin
+        // Admin login: เฉพาะ admin เท่านั้น
         if (currentUser?.role !== "admin") {
           localStorage.removeItem("accessToken");
           throw new Error("You are not authorized to access this page");
@@ -96,12 +105,10 @@ export function useLoginForm(isAdmin: boolean = false) {
       } else {
         setServerSuccess("Login successful. Redirecting...");
 
-        // ✅ ถ้ามี redirect query param (เช่น จาก BookingModal) ให้ redirect ไปที่นั่นก่อน
-        const redirectParam = searchParams.get("redirect");
+        // ✅ ถ้ามี redirect ใน URL ให้กลับไปหน้านั้น (เช่น จาก Book now หรือ proxy)
+        const redirectFromUrl = getRedirectFromUrl();
         const redirectPath =
-          redirectParam && redirectParam.startsWith("/")
-            ? redirectParam
-            : getRedirectPathByRole(currentUser.role);
+          redirectFromUrl ?? getRedirectPathByRole(currentUser.role);
         setTimeout(() => router.push(redirectPath), 800);
       }
     } catch (err: unknown) {
