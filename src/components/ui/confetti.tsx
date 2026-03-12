@@ -17,7 +17,7 @@ import type {
 } from "canvas-confetti"
 import confetti from "canvas-confetti"
 
-import { Button } from "@/components/ui/button"
+// import { Button } from "@/components/ui/button"
 
 type Api = {
   fire: (options?: ConfettiOptions) => void
@@ -137,9 +137,9 @@ const ConfettiButtonComponent = ({
   }
 
   return (
-    <Button onClick={handleClick} {...props}>
+    <button onClick={handleClick} {...props}>
       {children}
-    </Button>
+    </button>
   )
 }
 
