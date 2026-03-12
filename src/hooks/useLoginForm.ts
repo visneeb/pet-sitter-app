@@ -20,6 +20,7 @@ type AxiosLikeError = {
 export function useLoginForm(isAdmin: boolean = false) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
 
   const [serverError, setServerError] = useState("");
