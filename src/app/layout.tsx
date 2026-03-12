@@ -5,10 +5,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AppProviders from "@/components/providers/AppProviders";
 import { Toaster } from "sonner";
-import { Figtree } from "next/font/google";
-import { cn } from "@/lib/utils";
-
-const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "Pet Sitter",
@@ -21,12 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" className={cn("font-sans", figtree.variable)}>
+    <html lang="en" data-theme="light">
       <body className={`antialiased`}>
         <AppProviders>
           {children}
-          <script src="./assets/vendor/canvas-confetti/dist/confetti.browser.js">
-          </script>
+          <script src="./assets/vendor/canvas-confetti/dist/confetti.browser.js"></script>
           <Toaster />
         </AppProviders>
       </body>
