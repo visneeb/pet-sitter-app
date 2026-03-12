@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { getPetSitterById } from "@/services/api/sitterApi";
+import { getPublicPetSitterById } from "@/services/api/sitterApi";
 import { toSitter } from "@/utils/sitter";
 import type { Sitter } from "@/types/sitter";
-import type { SitterApi } from "@/types/sitter";
 
 export function usePetSitterDetail(
   sitterId: number | string | null | undefined
@@ -26,13 +25,13 @@ export function usePetSitterDetail(
     setError(null);
     setIsLoading(true);
 
-    getPetSitterById(id.toString())
+    getPublicPetSitterById(id.toString())
       .then((response) => {
         if (response.error) {
           setError(response.error);
           setSitter(null);
         } else if (response.data) {
-          setSitter(toSitter(response.data as SitterApi));
+          setSitter(toSitter(response.data));
           setError(null);
         }
       })

@@ -41,7 +41,8 @@ export const createApiInstance = (withAuth: boolean) => {
 
       const { status, data } = error.response;
 
-      if (status === 401) {
+      // Only authenticated clients should own session-expiry redirects.
+      if (status === 401 && withAuth) {
         console.warn("Unauthorized - redirecting to login");
         if (typeof window !== "undefined") {
           localStorage.removeItem("accessToken");

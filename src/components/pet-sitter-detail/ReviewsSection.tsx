@@ -49,7 +49,9 @@ export default function ReviewsSection({
     <section className="flex flex-col gap-4 bg-gray-100 w-full px-6 py-6 rounded-tl-[120px] rounded-2xl">
       <div className="px-6 py-6 bg-white rounded-xl rounded-tl-[99px] md:rounded-l-full flex flex-col md:flex-row w-full max-w-[800px] gap-10 md:items-center ">
         <div className="flex flex-col bg-black rounded-t-full rounded-l-full w-[146px] h-[146px] items-center justify-center shrink-0">
-          <h2 className="style-headline-2 text-white text-center">{rating}</h2>
+          <h2 className="style-headline-2 text-white text-center">
+            {reviewCount === 0 ? "N/A" : rating}
+          </h2>
           <p className="style-body-3 text-white">{reviewCount} Reviews</p>
         </div>
         <div className="flex flex-col gap-2">
@@ -71,6 +73,12 @@ export default function ReviewsSection({
           <ReviewCardSkeleton />
           <ReviewCardSkeleton isLast />
         </>
+      ) : displayReviews.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 px-6 bg-gray-100 rounded-xl">
+          <p className="style-body-2 text-gray-500 text-center">
+            No Reviews for this pet sitter
+          </p>
+        </div>
       ) : (
         displayReviews.map((review: ReviewApi, index: number) => (
           <ReviewCard
@@ -85,11 +93,13 @@ export default function ReviewsSection({
         ))
       )}
 
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={onPageChange ?? (() => {})}
-      />
+      {displayReviews.length > 0 && totalPages > 1 && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={onPageChange ?? (() => {})}
+        />
+      )}
     </section>
   );
 }
