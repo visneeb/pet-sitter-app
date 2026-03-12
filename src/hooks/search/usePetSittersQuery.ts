@@ -49,7 +49,6 @@ export function usePetSittersQuery(
 
         const raw = response.data;
         const list = Array.isArray(raw?.sitters) ? raw.sitters : [];
-
         setState({
           petSitters: list,
           totalPages: raw.totalPages ?? 1,

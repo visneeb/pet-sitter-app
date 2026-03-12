@@ -3,15 +3,21 @@ import Image from "next/image";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
 import { PetSitter } from "@/types/PetSittersType";
-import { ImageOff } from "lucide-react";
+import { ImageOff, UserRound } from "lucide-react";
 
 export default function PlacePicture({
   sitter,
   priority = false,
-}: Readonly<{ sitter: PetSitter; priority?: boolean }>) {
-  const { isSmall } = useScreenContext();
-
-  
+  className,
+}: Readonly<{ sitter: PetSitter; priority?: boolean; className?: string }>) {
+  const sizeClass = cn(
+    "object-cover rounded-lg aspect-4/3",
+    "w-full h-[100px]",
+    "sm:w-[245px] sm:h-[184px]",
+    "lg:w-full lg:h-[184px]",
+    "xl:w-[245px] xl:h-[184px]",
+    className,
+  );
   return (
     <div>
       {sitter.imgUrl ? (
@@ -21,19 +27,16 @@ export default function PlacePicture({
           width={245}
           height={184}
           priority={priority}
-          className={cn(
-            "object-cover rounded-lg aspect-4/3",
-            isSmall ? "w-full h-full" : "w-full h-[100px]",
-          )}
+          className={sizeClass}
         />
       ) : (
         <div
           className={cn(
-            "flex items-center justify-center bg-gray-200 rounded-lg aspect-4/3",
-            isSmall ? "w-full h-full" : "w-full h-[100px]",
+            sizeClass,
+            "flex items-center justify-center bg-gray-200",
           )}
         >
-          <ImageOff className="text-gray-400" size={32} />
+          <ImageOff className="text-white size-10 sm:size-15 lg:size-15"/>
         </div>
       )}
     </div>

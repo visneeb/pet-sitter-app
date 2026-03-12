@@ -6,6 +6,8 @@ import MainViewSearch from "@/components/search/MainViewSearch";
 import { usePetSitterSearch } from "@/contexts/PetSitterSearchContext";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSearchParams } from "next/navigation";
+import { ActionButton } from "../ui/Button";
+import { ChevronUp } from "lucide-react";
 
 // ── Layout Constants ────────────────────────────────────────
 // รวม magic values ไว้ที่เดียว → แก้ไขง่าย สอดคล้องกับ design system
@@ -32,6 +34,7 @@ export default function SearchPageContent() {
         </div>
 
         <div
+          id="main-content"
           className={`order-1 lg:order-2 flex flex-col  items-center lg:flex-row  lg:items-start justify-center ${LAYOUT.desktopSidePadding} ${LAYOUT.sidebarGap}`}
         >
           <FilterSideBar />
@@ -44,17 +47,32 @@ export default function SearchPageContent() {
         </div>
       </div>
 
-      {/* ── Pagination ── */}
-      {viewMode === "list" ? (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      ) : (
-        <div className="w-full flex justify-center pt-6 pb-[196px]"></div>
-      )}
-
+      <div className="relative w-full flex flex-col items-center justify-center pt-6 pb-6 sm:pb-[196px]">
+        {/* ── Pagination ── */}
+        {viewMode === "list" ? (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            className=""
+          />
+        ) : (
+          <div className="w-full flex justify-center"></div>
+        )}
+        <div className="w-full flex sm:hidden justify-end items-center pr-4 pb-4">
+          <ActionButton
+            variant="icon"
+            onClick={() => {
+              const mainContent = document.getElementById("main-content");
+              if (mainContent) {
+                mainContent.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+          >
+            <ChevronUp />
+          </ActionButton>
+        </div>
+      </div>
     </>
   );
 }

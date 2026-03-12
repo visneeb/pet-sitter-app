@@ -1,22 +1,33 @@
 import { Star } from "lucide-react";
-import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
 import { PetSitter } from "@/types/PetSittersType";
 
+interface RatingStarProps {
+  sitter: PetSitter;
+  containerClassName?: string;
+  starClassName?: string;
+  colorStar?: string;
+  colorFill?: string;
+}
+
+
 export default function RatingStar({
   sitter,
-}: Readonly<{ sitter: PetSitter }>) {
-  const { isSmall, isMedium, isLarge, isXLarge } = useScreenContext();
-  const isWebView = isSmall && isMedium;
-  const isWebViewMini = isLarge && !isXLarge;
+  containerClassName,
+  starClassName,
+  colorStar = "#1CCD83",
+  colorFill = "#1CCD83",
+}: Readonly<RatingStarProps>) {
+
+  const sizeClass = starClassName ?? "w-3 h-3 sm:w-5 sm:h-5";
   return (
-    <div className={cn("flex items-center gap-[2px] mt-2")}>
+    <div className={cn("flex items-center gap-[2px] mt-2", containerClassName)}>
       {Array.from({ length: sitter.rating }).map((_, i) => (
         <Star
           key={i}
-          color="#1CCD83"
-          fill="#1CCD83"
-          size={isWebView ? (isWebViewMini ? 12 : 20) : 12}
+          color={colorStar}
+          fill={colorFill}
+          className={sizeClass}
         />
       ))}
     </div>
