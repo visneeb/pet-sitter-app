@@ -13,10 +13,9 @@ export default function LeafletMap({
   className,
 }: Readonly<MapProps>) {
   const defaultPos: [number, number] = center ?? [13.7563, 100.5018];
-
   return (
     <MapContainer
-      center={defaultPos}
+      center={center ?? defaultPos}
       zoom={zoom}
       zoomControl={false}
       // style={{ height: "100vh", width: "100%", borderRadius: "16px" }}
