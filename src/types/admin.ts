@@ -43,6 +43,7 @@ export interface SitterItem {
   readonly id: string;
   sitter: Pick<OwnerItem, "name" | "profileImgUrl" | "email" | "status">;
   tradeName: string;
+  hasPendingUpdate: boolean;
   status: SitterStatus;
 }
 
@@ -65,6 +66,7 @@ export interface GetSitterListParams {
 export interface SitterProfileResponse {
   readonly id: number;
   sitter: {
+    id: string;
     name: string;
     phone: string;
     profileImgUrl?: string;
@@ -82,9 +84,11 @@ export interface SitterProfileResponse {
   description?: string;
   address?: string;
   latitude?: number;
+  longitude?: number;
   province?: string;
   district?: string;
   subDistrict?: string;
   postCode?: number;
-  status: string;
+  hasPendingUpdate: boolean;
+  status: SitterStatus;
 }

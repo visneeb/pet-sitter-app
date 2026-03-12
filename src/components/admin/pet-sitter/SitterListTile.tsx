@@ -14,7 +14,7 @@ interface SitterListTileProps {
 }
 
 function SitterListTile(props: SitterListTileProps) {
-  const { sitter: user, tradeName, status } = props.sitter;
+  const { sitter: user, tradeName, hasPendingUpdate, status } = props.sitter;
 
   let sitterStatus: SitterStatus | Extract<UserStatus, "Banned">;
   if (user.status === "Banned") {
@@ -26,7 +26,8 @@ function SitterListTile(props: SitterListTileProps) {
   return (
     <li
       className={cn(
-        "flex items-center w-full h-23 bg-white",
+        "flex items-center w-full h-23",
+        hasPendingUpdate ? "bg-gray-200" : "bg-white",
         props.isLast ? "rounded-b-2xl" : "border-b border-gray-200",
       )}
       onClick={props.onClick}
@@ -35,20 +36,20 @@ function SitterListTile(props: SitterListTileProps) {
         {user.profileImgUrl ? (
           <Image
             src={user.profileImgUrl}
-            alt={`${name} profile`}
+            alt={user.name}
             width={44}
             height={44}
-            className="hidden size-11 object-cover rounded-full md:block"
+            className="hidden size-11 min-w-11 object-cover rounded-full md:block"
           />
         ) : (
-          <div className="hidden md:flex size-11 rounded-full bg-gray-100 items-center justify-center style-body-4 text-gray-400">
+          <div className="hidden md:flex size-11 min-w-11 rounded-full bg-gray-100 items-center justify-center style-body-4 text-gray-400">
             {user.name.slice(0, 1).toUpperCase()}
           </div>
         )}
         <p className="style-body-2 text-black truncate">{user.name}</p>
       </div>
       <div className="hidden flex-1 px-4 style-body-2 text-black xl:block">
-        {tradeName}
+        {tradeName || "-"}
       </div>
       <div className="hidden w-[calc(324/1120*100%)] min-w-80 px-4 style-body-2 text-black md:block">
         {user.email}

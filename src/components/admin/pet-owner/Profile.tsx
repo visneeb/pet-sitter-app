@@ -5,6 +5,26 @@ import { idNumberWithHyphen, phoneWithSpace } from "@/utils/user";
 import { format } from "date-fns";
 import { User } from "lucide-react";
 
+const showBanUserModal = () => {
+  const dialog = document.getElementById(
+    "ban-user",
+  ) as HTMLDialogElement | null;
+
+  if (!dialog) return;
+
+  dialog.showModal();
+};
+
+const showUnbanUserModal = () => {
+  const dialog = document.getElementById(
+    "unban-user",
+  ) as HTMLDialogElement | null;
+
+  if (!dialog) return;
+
+  dialog.showModal();
+};
+
 function Profile({ owner }: { owner: OwnerProfileResponse }) {
   return (
     <div className="flex flex-col gap-4 lg:gap-10">
@@ -45,9 +65,23 @@ function Profile({ owner }: { owner: OwnerProfileResponse }) {
           />
         </div>
       </div>
-      <ActionButton variant="ghost" className="self-end">
-        Ban This User
-      </ActionButton>
+      {owner.status === "Normal" ? (
+        <ActionButton
+          variant="ghost"
+          onClick={showBanUserModal}
+          className="self-end"
+        >
+          Ban This User
+        </ActionButton>
+      ) : (
+        <ActionButton
+          variant="ghost"
+          onClick={showUnbanUserModal}
+          className="self-end"
+        >
+          Unban This User
+        </ActionButton>
+      )}
     </div>
   );
 }

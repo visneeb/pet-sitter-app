@@ -19,11 +19,13 @@ export interface UseSitterListResult {
   isLoading: boolean;
   error: string | null;
   searchKeyword: string;
+  pendingUpdateFilter: boolean | null;
   statusFilter: SitterStatus | Extract<UserStatus, "Banned"> | null;
   handleKeywordChange: (value: string) => void;
   handleStatusChange: (
     value: SitterStatus | Extract<UserStatus, "Banned"> | null,
   ) => void;
+  handlePendingUpdateChange: (value: boolean) => void;
   setPage: (page: number) => void;
 }
 
@@ -40,14 +42,18 @@ export function useSitterList(
   const [statusFilter, setStatusFilter] = useState<
     SitterStatus | Extract<UserStatus, "Banned"> | null
   >(null);
+  const [pendingUpdateFilter, setPendingUpdateFilter] =
+    useState<boolean>(false);
   const [page, setPage] = useState(1);
   const [state, setState] = useState<
     Omit<
       UseSitterListResult,
       | "searchKeyword"
+      | "pendingUpdateFilter"
       | "statusFilter"
       | "handleKeywordChange"
       | "handleStatusChange"
+      | "handlePendingUpdateChange"
       | "setPage"
     >
   >({
@@ -70,9 +76,10 @@ export function useSitterList(
 
   useEffect(() => {
     setPage(1);
-  }, [statusFilter]);
+  }, [statusFilter, pendingUpdateFilter]);
 
   useEffect(() => {
+    console.log(4444);
     const controller = new AbortController();
 
     const fetchSitters = async () => {
@@ -85,6 +92,7 @@ export function useSitterList(
           limit,
           ...(debouncedKeyword ? { keyword: debouncedKeyword } : {}),
           ...(statusFilter ? { status: statusFilter } : {}),
+          ...(pendingUpdateFilter ? { hasPendingUpdate: true } : {}),
         };
 
         const data = await adminApi.getSitterList(params, controller.signal);
@@ -118,7 +126,7 @@ export function useSitterList(
     return () => {
       controller.abort();
     };
-  }, [debouncedKeyword, limit, page, seed, statusFilter]);
+  }, [debouncedKeyword, limit, page, seed, statusFilter, pendingUpdateFilter]);
 
   const handleKeywordChange = (value: string) => {
     setSearchKeyword(value);
@@ -130,15 +138,22 @@ export function useSitterList(
     setStatusFilter(status);
   };
 
+  const handlePendingUpdateChange = (value: boolean) => {
+    setPendingUpdateFilter(value);
+    setStatusFilter(null);
+  };
+
   return useMemo(
     () => ({
       ...state,
       searchKeyword,
       statusFilter,
+      pendingUpdateFilter,
       handleKeywordChange,
       handleStatusChange,
+      handlePendingUpdateChange,
       setPage,
     }),
-    [searchKeyword, state, statusFilter],
+    [searchKeyword, state, statusFilter, pendingUpdateFilter],
   );
 }
