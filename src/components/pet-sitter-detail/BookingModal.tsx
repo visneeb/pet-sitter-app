@@ -157,9 +157,8 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
                   type="submit"
                   variant="primary"
                   className="flex-1"
-                >
-                  Continue
-                </ActionButton>
+                  label="Continue"
+                />
               </div>
             </div>
           </FormProvider>
