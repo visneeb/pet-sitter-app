@@ -5,7 +5,9 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "icon";
 
 interface ActionButtonProps {
   variant: ButtonVariant;
-  children: React.ReactNode;
+  /** ข้อความที่แสดงบนปุ่ม เช่น "Continue", "Submit" (ใช้แทน children ได้) */
+  label?: string;
+  children?: React.ReactNode;
   type?: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
@@ -54,7 +56,7 @@ export function ActionButton(props: ActionButtonProps) {
       disabled={props.disabled}
       className={cn(variants[props.variant], props.className, "")}
     >
-      {props.children}
+      {props.label ?? props.children}
     </button>
   );
 }
