@@ -8,10 +8,33 @@ import gmailIcon from "@/assets/icons/gg.svg";
 import { Form } from "@/components/form/index";
 import { useLoginForm } from "@/hooks/useLoginForm";
 import { LoginFields } from "@/components/login/LoginFields";
+import { supabase } from "@/lib/supabaseClient";
 
 function LoginFormContent() {
   const { methods, onSubmit, isSubmitting, serverError, serverSuccess } =
     useLoginForm();
+
+  const loginWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) console.error(error.message);
+  };
+
+  const loginWithFacebook = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "facebook",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) console.error(error.message);
+  };
 
   return (
     <>
@@ -48,6 +71,7 @@ function LoginFormContent() {
             <div className="flex gap-3">
               <button
                 type="button"
+                onClick={loginWithFacebook}
                 className="flex-1 flex items-center justify-center gap-2 rounded-full bg-gray-100 py-2.5 text-gray-700 style-body-2 hover:bg-gray-200 transition"
               >
                 <img src={facebookIcon.src} alt="" className="w-5 h-5" />
@@ -56,10 +80,11 @@ function LoginFormContent() {
 
               <button
                 type="button"
+                onClick={loginWithGoogle}
                 className="flex-1 flex items-center justify-center gap-2 rounded-full bg-gray-100 py-2.5 text-gray-700 style-body-2 hover:bg-gray-200 transition"
               >
                 <img src={gmailIcon.src} alt="" className="w-5 h-5" />
-                Gmail
+                Google
               </button>
           </div>
 
