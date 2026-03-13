@@ -37,11 +37,34 @@ function LoginFormContent() {
         </Form>
 
         <div className="my-4 flex items-center text-center gap-3">
-          {/* ... ส่วน Or Continue With, Facebook, Gmail ... */}
-        </div>
+              <div className="h-px flex-1 bg-gray-200" />
+              <span className="style-body-1 text-gray-400">
+                Or Continue With
+              </span>
+              <div className="h-px flex-1 bg-gray-200" />
+            </div>
+
+            {/* Social buttons */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full bg-gray-100 py-2.5 text-gray-700 style-body-2 hover:bg-gray-200 transition"
+              >
+                <img src={facebookIcon.src} alt="" className="w-5 h-5" />
+                Facebook
+              </button>
+
+              <button
+                type="button"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full bg-gray-100 py-2.5 text-gray-700 style-body-2 hover:bg-gray-200 transition"
+              >
+                <img src={gmailIcon.src} alt="" className="w-5 h-5" />
+                Gmail
+              </button>
+          </div>
 
         <p className="text-center style-body-1 text-black">
-          Don&apos;t have an account? <Link href="/auth/register" >Register</Link>
+          Don&apos;t have an account? <Link href="/auth/register" className="text-orange-500" >Register</Link>
         </p>
       </div>
     </>
