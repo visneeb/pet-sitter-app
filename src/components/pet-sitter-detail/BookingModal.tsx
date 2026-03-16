@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { createPortal } from "react-dom";
 import { getNextTimeSlot } from "@/utils/timeFormat";
 import { ActionButton } from "@/components/ui/Button";
-import {
-  FormProvider,
-  DatePicker,
-  TimePicker,
-} from "@/components/form";
+import { FormProvider, DatePicker, TimePicker } from "@/components/form";
 import type { Sitter } from "@/types/sitter";
 import { CloseIcon, ClockIcon, CalendarIcon } from "@/assets/icons/components";
+
 export interface BookingFormValues {
   startDate: Date | null;
   endDate: Date | null;
@@ -19,14 +17,28 @@ export interface BookingFormValues {
   note: string;
 }
 
+interface ModalAction {
+  label: string;
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
+  variant?: "primary" | "secondary" | "ghost";
+}
+
 interface Props {
   sitter: Pick<Sitter, "tradeName">;
   onClose: () => void;
   onConfirm?: (data: BookingFormValues) => void | Promise<void>;
+  actions?: ModalAction[];
 }
 
-export function BookingModal({ sitter, onClose, onConfirm }: Props) {
+export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
+  const [mounted, setMounted] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const handleClose = () => {
     if (isClosing) return;
@@ -68,9 +80,15 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
     }
   }, [startTime, endTimeMin, methods]);
 
-  const oneYearFromNow = new Date(new Date().getFullYear() + 1, new Date().getMonth(), 1);
+  const oneYearFromNow = new Date(
+    new Date().getFullYear() + 1,
+    new Date().getMonth(),
+    1,
+  );
 
-  return (
+  if (!mounted) return null;
+
+  const modalContent = (
     <>
       <style>{`
         @keyframes slideUp {
@@ -90,20 +108,24 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
           }
         }
       `}</style>
+
       <div
-        className="fixed inset-0 z-1000 flex items-end md:items-center justify-center bg-black/50 transition-opacity"
+        className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/50 transition-opacity"
         onClick={handleClose}
         role="presentation"
       >
         <div
-          className={`bg-white rounded-t-3xl md:rounded-2xl shadow-xl w-full md:max-w-[560px] md:mx-4 flex flex-col gap-5 h-[95vh] md:h-auto md:max-h-[90vh] mobile-bottom-sheet ${isClosing ? "mobile-bottom-sheet-closing" : ""}`}
+          className={`bg-white rounded-t-3xl md:rounded-2xl shadow-xl w-full md:max-w-[560px] md:mx-4 flex flex-col gap-5 h-[95vh] md:h-auto md:max-h-[90vh] mobile-bottom-sheet ${
+            isClosing ? "mobile-bottom-sheet-closing" : ""
+          }`}
           onClick={(e) => e.stopPropagation()}
           onAnimationEnd={handleAnimationEnd}
           role="dialog"
           aria-modal="true"
           aria-labelledby="booking-modal-title"
         >
-          <div className="flex items-start justify-between px-10 py-6 border-b border-gray-200 ">
+          {/* Header */}
+          <div className="flex items-start justify-between px-10 py-6 border-b border-gray-200">
             <h3
               id="booking-modal-title"
               className="style-headline-3 text-gray-600"
@@ -114,26 +136,34 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
               type="button"
               onClick={handleClose}
               className="text-gray-600 hover:text-gray-900 hover:cursor-pointer text-xl leading-none p-1"
-              aria-label="ปิด"
+              aria-label="Close"
             >
               <CloseIcon />
             </button>
           </div>
 
-          <FormProvider methods={methods} onSubmit={handleSubmit} className="flex flex-col flex-1">
+          {/* Form */}
+          <FormProvider
+            methods={methods}
+            onSubmit={handleSubmit}
+            className="flex flex-col flex-1"
+          >
             <div className="flex flex-col gap-4 px-10 py-6 flex-1">
-              <p className="style-body-1 text-gray-600">Select date and time you want to schedule the service.</p>
+              <p className="style-body-1 text-gray-600">
+                Select date and time you want to schedule the service.
+              </p>
+
               <div className="flex items-center gap-2">
                 <CalendarIcon size={20} className="shrink-0 text-gray-500" />
-
-              <DatePicker
-                name="startDate"
-                placeholder="Pet arrival date"
-                disabled={{ before: new Date()}}
-                startMonth={new Date()}
-                endMonth={oneYearFromNow}
+                <DatePicker
+                  name="startDate"
+                  placeholder="Pet arrival date"
+                  disabled={{ before: new Date() }}
+                  startMonth={new Date()}
+                  endMonth={oneYearFromNow}
                 />
-                </div>
+              </div>
+
               <div className="flex items-center gap-2">
                 <ClockIcon size={20} className="shrink-0 text-gray-500" />
                 <TimePicker
@@ -151,14 +181,29 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
                 />
               </div>
 
+              {/* Actions */}
               <div className="flex justify-around gap-4 pt-2 mt-auto">
-               
-                <ActionButton
-                  type="submit"
-                  variant="primary"
-                  className="flex-1"
-                  label="Continue"
-                />
+                {actions ? (
+                  actions.map((action, i) => (
+                    <ActionButton
+                      key={i}
+                      type={action.type ?? "button"}
+                      variant={action.variant ?? "primary"}
+                      className="flex-1"
+                      onClick={action.onClick}
+                    >
+                      {action.label}
+                    </ActionButton>
+                  ))
+                ) : (
+                  <ActionButton
+                    type="submit"
+                    variant="primary"
+                    className="flex-1"
+                  >
+                    Continue
+                  </ActionButton>
+                )}
               </div>
             </div>
           </FormProvider>
@@ -166,4 +211,6 @@ export function BookingModal({ sitter, onClose, onConfirm }: Props) {
       </div>
     </>
   );
+
+  return createPortal(modalContent, document.body);
 }

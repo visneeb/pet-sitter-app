@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  FieldValues,
-  Path,
-  useFormContext,
-  get,
-  Controller,
-} from "react-hook-form";
+import { FieldValues, Path, useFormContext, Controller } from "react-hook-form";
 import { FormField } from "../ui/form/FormField";
 import { FormControl } from "../ui/form/FormControl";
 import { Input, InputProps } from "../ui/input/Input";
@@ -30,13 +24,7 @@ export function RHFInput<T extends FieldValues>({
   value,
   ...props
 }: RHFInputProps<T>) {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext<T>();
-
-  const error = get(errors, name);
-
+  const { control } = useFormContext<T>();
   return (
     <FormField name={name} disabled={props.disabled}>
       <FormLabel>
@@ -48,17 +36,21 @@ export function RHFInput<T extends FieldValues>({
         <Controller
           name={name}
           control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              {...props}
-              value={value || field.value}
-              onChange={(e) => {
-                field.onChange(e);
-                props.onChange?.(e);
-              }}
-              autoComplete="on"
-            />
+          render={(
+            { field, fieldState: { error } },
+          ) => (
+            <>
+              <Input
+                {...field}
+                {...props}
+                value={value || field.value}
+                onChange={(e) => {
+                  field.onChange(e);
+                  props.onChange?.(e);
+                }}
+                autoComplete="on"
+              />
+            </>
           )}
         />
       </FormControl>

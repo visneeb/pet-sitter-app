@@ -67,4 +67,5 @@ export interface SitterProfile {
   latitude?: number;
   longitude?: number;
   images: string[];
+  status: string;
 }

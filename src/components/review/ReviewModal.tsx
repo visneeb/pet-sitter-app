@@ -6,6 +6,7 @@ import { Textarea } from "../ui/input/CustomTextarea";
 import { ActionButton } from "../ui/Button";
 import { reviewApi } from "@/services/api/reviewApi";
 import cn from "@/utils/cn";
+import { createPortal } from "react-dom";
 
 type ReviewModalProps = {
   open: boolean;
@@ -100,8 +101,11 @@ export default function ReviewModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/40">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 bg-black/40"
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="absolute inset-0" onClick={onClose} />
 
       <div className="absolute inset-x-0 bottom-0 flex justify-center sm:items-center sm:inset-0 sm:px-4 sm:py-10">
@@ -110,7 +114,7 @@ export default function ReviewModal({
             "relative z-10 flex w-full flex-col overflow-hidden bg-white shadow-xl",
             "max-h-[90vh] rounded-t-[32px]",
             "sm:max-h-[calc(100vh-5rem)] sm:max-w-[820px] sm:rounded-[32px]",
-            className
+            className,
           )}
         >
           <div className="flex justify-center pt-3 sm:hidden">
@@ -158,7 +162,7 @@ export default function ReviewModal({
                           "transition-colors duration-150 sm:h-[48px] sm:w-[48px] md:h-[60px] md:w-[60px]",
                           isActive
                             ? "fill-[#1CCD83] text-[#1CCD83]"
-                            : "fill-gray-300 text-gray-300"
+                            : "fill-gray-300 text-gray-300",
                         )}
                       />
                     </button>
@@ -210,6 +214,7 @@ export default function ReviewModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
