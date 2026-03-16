@@ -4,6 +4,7 @@ import Image from "next/image";
 import logo from "@/assets/web-logo.png";
 import { NavigationButton } from "@/components/ui/Button";
 import { Menu } from "lucide-react";
+import { closeNavbar } from "@/hooks/navbar/useCloseNavbar";
 
 export default function NavbarGuest() {
   return (
@@ -32,7 +33,7 @@ export default function NavbarGuest() {
           <div className="drawer-content">
             <label
               htmlFor="my-drawer-1"
-              className="drawer-button text-gray-300 flex items-center gap-3 px-4 py-3 hover:bg-gray-200 rounded-xl w-full cursor-pointer"
+              className="drawer-button text-gray-300 flex items-center gap-3 py-3 rounded-xl w-full cursor-pointer"
             >
               <Menu size={24} strokeWidth={2} />
             </label>
@@ -44,13 +45,26 @@ export default function NavbarGuest() {
               className="drawer-overlay"
             ></label>
             <ul className="gap-[16px] px-[16px] py-[40px] menu bg-white h-full w-full p-4 ">
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/auth/register">Become a Pet Sitter</Link>
+              <li>
+                <Link
+                  href="/auth/register"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <span className="text-black style-body-1">
+                    Become a Pet Sitter
+                  </span>
+                </Link>
               </li>
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/auth/login">Login</Link>
+              <li>
+                <Link
+                  href="/auth/login"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <span className="text-black style-body-1">Login</span>
+                </Link>
               </li>
-              <li className="w-full block">
+
+              <li className="w-full block" onClick={closeNavbar}>
                 <NavigationButton
                   variant="primary"
                   href="/search"

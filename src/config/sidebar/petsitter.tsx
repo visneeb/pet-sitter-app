@@ -6,21 +6,21 @@ export const petsitterSidebarItems: SidebarConfig = [
   {
     label: "Pet Sitter Profile",
     href: "/petsitter-profile",
-    icon: <UserIcon />,
+    icon: <UserIcon className="w-5 h-5 text-gray-600" />,
   },
   {
     label: "Bookings List",
     href: "/bookings",
-    icon: <ListIcon />,
+    icon: <ListIcon className="w-5 h-5 text-gray-600" />,
   },
   {
     label: "Calendar",
     href: "/calendar",
-    icon: <CalendarIcon />,
+    icon: <CalendarIcon className="w-5 h-5 text-gray-600" />,
   },
   {
     label: "Payout Options",
     href: "/payout",
-    icon: <CreditCardIcon />,
+    icon: <CreditCardIcon className="w-5 h-5 text-gray-600" />,
   },
 ];
