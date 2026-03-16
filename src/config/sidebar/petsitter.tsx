@@ -10,21 +10,21 @@ export const petsitterSidebarItems: SidebarConfig = [
   {
     label: "Pet Sitter Profile",
     href: "/petsitter-profile",
-    icon: <UserIcon className="w-5 h-5 text-gray-600" />,
+    icon: <UserIcon />,
   },
   {
     label: "Bookings List",
     href: "/bookings",
-    icon: <ListIcon className="w-5 h-5 text-gray-600" />,
+    icon: <ListIcon />,
   },
   {
     label: "Calendar",
     href: "/calendar",
-    icon: <CalendarIcon className="w-5 h-5 text-gray-600" />,
+    icon: <CalendarIcon />,
   },
   {
     label: "Payout Options",
     href: "/payout",
-    icon: <CreditCardIcon className="w-5 h-5 text-gray-600" />,
+    icon: <CreditCardIcon />,
   },
 ];
