@@ -6,6 +6,7 @@ import { FormControl } from "../ui/form/FormControl";
 import { FormMessage } from "../ui/form/FormMessage";
 import { FormDescription } from "../ui/form/FormDescription";
 import { Select } from "../ui/input/Select";
+import { FormLabel } from "../ui/form/FormLabel";
 
 type Props<T extends FieldValues> = {
   name: Path<T>;
@@ -14,6 +15,8 @@ type Props<T extends FieldValues> = {
   description?: string;
   children: React.ReactNode;
   placeholder?: string;
+  // ✅ Let caller decide if value should be stored as number
+  asNumber?: boolean;
 } & Omit<
   React.ComponentPropsWithoutRef<typeof Select>,
   "value" | "onChange" | "children"
@@ -26,6 +29,7 @@ export function RHFSelect<T extends FieldValues>({
   description,
   children,
   placeholder,
+  asNumber = false,
   ...props
 }: Props<T>) {
   const { control } = useFormContext<T>();
@@ -36,15 +40,31 @@ export function RHFSelect<T extends FieldValues>({
       control={control}
       render={({ field, fieldState: { error } }) => (
         <FormField name={name}>
-          <label className="style-label text-black">
+          <FormLabel>
             {label}
             {required && <span>*</span>}
-          </label>
+          </FormLabel>
 
           <FormControl>
             <Select
-              value={field.value}
-              onChange={field.onChange}
+              value={
+                field.value != null && field.value !== ""
+                  ? String(field.value)
+                  : ""
+              }
+              onChange={(val) => {
+                if (!val) {
+                  field.onChange(asNumber ? 0 : "");
+                  return;
+                }
+                //  asNumber prop or auto-detect: if val parses cleanly as number, store as number
+                const asNum = Number(val);
+                if (asNumber || (!isNaN(asNum) && val !== "")) {
+                  field.onChange(asNum);
+                } else {
+                  field.onChange(val);
+                }
+              }}
               placeholder={placeholder}
               hasError={!!error}
               {...props}

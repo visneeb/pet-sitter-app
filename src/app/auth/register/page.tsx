@@ -19,8 +19,6 @@ export default function RegisterPage() {
     name: "role",
   });
 
-  console.log("Current role:", role);
-
   const roles: { value: Role; label: string }[] = [
     { value: "owner", label: "Owner" },
     { value: "sitter", label: "Sitter" },
@@ -47,7 +45,6 @@ export default function RegisterPage() {
                   key={value}
                   type="button"
                   onClick={() => {
-                    console.log("Setting role to:", value);
                     methods.setValue("role", value, { shouldValidate: true });
                   }}
                   className={`flex-1 rounded-full py-2 text-sm font-medium transition ${

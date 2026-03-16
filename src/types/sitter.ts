@@ -19,6 +19,7 @@ export interface Sitter {
   district: string | null;
   subDistrict: string | null;
   postCode: number | null;
+  reviewCount: number | null;
 }
 
 export interface SitterApi {
@@ -40,6 +41,7 @@ export interface SitterApi {
   district?: string;
   subDistrict?: string;
   postCode?: number;
+  reviewCount?: number;
 }
 
 export interface SittersResponse {
@@ -48,4 +50,21 @@ export interface SittersResponse {
   currentPage: number;
   limit: number;
   sitters: SitterApi[];
+}
+
+export interface SitterProfile {
+  id: number;
+  tradeName: string;
+  experience: number;
+  petTypeIds: number[];
+  introduction?: string;
+  services?: string;
+  description?: string;
+  address: string;
+  provinceId: number;
+  districtId: number;
+  subDistrictId: number;
+  latitude?: number;
+  longitude?: number;
+  images: string[];
 }

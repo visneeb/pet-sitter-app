@@ -12,7 +12,7 @@
 
 # testing
 /coverage
-
+/mock
 # next.js
 /.next/
 /out/
@@ -43,3 +43,6 @@ next-env.d.ts
 
 
 .Documents/
+/.cursor/
+.vscode/
+.cursor/

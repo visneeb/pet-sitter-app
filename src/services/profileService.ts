@@ -32,6 +32,7 @@ export class ProfileService {
   // Update name + phone (and optionally avatar file)
   static async updateProfile(
     data: Pick<ProfileFormValues, "name" | "phone">,
+    userRole: "owner" | "sitter" = "owner",
     file?: File | null,
   ) {
     if (!data.name?.trim() || !data.phone?.trim()) {
@@ -39,37 +40,26 @@ export class ProfileService {
     }
 
     const formData = buildFormData(
-      {
-        name: data.name.trim(),
-        phone: data.phone.trim(),
-      },
+      { name: data.name.trim(), phone: data.phone.trim() },
       file,
     );
 
-    console.log("Updating profile:", {
-      name: data.name.trim(),
-      phone: data.phone.trim(),
-      hasFile: !!file,
-    });
-
-    return await userApi.updateProfile(formData);
+    return await userApi.updateProfile(formData, userRole);
   }
 
   // Update name + phone + email (requires password) + optional avatar
   static async updateProfileWithEmail(
     data: ProfileFormValues,
     password: string,
+    userRole: "owner" | "sitter" = "owner",
     file?: File | null,
   ) {
     if (!data.name?.trim() || !data.phone?.trim()) {
       throw new Error("Name and phone are required");
     }
-    if (!data.email?.trim()) {
-      throw new Error("Email is required");
-    }
-    if (!password?.trim()) {
+    if (!data.email?.trim()) throw new Error("Email is required");
+    if (!password?.trim())
       throw new Error("Password is required to update email");
-    }
 
     const formData = buildFormData(
       {
@@ -81,33 +71,25 @@ export class ProfileService {
       file,
     );
 
-    console.log("Updating profile with email:", {
-      name: data.name.trim(),
-      phone: data.phone.trim(),
-      email: data.email.trim(),
-      hasFile: !!file,
-      password: "***",
-    });
-
-    return await userApi.updateProfile(formData);
+    return await userApi.updateProfile(formData, userRole);
   }
 
   // Remove avatar
-  static async removeAvatar(data: Pick<ProfileFormValues, "name" | "phone">) {
+  static async removeAvatar(
+    data: Pick<ProfileFormValues, "name" | "phone">,
+    userRole: "owner" | "sitter" = "owner",
+  ) {
     if (!data.name?.trim() || !data.phone?.trim()) {
       throw new Error("Name and phone are required");
     }
 
     const formData = buildFormData(
-      {
-        name: data.name.trim(),
-        phone: data.phone.trim(),
-      },
+      { name: data.name.trim(), phone: data.phone.trim() },
       null,
       true,
     );
 
-    return await userApi.updateProfile(formData);
+    return await userApi.updateProfile(formData, userRole);
   }
 
   static validateAvatar(file: ImageFile): { isValid: boolean; error?: string } {

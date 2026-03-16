@@ -1,17 +1,11 @@
-
 import PetSitterPicture from "./PetSitterPicture";
 import RatingStar from "./RatingStar";
 import cn from "@/utils/cn";
-
-import { useScreenContext } from "@/contexts/ScreenContext";
 import { PetSitter } from "@/types/PetSittersType";
 
 export default function PetSitterInfo({
   sitter,
 }: Readonly<{ sitter: PetSitter }>) {
-  const { isSmall, isMedium, isLarge, isXLarge } = useScreenContext();
-  const isWebView = isSmall && isMedium;
-  const isWebViewMini = isLarge && !isXLarge;
   return (
     <div className="flex flex-row justify-start items-center gap-4">
       <PetSitterPicture sitter={sitter} />
@@ -19,12 +13,10 @@ export default function PetSitterInfo({
         <div className="w-full flex flex-row justify-between items-start text-center">
           <h3
             className={cn(
-              "text-gray-800",
-              isWebView
-                ? isWebViewMini
-                  ? "style-body-1 text-start"
-                  : "style-headline-3"
-                : "style-body-1 text-start",
+              "text-gray-800 truncate",
+              "style-body-1 text-start",
+              "sm:style-headline-4",
+              "xl:style-headline-3",
             )}
           >
             {sitter.tradeName}
@@ -33,15 +25,13 @@ export default function PetSitterInfo({
         </div>
         <p
           className={cn(
-            "text-gray-500",
-            isWebView
-              ? isWebViewMini
-                ? "style-body-3"
-                : "style-body-1"
-              : "style-body-3",
+            "text-gray-500 truncate",
+            "style-body-3",
+            "sm:style-body-2",
+            "xl:style-body-1",
           )}
         >
-          By {sitter.sitter[0]}
+          By {sitter.sitter.name}
         </p>
       </div>
     </div>

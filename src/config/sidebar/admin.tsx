@@ -5,17 +5,17 @@ import PawIcon from "@/assets/icons/profile/paw-icon";
 export const adminSidebarItems: SidebarConfig = [
   {
     label: "Pet Owner",
-    href: "/pet-owner",
+    href: "/admin/pet-owner",
     icon: <UserIcon/>,
   },
   {
     label: "Pet Sitter",
-    href: "/pet-sitter",
+    href: "/admin/pet-sitter",
     icon: <PawIcon />,
   },
   {
     label: "Reports",
-    href: "/reports",
+    href: "/admin/reports",
     icon: <CopyIcon/>,
     },
 ];

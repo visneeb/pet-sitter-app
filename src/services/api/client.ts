@@ -1,10 +1,6 @@
 import axios from "axios";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!baseURL) {
-  throw new Error("NEXT_PUBLIC_API_URL is not defined");
-}
+const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export const createApiInstance = (withAuth: boolean) => {
   const instance = axios.create({
@@ -45,15 +41,8 @@ export const createApiInstance = (withAuth: boolean) => {
 
       const { status, data } = error.response;
 
-      console.error("API Error:", {
-        status,
-        url: error.config?.url,
-        method: error.config?.method,
-        sentData: error.config?.data,
-        response: data,
-      });
-
-      if (status === 401) {
+      // Only authenticated clients should own session-expiry redirects.
+      if (status === 401 && withAuth) {
         console.warn("Unauthorized - redirecting to login");
         if (typeof window !== "undefined") {
           localStorage.removeItem("accessToken");
@@ -64,8 +53,22 @@ export const createApiInstance = (withAuth: boolean) => {
         );
       }
 
-      error.message =
-        data?.message || data?.error || `Request failed with status ${status}`;
+      // Better error message extraction
+      let errorMessage = `Request failed with status ${status}`;
+
+      if (data) {
+        if (typeof data === "string") {
+          errorMessage = data;
+        } else if (data.message) {
+          errorMessage = data.message;
+        } else if (data.error) {
+          errorMessage = data.error;
+        } else if (data.detail) {
+          errorMessage = data.detail;
+        }
+      }
+
+      error.message = errorMessage;
       return Promise.reject(error);
     },
   );

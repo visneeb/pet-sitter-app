@@ -10,7 +10,7 @@ export function UserProfileHeader({
   leftAction?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between px-4 lg:px-0">
+    <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
         {leftAction}
         <h3 className="style-headline-4 md:style-headline-3">{title}</h3>

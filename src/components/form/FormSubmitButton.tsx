@@ -1,8 +1,8 @@
 "use client";
 
-import * as React from "react";
 import { useFormState } from "react-hook-form";
 import { ActionButton } from "../ui/Button";
+import { useMemo, useEffect, useState } from "react";
 
 type Props = {
   children: React.ReactNode;
@@ -25,28 +25,45 @@ export function SubmitButton({
   requireDirty = false,
   extraDirty = false,
 }: Props) {
-  // useFormState subscribes directly to RHF's internal store
   const { isValid, isDirty, isSubmitting, isValidating } = useFormState();
+  const [buttonState, setButtonState] = useState({
+    loading: false,
+    disabled: false,
+  });
 
-  const loading = isLoading || isSubmitting;
-  const effectiveDirty = isDirty || extraDirty;
+  useEffect(() => {
+    const loading = isLoading || isSubmitting;
+    const effectiveDirty = isDirty || extraDirty;
 
-  const disabled =
-    disabledProp === true ||
-    loading ||
-    isValidating ||
-    (requireValid && !isValid) ||
-    (requireDirty && !effectiveDirty);
+    const disabled =
+      disabledProp === true ||
+      loading ||
+      isValidating ||
+      (requireValid && !isValid) ||
+      (requireDirty && !effectiveDirty);
+
+    setButtonState({ loading, disabled });
+  }, [
+    isLoading,
+    isSubmitting,
+    isDirty,
+    extraDirty,
+    disabledProp,
+    isValidating,
+    requireValid,
+    isValid,
+    requireDirty,
+  ]);
 
   return (
     <ActionButton
       type="submit"
       variant="primary"
-      disabled={disabled}
-      aria-busy={loading}
+      disabled={buttonState.disabled}
+      aria-busy={buttonState.loading}
       className={className}
     >
-      {loading ? loadingText : children}
+      {buttonState.loading ? loadingText : children}
     </ActionButton>
   );
 }

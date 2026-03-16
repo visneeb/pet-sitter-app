@@ -10,7 +10,7 @@ export default function PetSitterLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 style-body-1">
+    <div className="h-full bg-gray-100 text-gray-900 style-body-1">
       <div className="flex flex-col lg:flex-row">
         <div className="flex flex-col w-full lg:hidden">
           <NavbarPetSitter />

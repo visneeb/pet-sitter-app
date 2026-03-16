@@ -7,6 +7,10 @@ export interface PetSitter {
   petTypes: string[];
   province: string;
   rating: number;
-  sitter: string[];
-  tradeName:string;
+  sitter: {
+    name: string;
+    profileImgUrl:string;
+    [key: string]: unknown;
+  };
+  tradeName: string;
 }

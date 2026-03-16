@@ -2,7 +2,7 @@
 import NavbarGuest from "./NavbarGuest";
 import NavbarPetSitterHome from "./NavbarPetSitterHome";
 import NavbarUser from "./NavbarUser";
-import { useAuth } from "@/contexts/AuthContextBackend";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const { user } = useAuth();

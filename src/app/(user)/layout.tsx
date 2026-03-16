@@ -14,7 +14,7 @@ export default function UserLayout({
         <Navbar />
       </div>
       <div className="flex flex-col lg:flex-row lg:pt-10 lg:gap-8 lg:px-20">
-        <div className="lg:h-full lg:sticky lg:top-16">
+        <div className="lg:h-full lg:sticky lg:top-30">
           <Sidebar
             items={ownerSidebarItems}
             header={<h4 className="style-headline-4 pb-3 px-5">Account</h4>}
@@ -23,7 +23,7 @@ export default function UserLayout({
             /* add drop shadow */
           />
         </div>
-        <main className="flex-1 lg:sticky lg:top-16">
+        <main className="flex-1 lg:sticky lg:top-16 pb-15">
           <ProfileContainer>{children}</ProfileContainer>
         </main>
       </div>

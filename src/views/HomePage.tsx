@@ -11,6 +11,7 @@ import SearchBar from "@/components/home/SearchBar";
 import HeroSection from "@/components/home/HeroSection";
 import { PetSitterSearchProvider } from "@/contexts/PetSitterSearchContext";
 
+
 const servicesContainerClassName =
   "flex flex-col items-center md:flex-row justify-between mx-auto max-w-[1064px] gap-24";
 const featuresContainerClassName =
@@ -73,6 +74,7 @@ export default function HomePage() {
       </section>
 
       <PerfectPetSitterSection />
+
     </>
   );
 }

@@ -1,14 +1,16 @@
 // Central export point for all API services
 
 export { publicApi, privateApi, createApiInstance } from "./client";
-export { authApi } from "./auth";
-export { uploadAvatarApi, deleteAvatarApi, getProfileApi } from "./avatarApi";
-export { updateEmailApi } from "./emailApi";
+export * from "./auth";
+export * from "./userApi";
+export * from "./sitterApi";
+export * from "./addressApi";
 export {
-  uploadPetImage,
-  deletePetImage,
-  uploadSitterImage,
-  deleteSitterImage,
-} from "./storageApi";
-export { sitterApi } from "./sitterApi";
-export { userApi } from "./userApi";
+  getPetSitters,
+  getPetSitterById,
+  getPetSitterByUserId,
+  getPetSitterByUserIdSimple,
+  updatePetSitterProfile,
+} from "./sitterApi";
+export { petApi } from "./petApi";
+export { reviewApi } from "./reviewApi"; 

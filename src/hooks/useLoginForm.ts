@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createResolver } from "@/lib/form/createResolver";
 import { validateLogin } from "@/lib/validations/loginFormValidation";
 import { LoginFormValues } from "@/types/authType";
 import { authApi } from "@/services/api/auth";
-import { useAuth } from "@/contexts/AuthContextBackend";
+import { useAuth } from "@/contexts/AuthContext";
 
 type AxiosLikeError = {
   message?: string;
@@ -17,8 +17,9 @@ type AxiosLikeError = {
   };
 };
 
-export function useLoginForm() {
+export function useLoginForm(isAdmin: boolean = false) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
 
   const [serverError, setServerError] = useState("");
@@ -41,26 +42,75 @@ export function useLoginForm() {
     formState: { isSubmitting },
   } = methods;
 
+  // ✅ อ่าน redirect จาก URL (รองรับทั้ง redirect และ redirectTo จาก proxy)
+  const getRedirectFromUrl = () => {
+    const redirect =
+      searchParams.get("redirect") ?? searchParams.get("redirectTo");
+    if (!redirect) return null;
+    // เฉพาะ path ที่ขึ้นต้นด้วย / เพื่อความปลอดภัย
+    return redirect.startsWith("/") ? redirect : null;
+  };
+
+  // ✅ helper สำหรับ map role -> path (เมื่อไม่มี redirect ใน URL)
+  const getRedirectPathByRole = (role?: string) => {
+    switch (role) {
+      case "owner":
+        return "/";
+      case "sitter":
+        return "/petsitter-profile";
+      case "admin":
+        return "/admin/pet-owner";
+      default:
+        return "/";
+    }
+  };
+
   const onSubmit = async (data: LoginFormValues) => {
     setServerError("");
     setServerSuccess("");
 
     try {
-      // Use backend API for login
-      const session = await authApi.login(data);
+      const response = await authApi.login(data);
 
-      if (!data) {
-        setServerError("Login succeeded but user data not found.");
+      const token = response.accessToken;
+
+      if (!token) {
+        setServerError("Login succeeded but session could not be established.");
         return;
       }
-      // Save token to localStorage
-      if (session.accessToken) {
-        localStorage.setItem("accessToken", session.accessToken);
+
+      // ✅ เก็บ token หลัง login สำเร็จ
+      localStorage.setItem("accessToken", token);
+
+      // ✅ ดึง current user จริงจาก AuthContext
+      const currentUser = await refreshUser();
+
+      // ✅ ถ้า profile โหลดไม่ได้ ให้หยุดก่อน
+      if (!currentUser) {
+        setServerError(
+          "Login succeeded, but user profile could not be loaded.",
+        );
+        return;
       }
 
-      setServerSuccess("Login successful. Redirecting...");
-      await refreshUser();
-      setTimeout(() => router.push("/"), 800);
+      if (isAdmin) {
+        // Admin login: เฉพาะ admin เท่านั้น
+        if (currentUser?.role !== "admin") {
+          localStorage.removeItem("accessToken");
+          throw new Error("You are not authorized to access this page");
+        }
+
+        setServerSuccess("Login successful. Redirecting...");
+        setTimeout(() => router.push("/admin/pet-owner"), 800);
+      } else {
+        setServerSuccess("Login successful. Redirecting...");
+
+        // ✅ ถ้ามี redirect ใน URL ให้กลับไปหน้านั้น (เช่น จาก Book now หรือ proxy)
+        const redirectFromUrl = getRedirectFromUrl();
+        const redirectPath =
+          redirectFromUrl ?? getRedirectPathByRole(currentUser.role);
+        setTimeout(() => router.push(redirectPath), 800);
+      }
     } catch (err: unknown) {
       const e = err as AxiosLikeError;
       const message = e.message || "Invalid email or password";
@@ -69,7 +119,6 @@ export function useLoginForm() {
       setValue("password", "");
       setFocus("password");
 
-      // Set field-specific errors if the error message indicates the field
       if (message.toLowerCase().includes("email")) {
         setError("email", { type: "server", message });
       } else if (message.toLowerCase().includes("password")) {

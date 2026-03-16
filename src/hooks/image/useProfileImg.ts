@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getProfileApi } from "@/services/api/avatarApi";
+import { userApi } from "@/services/api/index";
 
 type Profile = {
   id: string;
@@ -18,10 +18,9 @@ export function useProfileImg() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const response = await getProfileApi();
+      const response = await userApi.getCurrentUser();
       setProfile(response);
     } catch (error) {
-      console.log(error);
       setError("Failed to fetch profile image");
     } finally {
       setLoading(false);

@@ -1,5 +1,5 @@
 import logoWhite from "@/assets/logo.svg";
-import webLogo from "@/assets/web-logo.png";
+import webLogo from "@/assets/web-logo.svg";
 import Link from "next/link";
 import { StaticImageData } from "next/image";
 import Image from "next/image";
@@ -35,8 +35,11 @@ export function SidebarHeader({ role, className }: SidebarHeaderProps) {
         <Link href="/">
           <Image
             src={logo}
-            alt="Pet Sitter App Logo"
-            className="w-36 h-auto transition-transform"
+            alt="Logo"
+            width={128}
+            height={128}
+            loading="eager"
+            priority
           />
         </Link>
       )}

@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AppProviders from "@/components/providers/AppProviders";
 import { Toaster } from "sonner";
+
 export const metadata: Metadata = {
   title: "Pet Sitter",
   description: "Perfect pet sitter with us",

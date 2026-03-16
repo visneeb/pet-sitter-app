@@ -108,7 +108,6 @@
   --color-bg-gray: #fafafb;
 
   /* Breakpoint */
-  --breakpoint-xxl: 1400px;
 }
 
 /* Typography Utility Classes */
@@ -126,7 +125,6 @@
   line-height: var(--line-height-headline-1);
   letter-spacing: var(--letter-spacing);
 }
-
 
 @utility style-headline-2 {
   font-weight: var(--font-weight-headline);
@@ -207,4 +205,46 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px white inset !important;
   -webkit-text-fill-color: #000 !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* FormControl error: icon inside border, single border when wrapped */
+.form-control-error-wrapper input {
+  border-color: transparent;
+}
+
+/* React Day Picker - Calendar Card Style */
+.rdp-root .rdp-day_button:hover {
+  background-color: var(--color-orange-200);
+  cursor: pointer;
+}
+
+.rdp-root .rdp-today .rdp-day_button:hover {
+  background-color: var(--color-orange-300);
+}
+.rdp-root .rdp-selected .rdp-day_button:hover {
+  background-color: var(--color-orange-500);
+  color: var(--color-white);
+}
+
+/* RHFDatePicker: disabled days - ไม่ควรคลิกได้ และดูเหมือน disabled */
+.rdp-root .rdp-disabled .rdp-day_button,
+.rdp-root [aria-disabled="true"] .rdp-day_button {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.rdp-root .rdp-disabled .rdp-day_button:hover,
+.rdp-root [aria-disabled="true"] .rdp-day_button:hover {
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
+/* RHFDatePicker: disabled nav buttons (match react-day-picker style) */
+.rdp-root .rdp-button_previous:disabled,
+.rdp-root .rdp-button_previous[aria-disabled="true"],
+.rdp-root .rdp-button_next:disabled,
+.rdp-root .rdp-button_next[aria-disabled="true"] {
+  cursor: revert;
+  opacity: 0.5;
 }

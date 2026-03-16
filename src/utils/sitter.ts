@@ -23,6 +23,7 @@ export function toSitter(sitterApi: SitterApi): Sitter {
     district: sitterApi.district ?? null,
     subDistrict: sitterApi.subDistrict ?? null,
     postCode: sitterApi.postCode ?? null,
+    reviewCount: sitterApi.reviewCount ?? null,
   };
 }
 

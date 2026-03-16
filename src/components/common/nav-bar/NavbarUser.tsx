@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import logo from "@/assets/web-logo.png";
+import logo from "@/assets/web-logo.svg";
 import { NavigationButton } from "@/components/ui/Button";
 import {
   MessagesSquare,
@@ -13,7 +13,7 @@ import {
   Menu,
   UserRound,
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContextBackend";
+import { useAuth } from "@/contexts/AuthContext";
 import { useProfileImg } from "@/hooks/image/useProfileImg";
 import { closeNavbar } from "@/hooks/navbar/useCloseNavbar";
 
@@ -37,11 +37,13 @@ export default function NavbarUser() {
           <Image
             src={logo}
             alt="Logo"
-            className="h-[24px] w-auto md:h-[40px]"
+            className="h-6 w-auto md:h-10"
+            loading="eager"
+            priority
           />
         </Link>
       </div>
-      <div className="flex items-center gap-[24px] md:gap-[12px] text-headline-1">
+      <div className="flex items-center gap-6 md:gap-3 text-headline-1">
         <div>
           <Link
             href="/notification"
@@ -59,7 +61,7 @@ export default function NavbarUser() {
           </Link>
         </div>
 
-        <div className="hidden md:block dropdown dropdown-end">
+        <div className="dropdown dropdown-end hidden md:block">
           <div tabIndex={0} role="button" className="avatar cursor-pointer">
             <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full text-gray-300 hover:bg-gray-200 transition overflow-hidden">
               {loading ? (
@@ -134,7 +136,7 @@ export default function NavbarUser() {
               <Menu size={24} strokeWidth={2} />
             </label>
           </div>
-          <div className="drawer-side top-[48px]">
+          <div className="drawer-side top-12">
             <label
               htmlFor="my-drawer-1"
               aria-label="close sidebar"
