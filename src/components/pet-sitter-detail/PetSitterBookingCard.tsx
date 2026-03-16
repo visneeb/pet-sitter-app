@@ -302,26 +302,21 @@ export default function PetSitterBookingCard({
             <TagPetType sitter={{ petTypes: sitter.petTypes ?? [] }} />
           </div>
         </div>
-
-        <div className="flex w-full gap-4 border-t border-gray-200 px-6 py-6">
-          <NavigationButton
-            variant="secondary"
-            href="/messages"
-            className="hidden w-full lg:block"
-          >
-            Message
-          </NavigationButton>
-
-          <ActionButton
-            variant="primary"
-            onClick={handleBookNow}
-            className="w-full"
-            disabled={user ? !canBook : false}
-          >
-            Book now
-          </ActionButton>
-        </div>
       </div>
+      <div className="flex gap-4 border-t border-gray-200 w-full py-6 px-6">
+        <NavigationButton variant="secondary" href="/chat" className="w-full hidden lg:block">
+          Message
+        </NavigationButton>
+        <ActionButton
+          variant="primary"
+          onClick={handleBookNow}
+          className="w-full"
+          disabled={user ? !canBook : false}
+        >
+          Book now
+        </ActionButton>
+      </div>
+    </div>
 
       {isBooking && (
         <BookingModal
