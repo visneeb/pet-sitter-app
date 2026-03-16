@@ -34,10 +34,14 @@ export function BookingCard({ booking }: BookingCardProps) {
             }}
           />
         </div>
+
         <BookingCardFooter
           status={booking.status}
           review={booking.review}
           bookingId={booking.bookingId}
+          petSitterId={booking.petSitterId}
+          sitterName={booking.sitterName}
+          sitterImgUrl={booking.sitterImgUrl}
         />
       </div>
     </div>
