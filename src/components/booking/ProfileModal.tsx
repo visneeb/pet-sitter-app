@@ -1,7 +1,6 @@
 import DetailLabel from "@/components/ui/detail/DetailLabel";
 import { useBookingDetail } from "@/hooks/booking/useBookingDetail";
 import { useParams } from "next/navigation";
-import { useProfileImg } from "@/hooks/image/useProfileImg";
 import Image from "next/image";
 import { UserRound, X } from "lucide-react";
 
@@ -13,25 +12,25 @@ function ProfileModal({ onClose }: ProfileModalProps) {
   const params = useParams();
   const bookingId = Number(params.bookingId);
   const { booking, isLoading } = useBookingDetail(bookingId);
-  const { profile, loading } = useProfileImg();
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div></div>
       <div className="bg-white max-w-[800px] w-full rounded-2xl">
         <div className="flex justify-between items-center border-b border-gray-200 px-[40px] py-[24px] gap-[10px]">
           <h3 className="text-2xl font-bold">
-            {booking?.contactName ?? "Your Name"}
+            {booking?.petOwnerName ?? "Your Name"}
           </h3>
           <X className="w-[24px] h-[24px] cursor-pointer" onClick={onClose} />
         </div>
         <div className="flex gap-[40px] p-[40px] ">
           <div>
             <div className="flex items-center justify-center w-[240px] h-[240px] bg-gray-100 rounded-full text-gray-300  overflow-hidden">
-              {loading ? (
+              {isLoading ? (
                 <div className="animate-spin rounded-full w-8 h-8 border-1 border-t-orange-500" />
-              ) : profile?.profileImgUrl ? (
+              ) : booking?.petOwnerProfileImg ? (
                 <Image
-                  src={profile.profileImgUrl}
+                  src={booking.petOwnerProfileImg}
                   alt="Profile"
                   width={240}
                   height={240}
@@ -48,17 +47,14 @@ function ProfileModal({ onClose }: ProfileModalProps) {
           >
             <DetailLabel
               label="Pet Owner Name"
-              value={booking?.pets?.length ?? "-"}
+              value={booking?.petOwnerName ?? "-"}
             />
-            <DetailLabel label="Email" value={booking?.pets?.length ?? "-"} />
-            <DetailLabel label="Phone" value={booking?.pets?.length ?? "-"} />
-            <DetailLabel
-              label="ID Number"
-              value={booking?.pets?.length ?? "-"}
-            />
+            <DetailLabel label="Email" value={booking?.petOwnerEmail ?? "-"} />
+            <DetailLabel label="Phone" value={booking?.petOwnerPhone ?? "-"} />
+            <DetailLabel label="ID Number" value={booking?.bookingId ?? "-"} />
             <DetailLabel
               label="Date of Birth"
-              value={booking?.pets?.length ?? "-"}
+              value={booking?.petOwnerDateOfBirth ?? "-"}
             />
           </div>
         </div>

@@ -1,8 +1,4 @@
-type LabelValueProps = {
-  label: string;
-  value: string | number;
-  className?: string;
-};
+import type { LabelValueProps } from "@/types/booking";
 
 export default function DetailLabel({
   label,

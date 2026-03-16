@@ -1,7 +1,19 @@
 "use client";
-
-import { BookingList } from "@/components/booking/booking-pet-sitter/BookingList";
+import { ActionButton } from "@/components/ui/Button";
+import { useRouter } from "next/navigation";
 
 export default function PetSitterBooking() {
-  return <BookingList />;
+  const router = useRouter();
+  return (
+    <>
+      <div>
+        <ActionButton
+          variant="primary"
+          onClick={() => router.push("/bookings/6")}
+        >
+          Booking Detail Mockup Button
+        </ActionButton>
+      </div>
+    </>
+  );
 }

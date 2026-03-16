@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { bookingApi } from "@/services/api/bookingApi";
+import { USE_MOCK, getMockBookingById } from "@/mocks/bookingMock";
 import type { BookingDetail } from "@/types/booking";
 
 export function useBookingDetail(bookingId: number) {
@@ -12,8 +13,13 @@ export function useBookingDetail(bookingId: number) {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await bookingApi.getById(bookingId);
-      setBooking(data);
+      if (USE_MOCK) {
+        const mockData = getMockBookingById(bookingId);
+        setBooking(mockData ?? null);
+      } else {
+        const data = await bookingApi.getById(bookingId);
+        setBooking(data);
+      }
     } catch (error) {
       setError(
         error instanceof Error ? error : new Error("Failed to fetch booking"),
