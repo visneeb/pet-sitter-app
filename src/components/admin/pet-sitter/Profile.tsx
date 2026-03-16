@@ -1,6 +1,5 @@
 import { ActionButton } from "@/components/ui/Button";
 import InformationContainer from "@/components/ui/InformationContainer";
-import { COLOR_TAG } from "@/constants/colorTag";
 import petTypeColorTag from "@/constants/petTag";
 import { SitterProfileResponse } from "@/types/admin";
 import cn from "@/utils/cn";
@@ -378,7 +377,7 @@ function Profile({
               center={[sitter.latitude, sitter.longitude]}
               className="w-full h-100"
             >
-              <MapControls />
+              <MapControls hasSearch={false} />
               <OwnerMarker position={[sitter.latitude, sitter.longitude]} />
             </LeafletMap>
           )}
@@ -392,7 +391,7 @@ function Profile({
               center={[sitterPending.latitude, sitterPending.longitude]}
               className="w-full h-100 border border-orange-500"
             >
-              <MapControls />
+              <MapControls hasSearch={false} />
               <OwnerMarker
                 position={[sitterPending.latitude, sitterPending.longitude]}
               />
