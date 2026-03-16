@@ -39,13 +39,13 @@ export function BookingList() {
     <>
       <div className="flex flex-col gap-4">
         {paginatedBookings.map((booking) => (
-          <button
+          <div
             key={booking.bookingId}
             onClick={() => setSelectedBooking(booking)}
-            className="text-left w-full"
+            className="text-left w-full cursor-pointer"
           >
             <BookingCard booking={booking} />
-          </button>
+          </div>
         ))}
         <Pagination
           totalPages={totalPages}

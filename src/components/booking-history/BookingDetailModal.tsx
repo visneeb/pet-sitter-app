@@ -10,6 +10,7 @@ import {
   formatTransactionDate,
 } from "@/utils/timeFormat";
 import { BookingModal } from "../pet-sitter-detail/BookingModal";
+import { createPortal } from "react-dom";
 
 interface BookingDetailModalProps {
   booking: OwnerBookingHistory;
@@ -30,6 +31,7 @@ export function BookingDetailModal({
 }: BookingDetailModalProps) {
   const [isClosing, setIsClosing] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const statusStyle = statusStyleMap[booking.status] ?? {
     text: "text-gray-400",
@@ -64,7 +66,14 @@ export function BookingDetailModal({
     };
   }, [onClose]);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
+
+  const modalContent = (
     <>
       <style>{`
         @keyframes slideUp {
@@ -203,8 +212,11 @@ export function BookingDetailModal({
           sitter={{ tradeName: booking.tradeName }}
           onClose={() => setIsBooking(false)}
           onConfirm={() => setIsBooking(false)}
+          actions={[{ label: "Confirm", type: "submit", variant: "primary" }]}
         />
       )}
     </>
   );
+
+  return createPortal(modalContent, document.body);
 }

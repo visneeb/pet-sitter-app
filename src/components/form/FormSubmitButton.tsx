@@ -1,8 +1,7 @@
 "use client";
 
-import { useFormState } from "react-hook-form";
+import { useFormState, useFormContext } from "react-hook-form";
 import { ActionButton } from "../ui/Button";
-import { useMemo, useEffect, useState } from "react";
 
 type Props = {
   children: React.ReactNode;
@@ -25,45 +24,30 @@ export function SubmitButton({
   requireDirty = false,
   extraDirty = false,
 }: Props) {
-  const { isValid, isDirty, isSubmitting, isValidating } = useFormState();
-  const [buttonState, setButtonState] = useState({
-    loading: false,
-    disabled: false,
+  const { control } = useFormContext();
+
+  const { isValid, isDirty, isSubmitting, isValidating } = useFormState({
+    control,
   });
 
-  useEffect(() => {
-    const loading = isLoading || isSubmitting;
-    const effectiveDirty = isDirty || extraDirty;
-
-    const disabled =
-      disabledProp === true ||
-      loading ||
-      isValidating ||
-      (requireValid && !isValid) ||
-      (requireDirty && !effectiveDirty);
-
-    setButtonState({ loading, disabled });
-  }, [
-    isLoading,
-    isSubmitting,
-    isDirty,
-    extraDirty,
-    disabledProp,
-    isValidating,
-    requireValid,
-    isValid,
-    requireDirty,
-  ]);
+  const loading = isLoading || isSubmitting;
+  const effectiveDirty = isDirty || extraDirty;
+  const isDisabled =
+    disabledProp === true ||
+    loading ||
+    isValidating ||
+    (requireValid && !isValid) ||
+    (requireDirty && !effectiveDirty);
 
   return (
     <ActionButton
       type="submit"
       variant="primary"
-      disabled={buttonState.disabled}
-      aria-busy={buttonState.loading}
+      disabled={isDisabled}
+      aria-busy={loading}
       className={className}
     >
-      {buttonState.loading ? loadingText : children}
+      {loading ? loadingText : children}
     </ActionButton>
   );
 }

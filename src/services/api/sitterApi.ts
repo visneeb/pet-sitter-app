@@ -71,6 +71,7 @@ export const PET_SITTER_STATUS = {
   WAITING: "Waiting for approval",
   APPROVED: "Approved",
   REJECTED: "Rejected",
+  UNAPPROVED: "Unapproved",
 } as const;
 
 export type PetSitterStatus =
@@ -186,7 +187,7 @@ export interface ReviewApi {
     name: string;
     profileImgUrl?: string;
   };
-  createdAt: string;  
+  createdAt: string;
   comment: string;
   rating: number;
 }
@@ -203,8 +204,6 @@ export interface SitterReviewsResponse {
   currentPage: number;
   totalReviews: number;
 }
-
-
 
 export async function getSitterReviewsById(
   sitterId: string,
@@ -255,7 +254,6 @@ export interface UpdatePetSitterProfileBody {
 }
 
 export async function updatePetSitterProfile(
-  sitterId: number,
   body: UpdatePetSitterProfileBody,
   images?: File[],
 ): Promise<{ message?: string; error?: string }> {

@@ -10,6 +10,7 @@ import { createResolver } from "@/lib/form/createResolver";
 import { ProfileService } from "@/services/profileService";
 import { userApi } from "@/services/api/userApi";
 import { showCustomToast } from "@/components/ui/toast/Toast";
+import { useRouter } from "next/navigation";
 
 export interface BaseProfileFormReturn {
   methods: UseFormReturn<ProfileFormValues>;
@@ -42,6 +43,7 @@ export function useBaseProfileForm(
 ): BaseProfileFormReturn {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const router = useRouter();
 
   // Use ref for originalEmail so onSubmit closure always reads the latest value
   const originalEmailRef = useRef("");
@@ -52,7 +54,9 @@ export function useBaseProfileForm(
   };
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [pendingData, setPendingData] = useState<ProfileFormValues | null>(null);
+  const [pendingData, setPendingData] = useState<ProfileFormValues | null>(
+    null,
+  );
   const [isUpdating, setIsUpdating] = useState(false);
   const [resetData, setResetData] = useState<ProfileFormValues | null>(null);
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
@@ -183,6 +187,8 @@ export function useBaseProfileForm(
         variant: "success",
       });
 
+      router.refresh();
+
       setPendingAvatarFile(null);
       setRemoveAvatar(false);
       setIsAvatarDirty(false);
@@ -227,6 +233,9 @@ export function useBaseProfileForm(
           description: "Your email has been changed.",
           variant: "success",
         });
+
+        router.refresh();
+
         setPendingAvatarFile(null);
         setRemoveAvatar(false);
         setIsAvatarDirty(false);

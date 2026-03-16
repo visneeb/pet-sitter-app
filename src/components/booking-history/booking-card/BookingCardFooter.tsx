@@ -44,11 +44,15 @@ export function BookingCardFooter({
               <ActionButton
                 variant="ghost"
                 className="style-body-2 md:style-button"
+                onClick={(e) => e.stopPropagation()}
               >
                 Report
               </ActionButton>
               {hasReviewed ? (
-                <Link href={`/review/${bookingId}`}>
+                <Link
+                  href={`/review/${bookingId}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <ActionButton
                     variant="secondary"
                     className="style-body-2 md:style-button"
@@ -59,7 +63,10 @@ export function BookingCardFooter({
               ) : (
                 <ActionButton
                   variant="primary"
-                  onClick={() => setIsReviewOpen(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsReviewOpen(true);
+                  }}
                   className="style-body-2 md:style-button"
                 >
                   Review
@@ -68,7 +75,7 @@ export function BookingCardFooter({
             </div>
           ) : (
             <div className="flex flex-row gap-4 justify-center items-center">
-              <Link href="/chat">
+              <Link href="/chat" onClick={(e) => e.stopPropagation()}>
                 <ActionButton
                   variant="primary"
                   className="style-body-2 md:style-button"
@@ -77,7 +84,7 @@ export function BookingCardFooter({
                 </ActionButton>
               </Link>
 
-              <ActionButton variant="icon">
+              <ActionButton variant="icon" onClick={(e) => e.stopPropagation()}>
                 <PhoneAltIcon />
               </ActionButton>
             </div>

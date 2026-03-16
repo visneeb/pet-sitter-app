@@ -42,7 +42,10 @@ export function BookingCardDetails({
             <ActionButton
               variant="ghost"
               className={`${isWait ? "" : "hidden"}`}
-              onClick={() => setIsBooking(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsBooking(true);
+              }}
             >
               <EditIcon />
               Change
