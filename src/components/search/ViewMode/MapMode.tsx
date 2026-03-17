@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { EmblaCarousel } from "../Carousel/EmblaCarousel";
 import type { PetSitterDetail } from "@/hooks/search/map/useSelectMaker";
-import type { MapControlsProps } from "@/components/map-search/MapControls";
+import type { MapControlsProps } from "@/components/search-by-map/MapControls";
 
 interface MapModeProps {
   readonly selectedMarker: PetSitterDetail | null;

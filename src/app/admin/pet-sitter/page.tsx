@@ -9,7 +9,7 @@ import cn from "@/utils/cn";
 import { Filter, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function PetOwnerPage() {
+export default function PetSitterPage() {
   const {
     sitters,
     totalSitters,
@@ -19,8 +19,10 @@ export default function PetOwnerPage() {
     error,
     searchKeyword,
     statusFilter,
+    pendingUpdateFilter,
     handleKeywordChange,
     handleStatusChange,
+    handlePendingUpdateChange,
     setPage,
   } = useSitterList();
   const router = useRouter();
@@ -45,6 +47,17 @@ export default function PetOwnerPage() {
               { positionAnchor: "--anchor-1" } /* as React.CSSProperties */
             }
           >
+            <label className=" label style-label text-black">
+              <input
+                type="checkbox"
+                className="checkbox checked:border-orange-500 checked:bg-orange-400 checked:text-orange-600"
+                onChange={(event) =>
+                  handlePendingUpdateChange(event.target.checked)
+                }
+              />
+              Pending update
+            </label>
+            <div className="border-t border-gray-300 mb-2" />
             <li>
               <button
                 type="button"
@@ -57,6 +70,21 @@ export default function PetOwnerPage() {
                 All
               </button>
             </li>
+            {!pendingUpdateFilter && (
+              <li>
+                <button
+                  type="button"
+                  className={cn(
+                    "style-body-2",
+                    sitterStatusVariant["Unapproved"],
+                    statusFilter === "Unapproved" && "bg-gray-200",
+                  )}
+                  onClick={() => handleStatusChange("Unapproved")}
+                >
+                  Unapproved
+                </button>
+              </li>
+            )}
             <li>
               <button
                 type="button"
@@ -83,19 +111,21 @@ export default function PetOwnerPage() {
                 Approved
               </button>
             </li>
-            <li>
-              <button
-                type="button"
-                className={cn(
-                  "style-body-2",
-                  sitterStatusVariant["Rejected"],
-                  statusFilter === "Rejected" && "bg-gray-200",
-                )}
-                onClick={() => handleStatusChange("Rejected")}
-              >
-                Rejected
-              </button>
-            </li>
+            {!pendingUpdateFilter && (
+              <li>
+                <button
+                  type="button"
+                  className={cn(
+                    "style-body-2",
+                    sitterStatusVariant["Rejected"],
+                    statusFilter === "Rejected" && "bg-gray-200",
+                  )}
+                  onClick={() => handleStatusChange("Rejected")}
+                >
+                  Rejected
+                </button>
+              </li>
+            )}
             <li>
               <button
                 type="button"
@@ -145,14 +175,14 @@ export default function PetOwnerPage() {
 
         {!isLoading && sitters.length === 0 && (
           <p className="py-8 text-center style-body-2 text-gray-400">
-            No pet owners found.
+            No pet sitters found.
           </p>
         )}
       </article>
       <footer className="flex flex-col gap-2">
         {error && (
           <p className="style-body-2 text-red text-center">
-            Failed to load owner list: {error}
+            Failed to load sitter list: {error}
           </p>
         )}
         {isLoading && (
@@ -160,7 +190,7 @@ export default function PetOwnerPage() {
         )}
         {!isLoading && totalSitters > 0 && (
           <p className="style-body-2 text-gray-400 text-center">
-            Total owners: {totalSitters}
+            Total sitters: {totalSitters}
           </p>
         )}
         <Pagination

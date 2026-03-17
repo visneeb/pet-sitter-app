@@ -20,7 +20,7 @@ interface Props {
   petTypes: { id: number; name: string }[];
 }
 
-const deletePetDialog = () => {
+const showDeletePetModal = () => {
   const dialog = document.getElementById(
     "delete-pet",
   ) as HTMLDialogElement | null;
@@ -114,7 +114,7 @@ function PetFields(props: Props) {
         {props.mode === "edit" && (
           <ActionButton
             type="button"
-            onClick={deletePetDialog}
+            onClick={showDeletePetModal}
             variant="ghost"
             className="w-fit"
           >

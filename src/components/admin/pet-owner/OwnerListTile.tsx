@@ -29,10 +29,10 @@ function OwnerListTile(props: OwnerListTileProps) {
             alt={`${name} profile`}
             width={44}
             height={44}
-            className="hidden size-11 object-cover rounded-full md:block"
+            className="hidden size-11 min-w-11 object-cover rounded-full md:block"
           />
         ) : (
-          <div className="hidden md:flex size-11 rounded-full bg-gray-100 items-center justify-center style-body-4 text-gray-400">
+          <div className="hidden md:flex size-11 min-w-11 rounded-full bg-gray-100 items-center justify-center style-body-4 text-gray-400">
             {name.slice(0, 1).toUpperCase()}
           </div>
         )}

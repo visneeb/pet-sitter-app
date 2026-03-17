@@ -19,21 +19,24 @@ import useOsrmRoute, {
 } from "@/hooks/map/useOsrmRoute";
 
 export interface MapControlsProps {
-  readonly selectedMarker: PetSitterDetail | null;
-  readonly handleSelectPetSitter: (petSitter: PetSitterDetail) => void;
+  readonly selectedMarker?: PetSitterDetail | null;
+  readonly handleSelectPetSitter?: (petSitter: PetSitterDetail) => void;
+  hasSearch: boolean;
 }
 
 // hook อยู่ที่นี่ที่เดียว — เป็น single source of truth สำหรับ userPosition และ accuracy
 export default function MapControls({
   selectedMarker,
   handleSelectPetSitter,
+  hasSearch = true,
 }: Readonly<MapControlsProps>) {
-
-
-
   const { userPosition, accuracy, loading, handleLocate } = useUserLocate();
-  const { petSitters } = usePetSitterSearch();
   const [lockUserAndSitter, setLockUserAndSitter] = useState(false);
+  let petSitters;
+
+  if (hasSearch) {
+    petSitters = usePetSitterSearch().petSitters;
+  }
   const [routeEnabled, setRouteEnabled] = useState(false);
   const [displayDistanceKm, setDisplayDistanceKm] = useState<number | null>(
     null,
@@ -110,29 +113,32 @@ export default function MapControls({
   return (
     <>
       {/* Marker ตำแหน่งร้าน */}
-      {petSitters.map((item) => {
-        const position: [number, number] = [item.latitude, item.longitude];
-        if (!isValidLatLng(position)) return null;
-        return (
-          <SitterMarker
-            key={item.id}
-            position={position}
-            selected={selectedMarker?.id === item.id}
-            onClick={() =>
-              handleSelectPetSitter({
-                id: item.id,
-                position,
-                selected: true,
-              })
-            }
-          />
-        );
-      })}
+      {petSitters &&
+        petSitters.map((item) => {
+          const position: [number, number] = [item.latitude, item.longitude];
+          if (!isValidLatLng(position)) return null;
+          return (
+            <SitterMarker
+              key={item.id}
+              position={position}
+              selected={selectedMarker?.id === item.id}
+              onClick={
+                handleSelectPetSitter &&
+                (() =>
+                  handleSelectPetSitter({
+                    id: item.id,
+                    position,
+                    selected: true,
+                  }))
+              }
+            />
+          );
+        })}
       {/* Marker ตำแหน่งผู้ใช้ — แสดงเมื่อมีตำแหน่งและ accuracy แล้วเท่านั้น */}
       {userPosition && accuracy !== null && isValidLatLng(userPosition) && (
         <UserMarker position={userPosition} accuracy={accuracy} />
       )}
-      {/* SmartRecenterUserAndSitter สำหรับการโฟกัสที่ตำแหน่งผู้ใช้และร้าน */}
+
       <SmartRecenterUserAndSitter
         enabled={lockUserAndSitter}
         userPosition={
