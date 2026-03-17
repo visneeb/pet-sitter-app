@@ -1,6 +1,6 @@
 import cn from "@/utils/cn";
 
-export default function Loading({ className }: { className: string }) {
+export default function Loading({ className }: { className?: string }) {
   return (
     <div
       className={cn(

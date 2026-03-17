@@ -16,15 +16,20 @@ import type { Sitter } from "@/types/sitter";
 import { ExclamationCircleIcon } from "@/assets/icons/components";
 import dynamic from "next/dynamic";
 
-const LeafletMap = dynamic(() => import("@/components/Map/LeafletMap"), { ssr: false });
-const SitterMarker = dynamic(() => import("@/components/Map/ui/Marker/SitterMarker"), { ssr: false });
+const LeafletMap = dynamic(() => import("@/components/Map/LeafletMap"), {
+  ssr: false,
+});
+const SitterMarker = dynamic(
+  () => import("@/components/Map/ui/Marker/SitterMarker"),
+  { ssr: false },
+);
 
 function getCarouselImages(sitter: Sitter): CarouselImage[] {
   const urls = sitter.imgUrls?.length
     ? sitter.imgUrls
     : sitter.imgUrl
-      ? [sitter.imgUrl]
-      : [];
+    ? [sitter.imgUrl]
+    : [];
   return urls.map((src, i) => ({ src, alt: `Pet sitter image ${i + 1}` }));
 }
 
@@ -64,7 +69,7 @@ export default function PetSitterDetailPage() {
     return (
       <div className="min-h-[550px] flex flex-col justify-center items-center style-headline-1 gap-4">
         <ExclamationCircleIcon className="text-black" size={150} />
-        <p className="style-headline-1">No Pet Sitter found</p>
+        <p className="style-headline-1 text-center">No Pet Sitter found</p>
       </div>
     );
   }

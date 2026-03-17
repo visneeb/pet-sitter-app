@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import SearchPageClientShell from "@/components/search/SearchPageClientShell";
+import ChatbotSection from "@/components/chatbot/ChatbotSection";
 
 // ── Layout Constants ────────────────────────────────────────
 const PAGE_STYLES = {
@@ -15,10 +16,13 @@ export const metadata: Metadata = {
 
 export default function SearchPage() {
   return (
-    <main
-      className={`${PAGE_STYLES.minHeight} ${PAGE_STYLES.bgColor} text-gray-900 flex ${PAGE_STYLES.flexDirection}`}
-    >
-      <SearchPageClientShell />
-    </main>
+    <>
+      <main
+        className={`${PAGE_STYLES.minHeight} ${PAGE_STYLES.bgColor} text-gray-900 flex ${PAGE_STYLES.flexDirection}`}
+      >
+        <SearchPageClientShell />
+      </main>
+      <ChatbotSection />
+    </>
   );
 }
