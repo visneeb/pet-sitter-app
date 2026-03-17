@@ -7,12 +7,19 @@ interface PetTypesListProps {
   containerClassName?: string;
 }
 
-export default function PetTypesList({ petTypes, tagClassName ,containerClassName}: PetTypesListProps) {
-    const containerStyle = cn("flex flex-row flex-wrap gap-2 h-8 w-full overflow-hidden", containerClassName);
+export default function PetTypesList({
+  petTypes,
+  tagClassName,
+  containerClassName,
+}: PetTypesListProps) {
+  const containerStyle = cn(
+    "flex flex-row flex-wrap gap-2 h-8 w-full overflow-hidden",
+    containerClassName,
+  );
   return (
     <div className={containerStyle}>
       {petTypes.map((petType, petTypeIndex) => (
-        <Tag key={petTypeIndex} label={petType} index={petTypeIndex} className={tagClassName} />
+        <Tag key={petTypeIndex} label={petType} className={tagClassName} />
       ))}
     </div>
   );

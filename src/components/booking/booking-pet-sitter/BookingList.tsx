@@ -75,14 +75,20 @@ export function BookingList() {
             </p>
           </header>
           <ul>
-            {bookings.map((booking, index, array) => (
-              <BookingListTile
-                key={booking.bookingId.toString()}
-                booking={booking}
-                isLast={index + 1 === array.length}
-                onClick={() => router.push(`/bookings/${booking.bookingId}`)}
-              />
-            ))}
+            {bookings.length === 0 ? (
+              <div className="flex items-center justify-center h-full rounded-b-2xl">
+                <p className="style-body-2 text-gray-400">No bookings found</p>
+              </div>
+            ) : (
+              bookings.map((booking, index, array) => (
+                <BookingListTile
+                  key={booking.bookingId.toString()}
+                  booking={booking}
+                  isLast={index + 1 === array.length}
+                  onClick={() => router.push(`/bookings/${booking.bookingId}`)}
+                />
+              ))
+            )}
           </ul>
         </article>
       </div>
