@@ -19,18 +19,8 @@ type SearchFilterFormValues = {
 export default function FilterSideBar() {
   const headingId = useId();
 
-  const {
-    searchText,
-    petTypes,
-    rating,
-    experience,
-    handleSearchChange,
-    handlePetTypesChange,
-    handleRatingChange,
-    handleExperienceChange,
-    handleClear,
-    handleSearch,
-  } = usePetSitterSearch();
+  const { searchText, petTypes, rating, experience, handleClear, handleSearchWithFilters } =
+    usePetSitterSearch();
 
   const methods = useForm<SearchFilterFormValues>({
     defaultValues: {
@@ -64,12 +54,13 @@ export default function FilterSideBar() {
   });
 
   const handleFormSubmit = (values: SearchFilterFormValues) => {
-    // Sync RHF state back into context, then trigger search
-    handleSearchChange(values.searchText);
-    handlePetTypesChange(values.petTypes);
-    handleRatingChange(values.rating);
-    handleExperienceChange(values.experience);
-    handleSearch();
+    // Apply the submitted filters directly and trigger search in one step
+    handleSearchWithFilters({
+      searchText: values.searchText,
+      petTypes: values.petTypes,
+      rating: values.rating,
+      experience: values.experience,
+    });
   };
 
   const handleFormClear = () => {
@@ -82,11 +73,13 @@ export default function FilterSideBar() {
 
     reset(emptyValues);
 
-    // Keep context and URL/query in sync with cleared filters
-    handleSearchChange(emptyValues.searchText);
-    handlePetTypesChange(emptyValues.petTypes);
-    handleRatingChange(emptyValues.rating);
-    handleExperienceChange(emptyValues.experience);
+    // Apply cleared filters through context so URL/query stay in sync
+    handleSearchWithFilters({
+      searchText: emptyValues.searchText,
+      petTypes: emptyValues.petTypes,
+      rating: emptyValues.rating,
+      experience: emptyValues.experience,
+    });
     handleClear();
   };
 

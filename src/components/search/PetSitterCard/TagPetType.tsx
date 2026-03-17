@@ -8,7 +8,7 @@ export default function TagPetType({ sitter }: Readonly<TagPetTypeProps>) {
   return (
     <div className="flex flex-wrap gap-2">
       {sitter.petTypes.map((tag, index) => (
-        <Tag key={tag} label={tag} index={index} />
+        <Tag key={index} label={tag}/>
       ))}
     </div>
   );

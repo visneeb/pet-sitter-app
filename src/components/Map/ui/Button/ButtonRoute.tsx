@@ -21,7 +21,7 @@ export default function ButtonRoute({
     <div className="leaflet-control">
       <MapIconButton
         onClick={onClick}
-        disabled={disabled || loading}
+        disabled={disabled}
         title={
           loading
             ? "Calculating route..."
