@@ -4,6 +4,13 @@ import { X } from "lucide-react";
 const isMobile = () => window.innerWidth < 768;
 
 type ToastVariant = "success" | "error";
+type Position =
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right"
+  | "top-center"
+  | "bottom-center";
 
 const variantStyles: Record<ToastVariant, string> = {
   success: "bg-green-500 text-white",
@@ -15,6 +22,7 @@ type CustomToastProps = {
   description?: string;
   variant?: ToastVariant;
   extraClass?: string;
+  position?: Position;
 };
 
 export const showCustomToast = ({
@@ -22,6 +30,7 @@ export const showCustomToast = ({
   description,
   variant = "success",
   extraClass = "",
+  position,
 }: CustomToastProps) => {
   toast.custom(
     (t) => (
@@ -49,7 +58,7 @@ export const showCustomToast = ({
       </div>
     ),
     {
-      position: isMobile() ? "bottom-center" : "bottom-right",
+      position: position || (isMobile() ? "bottom-center" : "bottom-right"),
     },
   );
 };
