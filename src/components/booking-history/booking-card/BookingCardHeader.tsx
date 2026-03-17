@@ -14,8 +14,8 @@ const statusStyleMap: Record<BookingStatus, { text: string; dot: string }> = {
   "Waiting for confirm": { text: "text-pink-500", dot: "bg-pink-500" },
   "Waiting for service": { text: "text-yellow-200", dot: "bg-yellow-200" },
   "In service": { text: "text-blue-500", dot: "bg-blue-500" },
-  "Success": { text: "text-green-500", dot: "bg-green-500" },
-  "Canceled": { text: "text-red", dot: "bg-red" },
+  Success: { text: "text-green-500", dot: "bg-green-500" },
+  Canceled: { text: "text-red", dot: "bg-red" },
 };
 
 function formatTransactionDate(createdAt: string) {
@@ -51,7 +51,7 @@ export function BookingCardHeader({
           />
         ) : (
           <div className="rounded-full md:size-16 size-9 bg-gray-200 flex items-center justify-center text-white">
-            <UserIcon className="size-5 md:size-7"/>
+            <UserIcon className="size-5 md:size-7" />
           </div>
         )}
         <p className="flex flex-col gap-1">

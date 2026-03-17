@@ -1,16 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ActionButton } from "@/components/ui/Button";
 import { PhoneAltIcon } from "@/assets/icons/components";
 import { BookingStatus, BookingReview } from "@/types/BookingType";
 import Link from "next/link";
 import ReviewModal from "@/components/review/ReviewModal";
+import ViewReviewModal from "@/components/review/ViewReviewModal";
 
 interface BookingCardFooterProps {
   status: BookingStatus;
   review?: BookingReview | null;
   bookingId: number;
+  petSitterId: number;
+  sitterName: string;
+  sitterImgUrl?: string | null;
 }
 
 const statusMessageMap: Record<BookingStatus, string> = {
@@ -25,48 +30,52 @@ export function BookingCardFooter({
   status,
   review,
   bookingId,
+  petSitterId,
+  sitterName,
+  sitterImgUrl,
 }: BookingCardFooterProps) {
+  const router = useRouter();
   const isSuccess = status === "Success";
   const hasReviewed = !!review;
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isViewReviewOpen, setIsViewReviewOpen] = useState(false);
 
   return (
-    <div className={`${isSuccess ? "bg-green-50" : "bg-gray-100"} rounded-2xl`}>
+    <div
+      className={`${isSuccess ? "bg-green-50" : "bg-gray-100"} rounded-2xl`}
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="flex md:flex-row flex-col justify-between md:items-center md:px-4 md:py-7 p-4">
         <p
-          className={`style-body-3 md:pb-0 pb-4 ${isSuccess ? "text-green-500" : "text-gray-400"}`}
+          className={`style-body-3 md:pb-0 pb-4 ${
+            isSuccess ? "text-green-500" : "text-gray-400"
+          }`}
         >
           {statusMessageMap[status]}
         </p>
+
         <div className="flex gap-4 h-12">
           {isSuccess ? (
             <div className="flex flex-row md:gap-9 gap-4">
               <ActionButton
                 variant="ghost"
                 className="style-body-2 md:style-button"
-                onClick={(e) => e.stopPropagation()}
               >
                 Report
               </ActionButton>
+
               {hasReviewed ? (
-                <Link
-                  href={`/review/${bookingId}`}
-                  onClick={(e) => e.stopPropagation()}
+                <ActionButton
+                  variant="secondary"
+                  className="style-body-2 md:style-button"
+                  onClick={() => setIsViewReviewOpen(true)}
                 >
-                  <ActionButton
-                    variant="secondary"
-                    className="style-body-2 md:style-button"
-                  >
-                    Your Review
-                  </ActionButton>
-                </Link>
+                  Your Review
+                </ActionButton>
               ) : (
                 <ActionButton
                   variant="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsReviewOpen(true);
-                  }}
+                  onClick={() => setIsReviewOpen(true)}
                   className="style-body-2 md:style-button"
                 >
                   Review
@@ -75,7 +84,7 @@ export function BookingCardFooter({
             </div>
           ) : (
             <div className="flex flex-row gap-4 justify-center items-center">
-              <Link href="/chat" onClick={(e) => e.stopPropagation()}>
+              <Link href="/chat">
                 <ActionButton
                   variant="primary"
                   className="style-body-2 md:style-button"
@@ -83,8 +92,7 @@ export function BookingCardFooter({
                   Send Message
                 </ActionButton>
               </Link>
-
-              <ActionButton variant="icon" onClick={(e) => e.stopPropagation()}>
+              <ActionButton variant="icon">
                 <PhoneAltIcon />
               </ActionButton>
             </div>
@@ -96,10 +104,21 @@ export function BookingCardFooter({
         open={isReviewOpen}
         bookingId={bookingId}
         onClose={() => setIsReviewOpen(false)}
-        onSuccess={() => {
-          setIsReviewOpen(false);
-        }}
+        onSuccess={() => setIsReviewOpen(false)}
       />
+
+      {review && (
+        <ViewReviewModal
+          open={isViewReviewOpen}
+          onClose={() => setIsViewReviewOpen(false)}
+          sitterName={sitterName}
+          sitterAvatar={sitterImgUrl ?? undefined}
+          rating={review.rating}
+          comment={review.comment}
+          date={review.createdAt}
+          onViewSitter={() => router.push(`/petsitter/${petSitterId}`)}
+        />
+      )}
     </div>
   );
 }

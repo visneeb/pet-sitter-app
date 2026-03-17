@@ -19,7 +19,7 @@ export default function UserLayout({
             items={ownerSidebarItems}
             header={<h4 className="style-headline-4 pb-3 px-5">Account</h4>}
             role="user"
-            className="rounded-lg"
+            className="rounded-lg shadow-[4px_4px_24px_0_rgba(0,0,0,0.04)]"
             /* add drop shadow */
           />
         </div>
