@@ -7,12 +7,13 @@ import { baseInputStyles } from "./inputStyle";
 export type InputProps = React.ComponentPropsWithoutRef<"input"> & {
   error?: string | boolean;
   rightAction?: React.ReactNode;
+  parentClassName?: string;
 };
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, error, rightAction, ...props }, ref) => {
+  ({ className, error, rightAction, parentClassName, ...props }, ref) => {
     return (
-      <div className="relative">
+      <div className={cn("relative", parentClassName)}>
         <input
           ref={ref}
           className={cn(
