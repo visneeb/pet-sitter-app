@@ -7,22 +7,19 @@ import { MessagesSquare, Bell, LogOut, Menu, UserRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { petsitterSidebarItems } from "@/config/sidebar/petsitter";
 import { useProfileImg } from "@/hooks/image/useProfileImg";
+import { closeNavbar } from "@/hooks/navbar/useCloseNavbar";
 
 export default function NavbarPetSitterHome() {
   const { signOut } = useAuth();
   const { profile, loading } = useProfileImg();
 
-  const closeDropdown = () => {
-    (document.activeElement as HTMLElement)?.blur();
-  };
-
   const handleLogout = () => {
-    closeDropdown();
+    closeNavbar();
     signOut();
   };
 
   return (
-    <div className="relative flex items-center justify-between bg-white w-full px-[20px] style-body-2 md:h-[80px] md:px-[80px]">
+    <div className="relative flex items-center justify-between bg-white w-full px-[20px] py-[12px] style-body-2 lg:h-[80px] lg:px-[80px]">
       <div>
         <Link href="/">
           <Image
@@ -76,7 +73,7 @@ export default function NavbarPetSitterHome() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  onClick={closeDropdown}
+                  onClick={closeNavbar}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
                 >
                   {item.icon}
@@ -103,7 +100,7 @@ export default function NavbarPetSitterHome() {
           <div className="drawer-content">
             <label
               htmlFor="my-drawer-1"
-              className="drawer-button text-gray-600 flex items-center gap-3 py-3 hover:bg-gray-200 rounded-xl cursor-pointer"
+              className="drawer-button text-gray-600 flex items-center gap-3  cursor-pointer"
             >
               <Menu size={24} strokeWidth={2} />
             </label>
@@ -119,7 +116,6 @@ export default function NavbarPetSitterHome() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    onClick={closeDropdown}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
                   >
                     {item.icon}
@@ -135,11 +131,11 @@ export default function NavbarPetSitterHome() {
                   onClick={handleLogout}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl w-full"
                 >
-                  <LogOut />
+                  <LogOut className="w-5 h-5 text-gray-600" />
                   <span className="text-black style-body-2">Log out</span>
                 </button>
               </li>
-              <li className="w-full block">
+              <li className="w-full block" onClick={closeNavbar}>
                 <NavigationButton
                   variant="primary"
                   href="/search"

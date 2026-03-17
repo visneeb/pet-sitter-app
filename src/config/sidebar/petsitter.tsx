@@ -1,5 +1,9 @@
 import { SidebarConfig } from "@/types/sidebarType";
-import { UserIcon, CalendarIcon, CreditCardIcon} from "@/assets/icons/components/index";
+import {
+  UserIcon,
+  CalendarIcon,
+  CreditCardIcon,
+} from "@/assets/icons/components/index";
 import ListIcon from "@/assets/icons/profile/list";
 
 export const petsitterSidebarItems: SidebarConfig = [

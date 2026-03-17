@@ -15,17 +15,14 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfileImg } from "@/hooks/image/useProfileImg";
+import { closeNavbar } from "@/hooks/navbar/useCloseNavbar";
 
 export default function NavbarUser() {
   const { signOut } = useAuth();
   const { profile, loading } = useProfileImg();
 
-  const closeDropdown = () => {
-    (document.activeElement as HTMLElement)?.blur();
-  };
-
   const handleLogout = async () => {
-    closeDropdown();
+    closeNavbar();
     try {
       await signOut();
     } catch (error) {
@@ -34,7 +31,7 @@ export default function NavbarUser() {
   };
 
   return (
-    <div className="relative flex items-center justify-between bg-white w-full px-5 style-body-2 md:h-20 md:px-20">
+    <div className="relative flex items-center justify-between bg-white w-full px-[20px] py-[12px] style-body-2 lg:h-[80px] lg:px-[80px]">
       <div>
         <Link href="/">
           <Image
@@ -89,7 +86,7 @@ export default function NavbarUser() {
             <li>
               <Link
                 href="/user-profile"
-                onClick={closeDropdown}
+                onClick={closeNavbar}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <User className="text-gray-600" />
@@ -99,7 +96,7 @@ export default function NavbarUser() {
             <li>
               <Link
                 href="/pets"
-                onClick={closeDropdown}
+                onClick={closeNavbar}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <PawPrint className="text-gray-600" />
@@ -109,7 +106,7 @@ export default function NavbarUser() {
             <li>
               <Link
                 href="/booking-history"
-                onClick={closeDropdown}
+                onClick={closeNavbar}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
               >
                 <History className="text-gray-600" />
@@ -134,7 +131,7 @@ export default function NavbarUser() {
           <div className="drawer-content">
             <label
               htmlFor="my-drawer-1"
-              className="drawer-button text-gray-600 flex items-center gap-3 py-3 hover:bg-gray-200 rounded-xl cursor-pointer"
+              className="drawer-button text-gray-600 flex items-center gap-3  cursor-pointer"
             >
               <Menu size={24} strokeWidth={2} />
             </label>
@@ -145,33 +142,47 @@ export default function NavbarUser() {
               aria-label="close sidebar"
               className="drawer-overlay"
             ></label>
-            <ul className="gap-4 px-4 py-10 menu bg-white h-full w-full p-4">
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/profile">
-                  <UserRound />
-                  Profile
+            <ul className="gap-[16px] px-[16px] py-[40px] menu bg-white h-full w-full p-4 ">
+              <li>
+                <Link
+                  href="/user-profile"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <UserRound className="w-5 h-5 text-gray-600" />
+                  <span className="text-black style-body-2">Profile</span>
                 </Link>
               </li>
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/my-pet">
-                  <PawPrint />
-                  Your Pet
+              <li>
+                <Link
+                  href="/pets"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <PawPrint className="w-5 h-5 text-gray-600" />
+                  <span className="text-black style-body-2">Your Pet</span>
                 </Link>
               </li>
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <Link href="/booking-history">
-                  <History />
-                  Booking History
+              <li>
+                <Link
+                  href="/booking-history"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <History className="w-5 h-5 text-gray-600" />
+                  <span className="text-black style-body-2">
+                    Booking History
+                  </span>
                 </Link>
               </li>
-              <div className="border-t border-gray-200  my-1"></div>
-              <li className="text-black style-body-1 hover:bg-gray-50">
-                <button onClick={handleLogout}>
-                  <LogOut />
-                  Log out
+              <div className="border-t border-gray-200 my-1"></div>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-xl w-full"
+                >
+                  <LogOut className="w-5 h-5 text-gray-600" />
+                  <span className="text-black style-body-2">Log out</span>
                 </button>
               </li>
-              <li className="w-full block">
+              <li className="w-full block" onClick={closeNavbar}>
                 <NavigationButton
                   variant="primary"
                   href="/search"
@@ -184,7 +195,7 @@ export default function NavbarUser() {
           </div>
         </div>
 
-        <div className="hidden md:block">
+        <div className="hidden md:block" onClick={closeNavbar}>
           <NavigationButton variant="primary" href="/search">
             Find A Pet Sitter
           </NavigationButton>
