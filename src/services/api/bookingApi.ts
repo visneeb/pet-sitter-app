@@ -14,4 +14,13 @@ export const bookingApi = {
 
   getOwnerBookingHistory: (): Promise<OwnerBookingHistory[]> =>
     privateApi.get("/bookings/owner/history").then((res) => res.data),
+
+  updateBookingTime: (
+    bookingId: number,
+    startTime: string,
+    endTime: string,
+  ): Promise<BookingDetail> =>
+    privateApi
+      .patch(`/bookings/${bookingId}/time`, { startTime, endTime })
+      .then((res) => res.data),
 };

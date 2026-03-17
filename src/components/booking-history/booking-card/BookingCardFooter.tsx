@@ -35,15 +35,16 @@ export function BookingCardFooter({
   sitterImgUrl,
 }: BookingCardFooterProps) {
   const router = useRouter();
-
   const isSuccess = status === "Success";
   const hasReviewed = !!review;
-
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isViewReviewOpen, setIsViewReviewOpen] = useState(false);
 
   return (
-    <div className={`${isSuccess ? "bg-green-50" : "bg-gray-100"} rounded-2xl`}>
+    <div
+      className={`${isSuccess ? "bg-green-50" : "bg-gray-100"} rounded-2xl`}
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="flex md:flex-row flex-col justify-between md:items-center md:px-4 md:py-7 p-4">
         <p
           className={`style-body-3 md:pb-0 pb-4 ${
@@ -59,30 +60,22 @@ export function BookingCardFooter({
               <ActionButton
                 variant="ghost"
                 className="style-body-2 md:style-button"
-                onClick={(e) => e.stopPropagation()}
               >
                 Report
               </ActionButton>
 
               {hasReviewed ? (
-                <Link
-                  href={`/review/${bookingId}`}
-                  onClick={(e) => e.stopPropagation()}
+                <ActionButton
+                  variant="secondary"
+                  className="style-body-2 md:style-button"
+                  onClick={() => setIsViewReviewOpen(true)}
                 >
-                  <ActionButton
-                    variant="secondary"
-                    className="style-body-2 md:style-button"
-                  >
-                    Your Review
-                  </ActionButton>
-                </Link>
+                  Your Review
+                </ActionButton>
               ) : (
                 <ActionButton
                   variant="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsReviewOpen(true);
-                  }}
+                  onClick={() => setIsReviewOpen(true)}
                   className="style-body-2 md:style-button"
                 >
                   Review
@@ -91,7 +84,7 @@ export function BookingCardFooter({
             </div>
           ) : (
             <div className="flex flex-row gap-4 justify-center items-center">
-              <Link href="/chat" onClick={(e) => e.stopPropagation()}>
+              <Link href="/chat">
                 <ActionButton
                   variant="primary"
                   className="style-body-2 md:style-button"
@@ -99,8 +92,7 @@ export function BookingCardFooter({
                   Send Message
                 </ActionButton>
               </Link>
-
-              <ActionButton variant="icon" onClick={(e) => e.stopPropagation()}>
+              <ActionButton variant="icon">
                 <PhoneAltIcon />
               </ActionButton>
             </div>
@@ -112,9 +104,7 @@ export function BookingCardFooter({
         open={isReviewOpen}
         bookingId={bookingId}
         onClose={() => setIsReviewOpen(false)}
-        onSuccess={() => {
-          setIsReviewOpen(false);
-        }}
+        onSuccess={() => setIsReviewOpen(false)}
       />
 
       {review && (
@@ -126,9 +116,7 @@ export function BookingCardFooter({
           rating={review.rating}
           comment={review.comment}
           date={review.createdAt}
-          onViewSitter={() => {
-            router.push(`/petsitter/${petSitterId}`);
-          }}
+          onViewSitter={() => router.push(`/petsitter/${petSitterId}`)}
         />
       )}
     </div>

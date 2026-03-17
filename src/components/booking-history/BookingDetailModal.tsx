@@ -9,12 +9,14 @@ import {
   formatDuration,
   formatTransactionDate,
 } from "@/utils/timeFormat";
-import { BookingModal } from "../pet-sitter-detail/BookingModal";
+import { BookingFormValues } from "../pet-sitter-detail/BookingModal";
 import { createPortal } from "react-dom";
 
 interface BookingDetailModalProps {
   booking: OwnerBookingHistory;
   onClose: () => void;
+  onConfirm: (data: BookingFormValues) => Promise<void>;
+  onChangeTime: () => void;
 }
 
 const statusStyleMap: Record<BookingStatus, { text: string; dot: string }> = {
@@ -28,9 +30,9 @@ const statusStyleMap: Record<BookingStatus, { text: string; dot: string }> = {
 export function BookingDetailModal({
   booking,
   onClose,
+  onChangeTime,
 }: BookingDetailModalProps) {
   const [isClosing, setIsClosing] = useState(false);
-  const [isBooking, setIsBooking] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const statusStyle = statusStyleMap[booking.status] ?? {
@@ -100,7 +102,7 @@ export function BookingDetailModal({
         role="presentation"
       >
         <div
-          className={`bg-white rounded-t-3xl md:rounded-3xl shadow-xl w-full md:max-w-150  flex flex-col h-[95vh] md:h-auto md:max-h-[90vh] mobile-bottom-sheet ${isClosing ? "mobile-bottom-sheet-closing" : ""}`}
+          className={`bg-white rounded-t-3xl md:rounded-3xl shadow-xl w-full md:max-w-150 flex flex-col h-[95vh] md:h-auto md:max-h-[90vh] mobile-bottom-sheet ${isClosing ? "mobile-bottom-sheet-closing" : ""}`}
           onClick={(e) => e.stopPropagation()}
           onAnimationEnd={handleAnimationEnd}
           role="dialog"
@@ -167,11 +169,10 @@ export function BookingDetailModal({
                   <p className="style-body-2 text-gray-600">
                     {formatDateRange(booking.startTime, booking.endTime)}
                   </p>
-
                   {isWait && (
                     <ActionButton
                       variant="ghost"
-                      onClick={() => setIsBooking(true)}
+                      onClick={onChangeTime}
                       className="self-end"
                     >
                       <EditIcon />
@@ -207,14 +208,6 @@ export function BookingDetailModal({
           </div>
         </div>
       </div>
-      {isBooking && (
-        <BookingModal
-          sitter={{ tradeName: booking.tradeName }}
-          onClose={() => setIsBooking(false)}
-          onConfirm={() => setIsBooking(false)}
-          actions={[{ label: "Confirm", type: "submit", variant: "primary" }]}
-        />
-      )}
     </>
   );
 

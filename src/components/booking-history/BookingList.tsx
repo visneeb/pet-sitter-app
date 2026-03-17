@@ -1,11 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { BookingCard } from "./BookingCard";
 import { Pagination } from "@/components/ui/Pagination";
 import { useBookingHistory } from "@/hooks/booking-history/useBookingHistory";
-import { OwnerBookingHistory } from "@/types/BookingType";
-import { BookingDetailModal } from "@/components/booking-history/BookingDetailModal";
 
 export function BookingList() {
   const {
@@ -17,8 +14,6 @@ export function BookingList() {
     totalPages,
     onPageChange,
   } = useBookingHistory();
-  const [selectedBooking, setSelectedBooking] =
-    useState<OwnerBookingHistory | null>(null);
 
   if (loading) return <p className="text-gray-400">Loading bookings...</p>;
 
@@ -36,30 +31,15 @@ export function BookingList() {
     return <p className="text-gray-400">No bookings found.</p>;
 
   return (
-    <>
-      <div className="flex flex-col gap-4">
-        {paginatedBookings.map((booking) => (
-          <div
-            key={booking.bookingId}
-            onClick={() => setSelectedBooking(booking)}
-            className="text-left w-full cursor-pointer"
-          >
-            <BookingCard booking={booking} />
-          </div>
-        ))}
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={onPageChange}
-        />
-      </div>
-
-      {selectedBooking && (
-        <BookingDetailModal
-          booking={selectedBooking}
-          onClose={() => setSelectedBooking(null)}
-        />
-      )}
-    </>
+    <div className="flex flex-col gap-4">
+      {paginatedBookings.map((booking) => (
+        <BookingCard key={booking.bookingId} booking={booking} />
+      ))}
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={onPageChange}
+      />
+    </div>
   );
 }
