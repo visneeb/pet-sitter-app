@@ -100,7 +100,8 @@ export default function SmartRecenterUserAndSitter({
     if (clampedZoom !== currentZoom) {
       map.setZoom(clampedZoom);
     }
-  }, [
+  }, 
+  [
     map,
     enabled,
     userPosition,

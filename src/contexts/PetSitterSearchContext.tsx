@@ -50,6 +50,7 @@ interface PetSitterSearchContextType {
   // Actions
   handleNavigateToSearch: () => void;
   handleSearch: () => void;
+  handleSearchWithFilters: (filters: Omit<FilterParams, "seed">) => void;
   handleClear: () => void;
 
   // Pagination
@@ -144,6 +145,32 @@ export function PetSitterSearchProvider({
   }, []);
 
   // ── Actions ───────────────────────────────────────────────
+  const handleSearchWithFilters = useCallback(
+    (filters: Omit<FilterParams, "seed">) => {
+      const newSeed = randomSeed();
+
+      const nextFilters: FilterParams = {
+        searchText: filters.searchText ?? "",
+        petTypes: filters.petTypes ?? [],
+        rating: filters.rating ?? [],
+        experience: filters.experience ?? DEFAULT_EXPERIENCE,
+        seed: newSeed,
+      };
+
+      // Keep local UI state in sync with the applied filters
+      setSearchText(nextFilters.searchText ?? "");
+      setPetTypes(nextFilters.petTypes ?? []);
+      setRating(nextFilters.rating ?? []);
+      setExperience(nextFilters.experience ?? DEFAULT_EXPERIENCE);
+
+      setCurrentPage(DEFAULT_PAGE);
+      setSeed(newSeed);
+      pushFiltersToCurrentUrl(nextFilters);
+      setAppliedFilters(nextFilters);
+    },
+    [pushFiltersToCurrentUrl],
+  );
+
   const handleSearch = useCallback(() => {
     const newSeed = randomSeed();
     const filters: FilterParams = {
@@ -231,6 +258,7 @@ export function PetSitterSearchProvider({
       handleExperienceChange,
       handleNavigateToSearch,
       handleSearch,
+      handleSearchWithFilters,
       handleClear,
       currentPage,
       totalPages,
@@ -251,6 +279,7 @@ export function PetSitterSearchProvider({
       handleExperienceChange,
       handleNavigateToSearch,
       handleSearch,
+      handleSearchWithFilters,
       handleClear,
       currentPage,
       totalPages,

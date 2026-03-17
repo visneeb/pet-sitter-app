@@ -28,9 +28,6 @@ export default function MapControls({
   selectedMarker,
   handleSelectPetSitter,
 }: Readonly<MapControlsProps>) {
-
-
-
   const { userPosition, accuracy, loading, handleLocate } = useUserLocate();
   const { petSitters } = usePetSitterSearch();
   const [lockUserAndSitter, setLockUserAndSitter] = useState(false);

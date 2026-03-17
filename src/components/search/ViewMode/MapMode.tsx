@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { EmblaCarousel } from "../Carousel/EmblaCarousel";
 import type { PetSitterDetail } from "@/hooks/search/map/useSelectMaker";
 import type { MapControlsProps } from "@/components/map-search/MapControls";
-import RecenterOnMarker from "@/components/Map/RecenterOnMarker";
 
 interface MapModeProps {
   readonly selectedMarker: PetSitterDetail | null;
@@ -17,7 +16,7 @@ const LeafletMap = dynamic(() => import("@/components/Map/LeafletMap"), {
   ssr: false,
 });
 const MapControls = dynamic<MapControlsProps>(
-  () => import("@/components/map-search/MapControls"),
+  () => import("@/components/search-by-map/MapControls"),
   { ssr: false },
 );
 

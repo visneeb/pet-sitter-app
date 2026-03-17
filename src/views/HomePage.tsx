@@ -27,7 +27,7 @@ export default function HomePage() {
           <HeroSection />
         </section>
         <section id="search" className="w-full p-t">
-          <Suspense fallback={<div>Loading search...</div>}>
+          <Suspense>
             <PetSitterSearchProvider enableQuery={false}>
               <SearchBar />
             </PetSitterSearchProvider>

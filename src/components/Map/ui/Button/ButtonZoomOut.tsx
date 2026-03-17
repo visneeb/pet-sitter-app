@@ -5,12 +5,12 @@ import { Plus, Minus } from "lucide-react";
 import { useMap } from "react-leaflet";
 import MapIconButton from "./MapIconButton";
 
-export default function ButtonZoom() {
+export default function ButtonZoomOut() {
   const map = useMap();
 
   return (
     <div className="leaflet-control">
-      <MapIconButton onClick={() => map.zoomOut()} title="ซูมออก">
+      <MapIconButton onClick={() => map.zoomOut()} title="Zoom out">
         <Minus size={18} color="#7B7E8F" />
       </MapIconButton>
     </div>

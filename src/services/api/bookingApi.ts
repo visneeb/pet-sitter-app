@@ -1,10 +1,13 @@
 import { privateApi } from "./client";
 import type { BookingDetail } from "@/types/booking";
-import type { OwnerBookingHistory } from "@/types/BookingType";
+import type {
+  OwnerBookingHistory,
+  SitterBookingListResponse,
+} from "@/types/BookingType";
 
 export const bookingApi = {
-  getAll: (): Promise<BookingDetail[]> =>
-    privateApi.get("/pet-sitter/bookings").then((res) => res.data),
+  getAll: (params: URLSearchParams): Promise<SitterBookingListResponse> =>
+    privateApi.get("/pet-sitter/bookings", { params }).then((res) => res.data),
 
   getById: (bookingId: number): Promise<BookingDetail> =>
     privateApi.get(`/pet-sitter/booking/${bookingId}`).then((res) => res.data),

@@ -63,3 +63,21 @@ export type OwnerBookingHistory = Pick<
   pets: BookingPet[];
   review: BookingReview | null;
 };
+
+
+export interface SitterBookingList{
+  bookingId: number;
+  petOwnerName: string;
+  petCount: number;
+  duration: string;
+  bookedDate: string;
+  status: BookingStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SitterBookingListResponse {
+  totalBookings: number;
+  totalPages: number;
+  bookings: SitterBookingList[];
+}
