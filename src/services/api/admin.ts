@@ -59,7 +59,7 @@ export const adminApi = {
     privateApi.patch(`/admin/pet-sitter/approve/${sitterId}`, { signal }),
 
   rejectUpdateSitter: (sitterId: number, signal?: AbortSignal) =>
-    privateApi.patch(`/admin/pet-sitter/reject/${sitterId}`, { signal }),
+    privateApi.delete(`/admin/pet-sitter/reject/${sitterId}`, { signal }),
 
   banUser: (userId: string, signal?: AbortSignal) =>
     privateApi.patch(`/admin/ban/${userId}`, { signal }),
