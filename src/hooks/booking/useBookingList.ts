@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SitterBookingList } from "@/types/BookingType";
-import axios from "axios";
 import { bookingApi } from "@/services/api/bookingApi";
 
 type statusFilterType =
@@ -12,7 +11,7 @@ type statusFilterType =
   | "success"
   | "canceled";
 
-const DEFAULT_LIMIT = 4;
+const DEFAULT_LIMIT = 8;
 
 export function useBookingList() {
   const router = useRouter();

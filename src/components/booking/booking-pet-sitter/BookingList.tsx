@@ -21,12 +21,9 @@ export function BookingList() {
   const {
     bookings,
     totalPages,
-    totalBookings,
     currentPage,
-    bookingsPerPage,
     searchKeyword,
     statusFilter,
-    setBookingsPerPage,
     setCurrentPage,
     handleKeywordChange,
     handleStatusChange,
