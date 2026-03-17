@@ -17,7 +17,7 @@ export default function ButtonToggleLock({
     <div className="leaflet-control">
       <MapIconButton
         onClick={onToggle}
-        title={active ? "แสดงฉันกับร้านพร้อมกัน" : "โฟกัสที่ร้าน"}
+        title={active ? "Show me and the sitter" : "Focus on the sitter"}
         aria-pressed={active}
       >
         {active ? (

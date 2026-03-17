@@ -8,6 +8,7 @@ import MapIconButton from "./MapIconButton";
 
 export default function ButtonFullscreen() {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
   // sync state กับ browser fullscreen event
   // เพื่อรองรับกรณีผู้ใช้กด ESC เพื่อออก fullscreen เอง
@@ -33,10 +34,12 @@ export default function ButtonFullscreen() {
   };
 
   return (
-    <div className="leaflet-control">
+    <div className="leaflet-control relative">
       <MapIconButton
+        // onMouseEnter={() => setShowTooltip(true)}
+        // onMouseLeave={() => setShowTooltip(false)}
         onClick={handleToggle}
-        title={isFullscreen ? "ออกจาก Fullscreen" : "Fullscreen"}
+        title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
       >
         {isFullscreen ? (
           <Minimize size={18} color="#7B7E8F" />
@@ -44,6 +47,13 @@ export default function ButtonFullscreen() {
           <Maximize size={18} color="#7B7E8F" />
         )}
       </MapIconButton>
+      {/* 
+      {showTooltip && (
+        <div className="absolute botton-0 right-0 mt-2 mb-2 px-2 py-1 bg-black text-white text-xs rounded">
+          {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+        </div>
+      )} 
+       */}
     </div>
   );
 }

@@ -18,7 +18,7 @@ export default function ButtonLocate({
       <MapIconButton
         onClick={handleLocate}
         disabled={loading}
-        title="ตำแหน่งของฉัน"
+        title="My location"
       >
         {loading ? (
           <Locate size={20} color="#7B7E8F" />
