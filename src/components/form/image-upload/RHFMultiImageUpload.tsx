@@ -9,7 +9,7 @@ type Props<T extends FieldValues> = {
   max?: number;
   existingImages?: string[];
   onDeleteImage?: (imageUrl: string) => void;
-  onReorderExisting?: (urls: string[]) => void;
+  onReorderExisting?: (images: { url: string; order: number }[]) => void;
 };
 
 export function RHFMultiImageUpload<T extends FieldValues>({

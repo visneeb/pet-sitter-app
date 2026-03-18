@@ -21,12 +21,20 @@ interface Props {
   max?: number;
   existingImages?: string[];
   onDeleteImage?: (imageUrl: string) => void;
-  onReorderExisting?: (urls: string[]) => void;
+  onReorderExisting?: (images: { url: string; order: number }[]) => void;
 }
 
 type ImageItem =
   | { id: string; type: "existing"; url: string }
   | { id: string; type: "new"; file: File; preview: string };
+
+const getExistingImageOrders = (galleryItems: ImageItem[]) =>
+  galleryItems.reduce<{ url: string; order: number }[]>((acc, item, index) => {
+    if (item.type === "existing") {
+      acc.push({ url: item.url, order: index });
+    }
+    return acc;
+  }, []);
 
 function SortableItem({
   id,
@@ -67,15 +75,33 @@ export function MultiImageUpload({
 
   /** Initialize gallery items */
   useEffect(() => {
-    const existing: ImageItem[] = existingImages.map((url) => ({
-      id: `existing-${url}`,
-      type: "existing",
-      url,
-    }));
-
     setItems((prev) => {
-      const newItems = prev.filter((i) => i.type === "new");
-      return [...existing, ...newItems];
+      const existingUrlSet = new Set(existingImages);
+
+      // Keep current visual order, only remove deleted existing images.
+      const preservedItems = prev.filter((item) =>
+        item.type === "existing" ? existingUrlSet.has(item.url) : true,
+      );
+
+      const existingUrlsInState = new Set(
+        preservedItems
+          .filter(
+            (item): item is { id: string; type: "existing"; url: string } =>
+              item.type === "existing",
+          )
+          .map((item) => item.url),
+      );
+
+      // Add existing images that are newly introduced from props.
+      const appendedExisting: ImageItem[] = existingImages
+        .filter((url) => !existingUrlsInState.has(url))
+        .map((url) => ({
+          id: `existing-${url}`,
+          type: "existing",
+          url,
+        }));
+
+      return [...preservedItems, ...appendedExisting];
     });
   }, [existingImages]);
 
@@ -124,13 +150,7 @@ export function MultiImageUpload({
     }
 
     if (onReorderExisting) {
-      const remainingExisting = updated
-        .filter(
-          (i): i is { id: string; type: "existing"; url: string } =>
-            i.type === "existing",
-        )
-        .map((i) => i.url);
-      onReorderExisting(remainingExisting);
+      onReorderExisting(getExistingImageOrders(updated));
     }
   };
 
@@ -153,15 +173,8 @@ export function MultiImageUpload({
       .map((i) => i.file);
     onChange(reorderedFiles);
 
-    const reorderedExisting = reordered
-      .filter(
-        (i): i is { id: string; type: "existing"; url: string } =>
-          i.type === "existing",
-      )
-      .map((i) => i.url);
-
     if (onReorderExisting) {
-      onReorderExisting(reorderedExisting);
+      onReorderExisting(getExistingImageOrders(reordered));
     }
   };
 

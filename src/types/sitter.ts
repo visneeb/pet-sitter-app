@@ -42,6 +42,7 @@ export interface SitterApi {
   subDistrict?: string;
   postCode?: number;
   reviewCount?: number;
+  hasPendingUpdate: boolean;
 }
 
 export interface SittersResponse {
