@@ -5,6 +5,7 @@ import { CloseIcon } from "@/assets/icons/components";
 import { createPortal } from "react-dom";
 import { BookingDetail } from "@/components/booking-detail/BookingDetail";
 import { OwnerBookingHistory } from "@/types/BookingType";
+import { BookingFormValues } from "@/components/pet-sitter-detail/BookingModal";
 
 interface BookingDetailModalProps {
   booking: OwnerBookingHistory;

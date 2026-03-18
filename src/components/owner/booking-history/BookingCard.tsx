@@ -133,7 +133,6 @@ export function BookingCard({ booking }: BookingCardProps) {
             endTime: currentEndTime,
           }}
           onClose={() => setIsDetailOpen(false)}
-          onConfirm={handleConfirm}
           onChangeTime={() => {
             setIsDetailOpen(false);
             setIsChangeTimeOpen(true);
