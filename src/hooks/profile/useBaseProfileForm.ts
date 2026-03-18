@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import {
   ProfileFormValues,
@@ -45,7 +45,6 @@ export function useBaseProfileForm(
   const [profileError, setProfileError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Use ref for originalEmail so onSubmit closure always reads the latest value
   const originalEmailRef = useRef("");
   const [originalEmail, _setOriginalEmail] = useState("");
   const setOriginalEmail = (email: string) => {
@@ -63,9 +62,15 @@ export function useBaseProfileForm(
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const [isAvatarDirty, setIsAvatarDirty] = useState(false);
 
+  // FIX: Memoize the resolver so it's created only ONCE, not on every render.
+  // Previously `createResolver(validateProfile)` was passed inline to useForm(),
+  // which created a new function reference every render — causing RHF to
+  // re-register all fields and trigger setState during render (the crash).
+  const resolver = useMemo(() => createResolver(validateProfile), []);
+
   const methods = useForm<ProfileFormValues>({
-    mode: "onTouched",
-    resolver: createResolver(validateProfile),
+    mode: "onBlur",
+    resolver,
     shouldUnregister: false,
     defaultValues: {
       name: "",
@@ -79,6 +84,7 @@ export function useBaseProfileForm(
     setValue,
     setError,
     clearErrors,
+    reset,
     formState: { isSubmitting },
   } = methods;
 
@@ -103,10 +109,9 @@ export function useBaseProfileForm(
         const data = await userApi.getCurrentUser();
 
         if (data) {
-          // setOriginalEmail updates both ref and state
           setOriginalEmail(data.email);
           setTimeout(() => {
-            methods.reset({
+            reset({
               name: data.name || "",
               phone: data.phone || "",
               email: data.email || "",
@@ -126,11 +131,11 @@ export function useBaseProfileForm(
 
   useEffect(() => {
     if (resetData) {
-      methods.reset(resetData);
+      reset(resetData);
       setResetData(null);
       setIsAvatarDirty(false);
     }
-  }, [resetData, methods]);
+  }, [resetData, reset]);
 
   const handleAvatarChange = async (file: File | null) => {
     if (!file) {
@@ -163,7 +168,6 @@ export function useBaseProfileForm(
   const onSubmit = async (data: ProfileFormValues) => {
     if (isUpdating) return;
 
-    //Read from ref
     const emailChanged = data.email?.trim() !== originalEmailRef.current.trim();
 
     if (emailChanged) {
@@ -242,7 +246,6 @@ export function useBaseProfileForm(
         setResetData(pendingData);
       }
 
-      // Update both ref and state after email change confirmed
       setOriginalEmail(pendingData.email ?? "");
       setShowPasswordModal(false);
       setPendingData(null);

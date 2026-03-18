@@ -22,7 +22,13 @@ type Props = {
   className?: string;
 };
 
-export function FormField({ name, disabled, children, className }: Props) {
+type InnerProps = {
+  name: string;
+  disabled?: boolean;
+  children: React.ReactNode;
+};
+
+function FormFieldInner({ name, disabled, children }: InnerProps) {
   const { control } = useFormContext();
 
   const { errors } = useFormState({ control, name });
@@ -44,7 +50,17 @@ export function FormField({ name, disabled, children, className }: Props) {
 
   return (
     <FormFieldContext.Provider value={value}>
-      <div className={cn("w-full space-y-1", className)}>{children}</div>
+      {children}
     </FormFieldContext.Provider>
+  );
+}
+
+export function FormField({ name, disabled, children, className }: Props) {
+  return (
+    <div className={cn("w-full space-y-1", className)}>
+      <FormFieldInner name={name} disabled={disabled}>
+        {children}
+      </FormFieldInner>
+    </div>
   );
 }

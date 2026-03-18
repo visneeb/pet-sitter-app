@@ -72,19 +72,23 @@ export function parse12hTo24h(display: string): string {
 export function formatDateRange(startTime: string, endTime: string) {
   const start = new Date(startTime);
   const end = new Date(endTime);
+
   const date = start.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
-  const startHour = start.toLocaleTimeString("en-US", {
+
+  const timeOptions: Intl.DateTimeFormatOptions = {
     hour: "numeric",
+    minute: "2-digit",
     hour12: true,
-  });
-  const endHour = end.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    hour12: true,
-  });
+    timeZone: "UTC",
+  };
+
+  const startHour = start.toLocaleTimeString("en-US", timeOptions);
+  const endHour = end.toLocaleTimeString("en-US", timeOptions);
+
   return `${date}  |  ${startHour} - ${endHour}`;
 }
 

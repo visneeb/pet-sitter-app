@@ -31,7 +31,7 @@ export function BookingCardDetails({
   return (
     <div className="grid md:grid-cols-4 grid-cols-1 items-center text-gray-700 gap-4">
       {/* Date & Time */}
-      <div className="md:pr-6 pr-0 md:col-span-2">
+      <div className="md:pr-7 pr-0 md:col-span-2">
         <p className={headStyle}>Date & Time:</p>
         <div className="flex items-center md:gap-3 gap-2">
           <p className={detailStyle}>{formatDateRange(startTime, endTime)}</p>

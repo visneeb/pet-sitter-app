@@ -15,7 +15,13 @@ export function BookingList() {
     onPageChange,
   } = useBookingHistory();
 
-  if (loading) return <p className="text-gray-400">Loading bookings...</p>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
 
   if (error)
     return (
