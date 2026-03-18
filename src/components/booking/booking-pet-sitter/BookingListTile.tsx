@@ -17,7 +17,7 @@ function BookingListTile(props: BookingListTileProps) {
     petOwnerName,
     petCount,
     duration,
-    bookedDate,
+    bookingDate,
     status,
     createdAt,
     updatedAt,
@@ -46,7 +46,7 @@ function BookingListTile(props: BookingListTileProps) {
         {duration}
       </div>
       <div className="hidden w-[calc(420/1120*100%)] px-4 style-body-2 text-black xl:block">
-        {bookedDate}
+        {bookingDate}
       </div>
       <div
         className={cn(
