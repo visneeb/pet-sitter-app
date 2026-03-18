@@ -27,23 +27,23 @@ export function ProgressBar({ currentStep, steps = defaultSteps, className }: Pr
   return (
     <div
       className={cn(
-        "w-2/3 rounded-2xl bg-white px-6 py-4 shadow-sm flex ",
+        "w-full rounded-2xl bg-white px-10 py-4 shadow-sm flex",
         className
       )}
       aria-label="Booking progress"
     >
-      <ol className="flex items-center justify-between gap-3 w-full">
+      <ol className="flex gap-30 w-full justify-center">
         {steps.map((s, idx) => {
           const stepNumber = (idx + 1) as 1 | 2 | 3;
           const isDone = stepNumber < currentStep;
           const isActive = stepNumber === currentStep;
           const isUpcoming = stepNumber > currentStep;
           return (
-            <li key={s.key} className="flex flex-1 items-center">
+            <li key={s.key} className="flex ">
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-center",
+                    "flex h-8 w-8  justify-center rounded-full text-sm font-semibold text-center",
                     isActive && "bg-orange-500 text-white",
                     isDone && "bg-black text-orange-600",
                     isUpcoming && "bg-gray-100 text-gray-400"

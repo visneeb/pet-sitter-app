@@ -12,6 +12,7 @@ interface Props {
   disabled?: boolean;
   onCancel?: () => Promise<void>;
   onConfirm?: () => Promise<void>;
+  onOpenChange?: (open: boolean) => void;
 }
 
 function Modal(props: Props) {
@@ -23,10 +24,11 @@ function Modal(props: Props) {
     if (!dialog) return;
 
     dialog.close();
+    props.onOpenChange?.(false);
   };
 
   return (
-    <dialog id={props.id} className="modal">
+    <dialog id={props.id} className="modal" onClose={() => props.onOpenChange?.(false)}>
       <div className="modal-box w-[calc(100%-2rem)] max-w-100 bg-white rounded-2xl p-0">
         <div className="relative px-4 py-2 border-b border-gray-300 md:px-6 md:py-4">
           <span className="style-body-1 text-black">{props.title}</span>

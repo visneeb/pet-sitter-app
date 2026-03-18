@@ -42,7 +42,10 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
 
   const handleClose = () => {
     if (isClosing) return;
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+    const isMobile =
+      typeof window !== "undefined" && window.innerWidth < 768;
+
     if (isMobile) {
       setIsClosing(true);
     } else {
@@ -60,25 +63,71 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
       endDate: null,
       startTime: "",
       endTime: "",
-      note: "",
     },
   });
 
-  const handleSubmit = async (data: BookingFormValues) => {
-    await onConfirm?.(data);
-    handleClose();
-  };
+  /*
+    2️⃣ watch startDate
+    เพื่อให้ endDate = startDate เสมอ
+  */
+  const startDate = useWatch({
+    control: methods.control,
+    name: "startDate",
+  });
 
-  const startTime = useWatch({ control: methods.control, name: "startTime" });
-  const endTimeMin = startTime ? getNextTimeSlot(startTime, 30) : undefined;
+  /*
+    3️⃣ watch startTime
+    เพื่อใช้กำหนดเวลาขั้นต่ำของ endTime
+  */
+  const startTime = useWatch({
+    control: methods.control,
+    name: "startTime",
+  });
 
+  const endTimeMin = startTime
+    ? getNextTimeSlot(startTime, 30)
+    : undefined;
+
+  /*
+    4️⃣ sync endDate กับ startDate
+    เพราะตอนนี้ระบบจองได้วันเดียว
+  */
+  useEffect(() => {
+    methods.setValue("endDate", startDate ?? null);
+  }, [startDate, methods]);
+
+  /*
+    5️⃣ ถ้า user เปลี่ยน startTime
+    แล้ว endTime น้อยกว่า minTime
+    ให้ reset endTime
+  */
   useEffect(() => {
     if (!startTime || !endTimeMin) return;
+
     const currentEnd = methods.getValues("endTime");
+
     if (currentEnd && currentEnd < endTimeMin) {
       methods.setValue("endTime", "");
     }
   }, [startTime, endTimeMin, methods]);
+
+  /*
+    6️⃣ submit form
+    และส่ง endDate = startDate ออกไป
+  */
+  const handleSubmit = async (data: BookingFormValues) => {
+    if (!data.startDate || !data.startTime || !data.endTime) {
+      return;
+    }
+
+    const normalizedData: BookingFormValues = {
+      ...data,
+      endDate: data.startDate,
+    };
+
+    await onConfirm?.(normalizedData);
+    handleClose();
+  };
 
   const oneYearFromNow = new Date(
     new Date().getFullYear() + 1,
@@ -95,19 +144,23 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
           from { transform: translateY(100%); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
+
         @keyframes slideDown {
           from { transform: translateY(0); opacity: 1; }
           to { transform: translateY(100%); opacity: 0; }
         }
+
         @media (max-width: 767px) {
           .mobile-bottom-sheet {
             animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
+
           .mobile-bottom-sheet-closing {
             animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
         }
       `}</style>
+
 
       <div
         className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/50 transition-opacity"
@@ -130,8 +183,9 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
               id="booking-modal-title"
               className="style-headline-3 text-gray-600"
             >
-              Booking
+              Booking with {sitter.tradeName}
             </h3>
+
             <button
               type="button"
               onClick={handleClose}
@@ -166,16 +220,19 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
 
               <div className="flex items-center gap-2">
                 <ClockIcon size={20} className="shrink-0 text-gray-500" />
+
                 <TimePicker
                   name="startTime"
                   placeholder="Pet arrival time"
-                  className="flex-1 min-w-0"
+                  className="min-w-0 flex-1"
                 />
-                <span className="text-gray-500 shrink-0">-</span>
+
+                <span className="shrink-0 text-gray-500">-</span>
+
                 <TimePicker
                   name="endTime"
                   placeholder="Pet departure time"
-                  className="flex-1 min-w-0"
+                  className="min-w-0 flex-1"
                   minTime={endTimeMin}
                   stepMinutes={30}
                 />

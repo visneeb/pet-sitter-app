@@ -62,6 +62,7 @@ function PetFields(props: Props) {
               <option key={petType.id} value={petType.id}>
                 <span className="style-input">{petType.name}</span>
               </option>
+              
             ))}
           </Select>
           <Input

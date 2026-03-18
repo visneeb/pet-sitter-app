@@ -53,4 +53,6 @@ export const bookingApi = {
         status: "Success",
       })
       .then((res) => res.data),
+  create: (data: any) =>
+    privateApi.post("/bookings", data).then((res) => res.data),
 };

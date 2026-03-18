@@ -19,3 +19,10 @@ export interface PetFormValues {
   weight: string;
   about: string;
 }
+
+export interface Pet {
+  id: string;
+  name: string;
+  type: string;
+  imgUrl?: string;
+}

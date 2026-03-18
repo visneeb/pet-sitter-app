@@ -1,67 +1,111 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-type PetType = "dog" | "cat" | "bird" | "rabbit";
+const STORAGE_KEY = "booking-context";
 
 export type BookingInfo = {
   startDate?: string;
+  endDate?: string;
   startTime?: string;
+  endTime?: string;
+  startDateTime?: string;
+  endDateTime?: string;
   durationHours?: number;
-  note?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  message?: string;
 };
 
-type BookingState = {
+export type BookingState = {
   selectedSitterId?: string;
-
-  // ✅ เปลี่ยนจากเลือก 1 ตัว → เลือกหลายตัว
+  selectedSitterName?: string;
+  selectedSitterAcceptedTypes?: string[];
   selectedPetIds: string[];
-
-  // optional: ถ้าคุณยังอยากเก็บ type (กรณีเลือกหลายตัว อาจเก็บเป็น map)
-  // selectedPetTypes?: Record<string, PetType>;
-
   info: BookingInfo;
 };
 
 type BookingContextValue = {
   state: BookingState;
-
-  setSitter: (sitterId: string) => void;
-
-  // ✅ set ทั้งก้อน (เหมาะกับ multi-select)
+  setSitter: (
+    sitterId: string,
+    sitterName?: string,
+    acceptedTypes?: string[]
+  ) => void;
   setPets: (petIds: string[]) => void;
-
-  // ✅ toggle ตัวเดียว (เผื่ออยากย้าย logic toggle มาไว้ใน context)
   togglePet: (petId: string) => void;
-
   updateInfo: (patch: Partial<BookingInfo>) => void;
-
-  // ✅ ถ้า sitter ไม่รับ ให้ล้าง pet ทั้งหมด หรือคุณจะปรับให้ล้างเฉพาะบางตัวก็ได้
   clearPetsIfNotAccepted: (isAccepted: boolean) => void;
-
   reset: () => void;
-
   canGoStep2: boolean;
   canGoStep3: boolean;
 };
 
+const initialState: BookingState = {
+  selectedSitterId: undefined,
+  selectedSitterName: undefined,
+  selectedSitterAcceptedTypes: [],
+  selectedPetIds: [],
+  info: {},
+};
+
 const BookingContext = createContext<BookingContextValue | null>(null);
 
-export function BookingProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<BookingState>({
-    selectedSitterId: undefined,
-    selectedPetIds: [], // ✅ เริ่มเป็น array ว่าง
-    info: {},
-  });
+export function BookingProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [state, setState] = useState<BookingState>(initialState);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  const setSitter = (sitterId: string) => {
+  // โหลดข้อมูลจาก sessionStorage ตอนเปิดหน้า/refresh
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+
+      if (saved) {
+        const parsed = JSON.parse(saved) as BookingState;
+        setState(parsed);
+      }
+    } catch (error) {
+      console.error("Failed to load booking context from sessionStorage:", error);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // บันทึก state ลง sessionStorage ทุกครั้งที่เปลี่ยน
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      console.error("Failed to save booking context to sessionStorage:", error);
+    }
+  }, [state, isHydrated]);
+
+  const setSitter = (
+    sitterId: string,
+    sitterName?: string,
+    acceptedTypes?: string[]
+  ) => {
     setState((prev) => ({
       ...prev,
       selectedSitterId: sitterId,
+      selectedSitterName: sitterName,
+      selectedSitterAcceptedTypes: acceptedTypes ?? [],
     }));
   };
 
-  // ✅ set แบบทั้ง array (ใช้ตอนกด Next จากหน้า choose pet)
   const setPets = (petIds: string[]) => {
     setState((prev) => ({
       ...prev,
@@ -69,10 +113,10 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-  // ✅ toggle แบบตัวเดียว (optional helper)
   const togglePet = (petId: string) => {
     setState((prev) => {
       const exists = prev.selectedPetIds.includes(petId);
+
       return {
         ...prev,
         selectedPetIds: exists
@@ -82,36 +126,57 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const updateInfo = (patch: Partial<BookingInfo>) => {
+  // const updateInfo = (patch: Partial<BookingInfo>) => {
+  //   setState((prev) => ({
+  //     ...prev,
+  //     info: {
+  //       ...prev.info,
+  //       ...patch,
+  //     },
+  //   }));
+  // };
+
+  const updateInfo = (
+    patch: Partial<BookingInfo> | ((prev: BookingInfo) => Partial<BookingInfo>)
+  ) => {
     setState((prev) => ({
       ...prev,
-      info: { ...prev.info, ...patch },
+      info: {
+        ...prev.info,
+        ...(typeof patch === "function" ? patch(prev.info) : patch),
+      },
     }));
   };
 
   const clearPetsIfNotAccepted = (isAccepted: boolean) => {
     if (isAccepted) return;
+
     setState((prev) => ({
       ...prev,
-      selectedPetIds: [], // ✅ ล้างทั้งหมด
+      selectedPetIds: [],
     }));
   };
 
   const reset = () => {
-    setState({
-      selectedSitterId: undefined,
-      selectedPetIds: [],
-      info: {},
-    });
+    setState(initialState);
+
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error("Failed to clear booking context from sessionStorage:", error);
+    }
   };
 
-  // ✅ guard: ไป step2 ได้เมื่อมี sitter และเลือก pet อย่างน้อย 1 ตัว
-  const canGoStep2 = Boolean(state.selectedSitterId && state.selectedPetIds.length > 0);
+  const canGoStep2 = Boolean(
+    state.selectedSitterId && state.selectedPetIds.length > 0
+  );
 
   const canGoStep3 = Boolean(
     canGoStep2 &&
       state.info.startDate &&
+      state.info.endDate &&
       state.info.startTime &&
+      state.info.endTime &&
       state.info.durationHours
   );
 
@@ -130,11 +195,17 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     [state, canGoStep2, canGoStep3]
   );
 
-  return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;
+  return (
+    <BookingContext.Provider value={value}>{children}</BookingContext.Provider>
+  );
 }
 
 export function useBooking() {
   const ctx = useContext(BookingContext);
-  if (!ctx) throw new Error("useBooking must be used within BookingProvider");
+
+  if (!ctx) {
+    throw new Error("useBooking must be used within BookingProvider");
+  }
+
   return ctx;
 }

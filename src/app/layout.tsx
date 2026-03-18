@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AppProviders from "@/components/providers/AppProviders";
 import { Toaster } from "sonner";
+import { BookingProvider } from "@/contexts/BookingContext";
+
 
 export const metadata: Metadata = {
   title: "Pet Sitter",
@@ -20,7 +22,9 @@ export default function RootLayout({
     <html lang="en" data-theme="light">
       <body className={`antialiased`}>
         <AppProviders>
+          <BookingProvider>
           {children}
+          </BookingProvider>
           <Toaster />
         </AppProviders>
       </body>
