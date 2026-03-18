@@ -2,16 +2,53 @@
 
 import { useState } from "react";
 import { useScreenContext } from "@/contexts/ScreenContext";
-import { UserProfileHeader } from "@/components/profile/ProfileHeader";
+import { ActionProfileHeader } from "../profile/ProfileHeader";
 import Link from "next/link";
 import { ChevronLeft, Eye } from "lucide-react";
 import { ActionButton } from "@/components/ui/Button";
 import DetailLabel from "@/components/ui/detail/DetailLabel";
 import { useParams, useRouter } from "next/navigation";
-import { useBookingDetail } from "@/hooks/booking/useBookingDetail";
+import { useBookingDetail } from "@/hooks/booking-detail/useBookingDetail";
 import { bookingApi } from "@/services/api/bookingApi";
 import ProfileModal from "./ProfileModal";
-import { PetCard } from "./PetCard";
+import PetModal from "./PetProfileModal";
+import { PetCard } from "../booking/PetCard";
+import useBookingStatus from "@/hooks/booking-detail/useBookingStatus";
+import {
+  BookingDetail as BookingDetailType,
+  BookingStatus,
+} from "@/types/booking";
+
+type Pet = BookingDetailType["pets"][number];
+
+function formatBookingDate(startTime: string, endTime: string): string {
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  };
+
+  const formatTime = (date: Date): string => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const hour12 = hours % 12 || 12;
+
+    if (minutes === 0) {
+      return `${hour12} ${ampm}`;
+    }
+    return `${hour12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
+  };
+
+  const dateStr = start.toLocaleDateString("en-GB", dateOptions);
+  const startTimeStr = formatTime(start);
+  const endTimeStr = formatTime(end);
+
+  return `${dateStr}  |  ${startTimeStr} - ${endTimeStr}`;
+}
 
 function BookingDetail() {
   const router = useRouter();
@@ -19,17 +56,23 @@ function BookingDetail() {
   const params = useParams();
   const bookingId = Number(params.bookingId);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [isConfirm, setIsConFirm] = useState(false);
   const [isConfirmModal, setIsConFirmModal] = useState(false);
   const { booking, isLoading, error, refetch } = useBookingDetail(bookingId);
+  const statusConfig = useBookingStatus(
+    booking?.status as BookingStatus,
+    booking?.endTime ?? "",
+  );
   const ModalHandling = () => {
     setIsModalOpen(true);
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500 p-4">Error: {error.message}</div>;
+  if (error)
+    return <div className="text-red-500 p-4">Error: {error.message}</div>;
 
   const handleRejectBooking = async () => {
     if (isRejecting) return;
@@ -74,24 +117,37 @@ function BookingDetail() {
     <>
       <div className="flex flex-col gap-[24px] px-[40px] pt-[40px] pb-[80px]">
         <div>
-          <UserProfileHeader
+          <ActionProfileHeader
             title={booking?.contactName ?? "-"}
+            status={
+              <span className={statusConfig?.badgeClass}>
+                {statusConfig?.label}
+              </span>
+            }
             leftAction={
               <Link href="/bookings">
                 <ChevronLeft />
               </Link>
             }
             action={
-              booking?.status === "waiting_for_confirm" && (
-                <div className="flex flex-row gap-[8px]">
+              <div className="flex flex-row gap-[8px]">
+                {statusConfig?.showReject && (
                   <ActionButton variant="secondary" onClick={openReject}>
                     Reject Booking
                   </ActionButton>
-                  <ActionButton variant="primary" onClick={openConfirm}>
-                    Confirm Booking
+                )}
+                {statusConfig?.buttonLabel && (
+                  <ActionButton
+                    variant="primary"
+                    onClick={openConfirm}
+                    className={
+                      statusConfig?.isDisabled ? "pointer-events-none" : ""
+                    }
+                  >
+                    {statusConfig.buttonLabel}
                   </ActionButton>
-                </div>
-              )
+                )}
+              </div>
             }
           />
         </div>
@@ -114,21 +170,33 @@ function BookingDetail() {
           </div>
 
           <DetailLabel label="Pet(s)" value={booking?.pets?.length ?? "-"} />
-          <p className="text-gray-400 style-headline-4">Pet Detail</p>
-          <div className="flex gap-[12px]">
-            {booking?.pets?.map((pet) => (
-              <PetCard
-                key={pet.petId}
-                pet={pet}
-                selected={false}
-                disabled={false}
-                onSelect={() => {}}
-              />
-            ))}
-          </div>
+          {booking?.pets && booking.pets.length > 0 ? (
+            <>
+              <p className="text-gray-400 style-headline-4">Pet Detail</p>
+              <div className="flex gap-[12px]">
+                {booking.pets.map((pet) => (
+                  <div key={pet.petId}>
+                    <PetCard
+                      pet={pet}
+                      selected={false}
+                      disabled={false}
+                      onSelect={() => setSelectedPet(pet)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <DetailLabel label="Pet Detail" value="-" />
+          )}
+          <DetailLabel label="Duration" value={booking?.duration ?? "-"} />
           <DetailLabel
-            label="Duration"
-            value={booking ? `${booking.startTime} - ${booking.endTime}` : "-"}
+            label="Booking Date"
+            value={
+              booking?.startTime && booking?.endTime
+                ? formatBookingDate(booking.startTime, booking.endTime)
+                : "-"
+            }
           />
           <DetailLabel
             label="Total Paid"
@@ -143,6 +211,9 @@ function BookingDetail() {
         </div>
       </div>
       {isModalOpen && <ProfileModal onClose={() => setIsModalOpen(false)} />}
+      {selectedPet && (
+        <PetModal pet={selectedPet} onClose={() => setSelectedPet(null)} />
+      )}
 
       {isRejectModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

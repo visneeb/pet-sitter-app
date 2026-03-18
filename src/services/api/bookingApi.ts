@@ -26,11 +26,20 @@ export const bookingApi = {
 
   rejectBooking: (bookingId: number): Promise<BookingDetail> =>
     privateApi
-      .patch(`/pet-sitter/booking/${bookingId}/status`, { status: "rejected" })
+      .patch(`/pet-sitter/booking/${bookingId}/status`, { status: "Canceled" })
       .then((res) => res.data),
 
   confirmBooking: (bookingId: number): Promise<BookingDetail> =>
     privateApi
-      .patch(`/pet-sitter/booking/${bookingId}/status`, { status: "confirmed" })
+      .patch(`/pet-sitter/booking/${bookingId}/status`, {
+        status: "Waiting for service",
+      })
+      .then((res) => res.data),
+
+  markAsSuccess: (bookingId: number): Promise<BookingDetail> =>
+    privateApi
+      .patch(`/pet-sitter/booking/${bookingId}/status`, {
+        status: "Success",
+      })
       .then((res) => res.data),
 };
