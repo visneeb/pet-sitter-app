@@ -140,7 +140,7 @@ import AvatarPlaceholder from "@/components/ui/AvatarPlaceholder";
 import { Star } from "lucide-react";
 import { MapMarkerIcon } from "@/assets/icons/components";
 import TagPetType from "@/components/search/PetSitterCard/TagPetType";
-import { ActionButton, NavigationButton } from "@/components/ui/Button";
+import { ActionButton } from "@/components/ui/Button";
 import { BookingModal, type BookingFormValues } from "./BookingModal";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Sitter } from "@/types/sitter";
@@ -214,6 +214,18 @@ export default function PetSitterBookingCard({
     if (!canBook) return;
 
     setIsBooking(true);
+  };
+
+  const handleMessage = () => {
+    if (!user) {
+      const returnUrl = sitterId
+        ? `/petsitter/${sitterId}`
+        : "/chat";
+      router.push(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
+      return;
+    }
+    if (user.role !== "owner") return;
+    router.push(sitterId ? `/chat?sid=${sitterId}` : "/chat");
   };
 
   const handleBookingConfirm = (data: BookingFormValues) => {
@@ -304,9 +316,14 @@ export default function PetSitterBookingCard({
         </div>
       </div>
       <div className="flex gap-4 border-t border-gray-200 w-full py-6 px-6">
-        <NavigationButton variant="secondary" href="/chat" className="w-full hidden lg:block">
+        <ActionButton
+          variant="secondary"
+          onClick={handleMessage}
+          className="w-full hidden lg:block"
+          disabled={user ? !canBook : false}
+        >
           Message
-        </NavigationButton>
+        </ActionButton>
         <ActionButton
           variant="primary"
           onClick={handleBookNow}

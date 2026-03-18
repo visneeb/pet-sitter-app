@@ -1,23 +1,19 @@
 import MessageBubble from "./MessageBubble";
-
-type Message = {
-  id: number;
-  text: string;
-  isMe: boolean;
-};
+import { ChatMessage } from "@/hooks/chat/useChat";
 
 type MessageListProps = {
-  messages: Message[];
+  messages: ChatMessage[];
+  currentUserId: number | null;
 };
 
-export default function MessageList({ messages }: MessageListProps) {
+export default function MessageList({ messages, currentUserId }: MessageListProps) {
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto px-2 pb-2">
       {messages.map((message) => (
         <MessageBubble
           key={message.id}
           text={message.text}
-          isMe={message.isMe}
+          isMe={message.senderId === currentUserId ? "me" : "other"}
         />
       ))}
     </div>

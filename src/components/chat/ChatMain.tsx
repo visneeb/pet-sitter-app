@@ -4,13 +4,15 @@ import { CloseIcon } from "@/assets/icons/components";
 import type { Conversation } from "@/app/chat/page";
 import { Paw } from "@/decorations/Paw";
 import MessageList from "./MessageList";
-
+import { useChat } from  "@/hooks/chat/useChat";
 type ChatMainProps = {
   conversation: Conversation | null;
   onClose?: () => void;
 };
 
 export default function ChatMain({ conversation, onClose }: ChatMainProps) {
+  const currentUserId = 1;
+  const { messages, sendMessage } = useChat({ conversationId: conversation?.id ?? null, currentUserId });
   return (
     <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
       <header className="flex h-24 items-center justify-between bg-gray-100 px-10 py-6">
@@ -45,36 +47,8 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-2">
         {conversation ? (
           <MessageList
-            messages={[
-              { id: 1, text: "Hello! how to be a MapMaster ?", isMe: true },
-              {
-                id: 2,
-                text: "Do a Petsitter project first, then you can be a MapMaster",
-                isMe: false,
-              },
-              { id: 3, text: "Is project hard ?", isMe: true },
-              {
-                id: 4,
-                text: "It just a junior project, you can do it.",
-                isMe: false,
-              },
-              { id: 5, text: "Ok, I will do it.", isMe: true },
-              { id: 6, text: "Cam you help me?", isMe: false },
-              { id: 7, text: "Sure, I will help you.", isMe: true },
-              { id: 8, text: "what is the project?", isMe: false },
-              {
-                id: 9,
-                text: "It is a project to help the petsitter to find the petsitter",
-                isMe: true,
-              },
-              { id: 10, text: "ok", isMe: false },
-              { id: 11, text: "Thank you", isMe: true },
-              { id: 12, text: "Bye", isMe: false },
-              { id: 13, text: "See you later", isMe: true },
-              { id: 14, text: "Goodbye", isMe: false },
-              { id: 15, text: "ok", isMe: true },
-              { id: 16, text: "Goodbye", isMe: false },
-            ]}
+            messages={messages}
+            currentUserId={currentUserId}
           />
         ) : (
           <div className="text-center">
@@ -86,7 +60,7 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
         )}
       </div>
 
-      <MessageInput />
+      <MessageInput onSend={sendMessage} />
     </section>
   );
 }

@@ -1,67 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import ChatMain from "@/components/chat/ChatMain";
+import { useAuth } from "@/contexts/AuthContext";
+import Loading from "@/components/common/loading/loading";
+import { usePetSitterDetail } from "@/hooks/pet-sitter-detail/usePetSitterDetail";
 
 export type Conversation = {
-  id: number;
+  id: string;
   name: string;
   avatarUrl: string;
   lastMessage: string;
   unread?: number;
 };
 
-const mockConversations: Conversation[] = [
-  {
-    id: 1,
-    name: "Mek MapMaster",
-    avatarUrl: "/avatars/avatar-1.png",
-    lastMessage: "Hello",
-  },
-  {
-    id: 2,
-    name: "Junior Mon san",
-    avatarUrl: "/avatars/avatar-2.png",
-    lastMessage: "You there?",
-  },
-  {
-    id: 3,
-    name: "Senior Matang",
-    avatarUrl: "/avatars/avatar-3.png",
-    lastMessage: "I love your cat",
-    unread: 1,
-  },
-  {
-    id: 4,
-    name: "Meena Inw FE",
-    avatarUrl: "/avatars/avatar-4.png",
-    lastMessage: "good morning",
-  },
-  {
-    id: 5,
-    name: "Bank TechLead",
-    avatarUrl: "/avatars/avatar-5.png",
-    lastMessage: "I am here",
-    unread: 2,
-  },
-  {
-    id: 6,
-    name: "Tew The Legend",
-    avatarUrl: "/avatars/avatar-5.png",
-    lastMessage: "Wow",
-    unread: 2,
-  },
-];
-
 type ActivePanel = "sidebar" | "chat";
 
 export default function ChatPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const sid = searchParams.get("sid");
+  const { user, loading } = useAuth();
+  const { sitter, isLoading: isSitterLoading } = usePetSitterDetail(sid ?? null);
   const [selectedConversationId, setSelectedConversationId] = useState<
-    number | null
-  >(1);
+    string | null
+  >(sid);
   const [isMobile, setIsMobile] = useState(false);
   const [activePanel, setActivePanel] = useState<ActivePanel>("sidebar");
+
+  const conversations: Conversation[] = useMemo(() => {
+    if (!sid) return [];
+    const name = sitter
+      ? sitter.tradeName ?? sitter.sitter?.name ?? "Pet Sitter"
+      : "Pet Sitter";
+    const avatarUrl =
+      sitter?.sitter?.profileImgUrl ?? "/avatars/avatar-1.png";
+    return [{ id: sid, name, avatarUrl, lastMessage: "" }];
+  }, [sitter, sid]);
+
+  useEffect(() => {
+    setSelectedConversationId(sid);
+  }, [sid]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      router.replace(`/auth/login?redirect=${encodeURIComponent("/chat")}`);
+      return;
+    }
+    if (user.role !== "owner") {
+      router.replace("/");
+      return;
+    }
+  }, [user, loading, router]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -83,7 +76,7 @@ export default function ChatPage() {
     };
   }, []);
 
-  const handleSelectConversation = (id: number) => {
+  const handleSelectConversation = (id: string) => {
     setSelectedConversationId(id);
 
     if (isMobile) {
@@ -92,15 +85,22 @@ export default function ChatPage() {
   };
 
   const selectedConversation =
-    mockConversations.find(
+    conversations.find(
       (conversation) => conversation.id === selectedConversationId,
     ) ?? null;
+
+  const isAuthReady = !loading && user && user.role === "owner";
+  const isSitterReady = !sid || !isSitterLoading;
+
+  if (!isAuthReady || (sid && !isSitterReady)) {
+    return <Loading />;
+  }
 
   return (
     <main className="mx-auto flex min-h-0 w-full flex-1 flex-col overflow-hidden">
       <section className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden bg-white">
         <ChatSidebar
-          conversations={mockConversations}
+          conversations={conversations}
           selectedConversationId={selectedConversationId}
           onSelectConversation={handleSelectConversation}
           isFullWidth={isMobile && activePanel === "sidebar"}

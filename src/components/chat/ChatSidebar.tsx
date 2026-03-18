@@ -3,8 +3,8 @@ import type { Conversation } from "@/app/chat/page";
 
 type ChatSidebarProps = {
   conversations: Conversation[];
-  selectedConversationId: number | null;
-  onSelectConversation: (id: number) => void;
+  selectedConversationId: string | null;
+  onSelectConversation: (id: string) => void;
   isFullWidth?: boolean;
 };
 

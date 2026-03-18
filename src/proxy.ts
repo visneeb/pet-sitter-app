@@ -12,6 +12,7 @@ const SITTER_PREFIXES = [
 const OWNER_PREFIXES = [
   "/booking-history",
   "/change-password",
+  "/chat",
   "/pets",
   "/user-profile",
 ];
@@ -77,6 +78,8 @@ export const config = {
     "/petsitter-profile/:path*",
     "/booking-history/:path*",
     "/change-password/:path*",
+    "/chat",
+    "/chat/:path*",
     "/pets/:path*",
     "/user-profile/:path*",
     "/pet-owner/:path*",
