@@ -81,3 +81,15 @@ export interface SitterBookingListResponse {
   totalPages: number;
   bookings: SitterBookingList[];
 }
+
+export interface SitterBookingRangeItem {
+  id: number;
+  ownerName: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+}
+
+export interface SitterBookingRangeResponse {
+  bookings: SitterBookingRangeItem[];
+}

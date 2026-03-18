@@ -17,7 +17,7 @@ export interface BookingFormValues {
   note: string;
 }
 
-interface ModalAction {
+export interface ModalAction {
   label: string;
   onClick?: () => void;
   type?: "button" | "submit" | "reset";

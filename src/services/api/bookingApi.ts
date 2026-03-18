@@ -3,6 +3,7 @@ import type { BookingDetail } from "@/types/booking";
 import type {
   OwnerBookingHistory,
   SitterBookingListResponse,
+  SitterBookingRangeResponse,
 } from "@/types/BookingType";
 
 export const bookingApi = {
@@ -14,6 +15,16 @@ export const bookingApi = {
 
   getOwnerBookingHistory: (): Promise<OwnerBookingHistory[]> =>
     privateApi.get("/bookings/owner/history").then((res) => res.data),
+
+  getSitterBookingsInRange: (
+    start: string,
+    end: string,
+  ): Promise<SitterBookingRangeResponse> =>
+    privateApi
+      .get<SitterBookingRangeResponse>("/pet-sitter/bookings/range", {
+        params: { start, end },
+      })
+      .then((res) => res.data),
 
   updateBookingTime: (
     bookingId: number,

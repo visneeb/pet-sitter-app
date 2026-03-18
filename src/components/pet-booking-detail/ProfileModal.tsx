@@ -1,5 +1,5 @@
 import DetailLabel from "@/components/ui/detail/DetailLabel";
-import { useBookingDetail } from "@/hooks/booking-detail/useBookingDetail";
+import { useBookingDetail } from "@/hooks/booking/useBookingDetail";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { UserRound, X } from "lucide-react";

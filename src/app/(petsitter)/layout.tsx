@@ -23,7 +23,7 @@ export default function PetSitterLayout({
         </div>
         <Sidebar
           items={petsitterSidebarItems}
-          header={<SidebarHeader role="petsitter"/>}
+          header={<SidebarHeader role="petsitter" />}
           role="petsitter"
           footer={<SidebarLogout role="petsitter" />}
           className="hidden"

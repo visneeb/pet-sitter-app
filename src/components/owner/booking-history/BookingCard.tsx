@@ -5,10 +5,11 @@ import { OwnerBookingHistory, BookingStatus } from "@/types/BookingType";
 import { BookingCardHeader } from "./booking-card/BookingCardHeader";
 import { BookingCardDetails } from "./booking-card/BookingCardDetails";
 import { BookingCardFooter } from "./booking-card/BookingCardFooter";
-import { BookingDetailModal } from "@/components/booking-history/BookingDetailModal";
+import { BookingDetailModal } from "@/components/owner/booking-history/BookingDetailModal";
 import {
   BookingModal,
   BookingFormValues,
+  type ModalAction,
 } from "@/components/pet-sitter-detail/BookingModal";
 import { bookingApi } from "@/services/api/bookingApi";
 
@@ -84,6 +85,10 @@ export function BookingCard({ booking }: BookingCardProps) {
     [booking.bookingId],
   );
 
+  const confirm: ModalAction[] = [
+    { label: "Confirm", type: "submit", variant: "primary" },
+  ];
+
   return (
     <>
       <div
@@ -128,7 +133,6 @@ export function BookingCard({ booking }: BookingCardProps) {
             endTime: currentEndTime,
           }}
           onClose={() => setIsDetailOpen(false)}
-          onConfirm={handleConfirm}
           onChangeTime={() => {
             setIsDetailOpen(false);
             setIsChangeTimeOpen(true);
@@ -141,6 +145,7 @@ export function BookingCard({ booking }: BookingCardProps) {
           sitter={{ tradeName: booking.tradeName }}
           onClose={() => setIsChangeTimeOpen(false)}
           onConfirm={handleConfirm}
+          actions={confirm}
         />
       )}
     </>

@@ -1,283 +1,125 @@
-"use client";
-
-import { useState } from "react";
-import { useScreenContext } from "@/contexts/ScreenContext";
-import { ActionProfileHeader } from "../profile/ProfileHeader";
-import Link from "next/link";
-import { ChevronLeft, Eye } from "lucide-react";
-import { ActionButton } from "@/components/ui/Button";
-import DetailLabel from "@/components/ui/detail/DetailLabel";
-import { useParams, useRouter } from "next/navigation";
-import { useBookingDetail } from "@/hooks/booking-detail/useBookingDetail";
-import { bookingApi } from "@/services/api/bookingApi";
-import ProfileModal from "./ProfileModal";
-import PetModal from "./PetProfileModal";
-import { PetCard } from "../booking/PetCard";
-import useBookingStatus from "@/hooks/booking-detail/useBookingStatus";
+import { MapMarkerIcon, EditIcon } from "@/assets/icons/components";
+import { OwnerBookingHistory } from "@/types/BookingType";
+import { ActionButton } from "../ui/Button";
 import {
-  BookingDetail as BookingDetailType,
-  BookingStatus,
-} from "@/types/booking";
+  formatDateRange,
+  formatDuration,
+  formatTransactionDate,
+} from "@/utils/timeFormat";
+import { statusStyleMap } from "@/constants/status";
 
-type Pet = BookingDetailType["pets"][number];
-
-function formatBookingDate(startTime: string, endTime: string): string {
-  const start = new Date(startTime);
-  const end = new Date(endTime);
-
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  };
-
-  const formatTime = (date: Date): string => {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? "PM" : "AM";
-    const hour12 = hours % 12 || 12;
-
-    if (minutes === 0) {
-      return `${hour12} ${ampm}`;
-    }
-    return `${hour12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
-  };
-
-  const dateStr = start.toLocaleDateString("en-GB", dateOptions);
-  const startTimeStr = formatTime(start);
-  const endTimeStr = formatTime(end);
-
-  return `${dateStr}  |  ${startTimeStr} - ${endTimeStr}`;
+interface BookingDetailProps {
+  booking: OwnerBookingHistory;
+  onChangeTime: () => void;
+  showStatus?: boolean;
+  showChangeButton?: boolean;
 }
 
-function BookingDetail() {
-  const router = useRouter();
-  const { isLarge } = useScreenContext();
-  const params = useParams();
-  const bookingId = Number(params.bookingId);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
-  const [isConfirm, setIsConFirm] = useState(false);
-  const [isConfirmModal, setIsConFirmModal] = useState(false);
-  const { booking, isLoading, error, refetch } = useBookingDetail(bookingId);
-  const statusConfig = useBookingStatus(
-    booking?.status as BookingStatus,
-    booking?.endTime ?? "",
-  );
-  const ModalHandling = () => {
-    setIsModalOpen(true);
+export function BookingDetail({
+  booking,
+  onChangeTime,
+  showStatus = true,
+  showChangeButton = true,
+}: BookingDetailProps) {
+  const statusStyle = statusStyleMap[booking.status] ?? {
+    text: "text-gray-400",
+    dot: "bg-gray-400",
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error)
-    return <div className="text-red-500 p-4">Error: {error.message}</div>;
+  const petNames = booking.pets.map((p) => p.petName).join(", ") || "—";
+  const isWait = booking.status === "Waiting for confirm";
 
-  const handleRejectBooking = async () => {
-    if (isRejecting) return;
-    setIsRejecting(true);
-    try {
-      await bookingApi.rejectBooking(bookingId);
-      await refetch();
-      setIsRejectModalOpen(false);
-      router.push("/bookings");
-    } catch (error) {
-      console.error("Failed to reject booking:", error);
-      alert("Failed to reject booking. Please try again.");
-    } finally {
-      setIsRejecting(false);
-    }
-  };
-
-  const handleConfirmBooking = async () => {
-    if (isConfirm) return;
-    setIsConFirm(true);
-    try {
-      await bookingApi.confirmBooking(bookingId);
-      await refetch();
-      setIsConFirmModal(false);
-      router.push("/bookings");
-    } catch (error) {
-      console.error("Failed to confirm booking", error);
-      alert("Failed to confirm booking. Please try again.");
-    } finally {
-      setIsConFirm(false);
-    }
-  };
-
-  const openReject = () => {
-    setIsRejectModalOpen(true);
-  };
-
-  const openConfirm = () => {
-    setIsConFirmModal(true);
-  };
   return (
-    <>
-      <div className="flex flex-col gap-[24px] px-[40px] pt-[40px] pb-[80px]">
-        <div>
-          <ActionProfileHeader
-            title={booking?.contactName ?? "-"}
-            status={
-              <span className={statusConfig?.badgeClass}>
-                {statusConfig?.label}
-              </span>
-            }
-            leftAction={
-              <Link href="/bookings">
-                <ChevronLeft />
-              </Link>
-            }
-            action={
-              <div className="flex flex-row gap-[8px]">
-                {statusConfig?.showReject && (
-                  <ActionButton variant="secondary" onClick={openReject}>
-                    Reject Booking
-                  </ActionButton>
-                )}
-                {statusConfig?.buttonLabel && (
-                  <ActionButton
-                    variant="primary"
-                    onClick={openConfirm}
-                    className={
-                      statusConfig?.isDisabled ? "pointer-events-none" : ""
-                    }
-                  >
-                    {statusConfig.buttonLabel}
-                  </ActionButton>
-                )}
-              </div>
-            }
-          />
-        </div>
-
-        <div
-          className={`flex flex-col bg-white ${isLarge ? "gap-[24px] p-[40px]" : "gap-[24px] px-[16px] py-[24px] -mx-10"}  rounded-2xl`}
+    <div className="md:p-10 p-4 flex flex-col gap-6 overflow-y-auto flex-1">
+      {/* Status */}
+      {showStatus && (
+        <span
+          className={`flex items-center gap-2 style-body-2 font-normal ${statusStyle.text}`}
         >
-          <div className="flex justify-between">
-            <DetailLabel
-              label="Pet Owner Name"
-              value={booking?.contactName ?? "-"}
-            />
-            <div
-              className="flex items-center gap-[4px] text-orange-500 cursor-pointer"
-              onClick={ModalHandling}
-            >
-              <Eye />
-              <span className="">View Profile</span>
-            </div>
-          </div>
+          <span className={`w-2 h-2 rounded-full ${statusStyle.dot}`} />
+          {booking.status}
+        </span>
+      )}
 
-          <DetailLabel label="Pet(s)" value={booking?.pets?.length ?? "-"} />
-          {booking?.pets && booking.pets.length > 0 ? (
-            <>
-              <p className="text-gray-400 style-headline-4">Pet Detail</p>
-              <div className="flex gap-[12px]">
-                {booking.pets.map((pet) => (
-                  <div key={pet.petId}>
-                    <PetCard
-                      pet={pet}
-                      selected={false}
-                      disabled={false}
-                      onSelect={() => setSelectedPet(pet)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <DetailLabel label="Pet Detail" value="-" />
-          )}
-          <DetailLabel label="Duration" value={booking?.duration ?? "-"} />
-          <DetailLabel
-            label="Booking Date"
-            value={
-              booking?.startTime && booking?.endTime
-                ? formatBookingDate(booking.startTime, booking.endTime)
-                : "-"
-            }
-          />
-          <DetailLabel
-            label="Total Paid"
-            value={booking?.totalPrice ? `${booking.totalPrice} THB` : "-"}
-          />
-          <DetailLabel label="Status" value={booking?.status ?? "-"} />
-
-          <DetailLabel
-            label="Additional Message"
-            value={booking?.note ?? "-"}
-          />
-        </div>
+      {/* Transaction info */}
+      <div className="flex flex-col">
+        <p className="style-body-2 font-normal text-gray-300">
+          Booking date: {formatTransactionDate(booking.createdAt)}
+        </p>
+        <p className="style-body-2 font-normal text-gray-300">
+          Transaction No. : {booking.bookingId}
+        </p>
       </div>
-      {isModalOpen && <ProfileModal onClose={() => setIsModalOpen(false)} />}
-      {selectedPet && (
-        <PetModal pet={selectedPet} onClose={() => setSelectedPet(null)} />
-      )}
 
-      {isRejectModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl max-w-[400px] w-full">
-            <div className="border-b border-gray-200 px-[24px] py-[16px]">
-              <h4 className="style-headline-4">Reject Confirmation</h4>
-            </div>
-            <div className="p-[24px]">
-              <p className="style-body-2 text-gray-400 mb-[24px]">
-                Are you sure to reject this booking?
+      {/* Pet Sitter */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="style-body-3 text-gray-400">Pet Sitter:</p>
+          <p className="style-body-2 text-gray-600 font-medium">
+            {booking.tradeName ?? `Pet Sitter #${booking.petSitterId}`}
+          </p>
+        </div>
+        <ActionButton variant="ghost">
+          <MapMarkerIcon />
+          View Map
+        </ActionButton>
+      </div>
+
+      {/* Date & Time + Duration */}
+      <div className="flex flex-row">
+        <div className="grid md:grid-cols-2 w-full md:gap-10 gap-6">
+          <div className="md:w-120 w-full">
+            <p className="style-body-3 text-gray-400">Date & Time:</p>
+            <div className="flex flex-row justify-between md:block">
+              <p className="style-body-2 text-gray-600">
+                {formatDateRange(booking.startTime, booking.endTime)}
               </p>
-              <div className="flex gap-[12px] justify-between">
+              {isWait && showChangeButton && (
                 <ActionButton
-                  variant="secondary"
-                  onClick={() => setIsRejectModalOpen(false)}
-                  disabled={isRejecting}
+                  variant="ghost"
+                  onClick={onChangeTime}
+                  className="self-end md:hidden flex"
                 >
-                  Cancel
+                  <EditIcon />
+                  Change
                 </ActionButton>
-                <ActionButton
-                  variant="primary"
-                  onClick={handleRejectBooking}
-                  disabled={isRejecting}
-                >
-                  {isRejecting ? "Rejecting..." : "Reject Booking"}
-                </ActionButton>
-              </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
-
-      {isConfirmModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl max-w-[400px] w-full">
-            <div className="border-b border-gray-200 px-[24px] py-[16px]">
-              <h4 className="style-headline-4">Confirm Booking</h4>
-            </div>
-            <div className="p-[24px] gap-[24px]">
-              <p className="style-body-2 text-gray-400 mb-[24px]">
-                Are you sure to confirm this booking?
-              </p>
-              <div className="flex justify-between">
-                <ActionButton
-                  variant="secondary"
-                  onClick={() => setIsConFirmModal(false)}
-                  disabled={isConfirm}
-                >
-                  Cancel
-                </ActionButton>
-                <ActionButton
-                  variant="primary"
-                  onClick={handleConfirmBooking}
-                  disabled={isConfirm}
-                >
-                  {isConfirm ? "Confirming..." : "Confirm Booking"}
-                </ActionButton>
-              </div>
-            </div>
+          <div className="md:pl-15">
+            <p className="style-body-3 text-gray-400">Duration:</p>
+            <p className="style-body-2 text-gray-600">
+              {formatDuration(booking.startTime, booking.endTime)}
+            </p>
           </div>
         </div>
-      )}
-    </>
+        {isWait && showChangeButton && (
+          <ActionButton
+            variant="ghost"
+            onClick={onChangeTime}
+            className="self-end md:flex hidden"
+          >
+            <EditIcon />
+            Change
+          </ActionButton>
+        )}
+      </div>
+
+      {/* Pet */}
+      <div>
+        <p className="style-body-3 text-gray-400">Pet:</p>
+        <p className="style-body-2 text-gray-800">{petNames}</p>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-200" />
+
+      {/* Total */}
+      <div className="flex items-center justify-between">
+        <p className="style-body-1 text-gray-600">Total</p>
+        <p className="style-body-1 text-gray-600">{booking.totalPrice} THB</p>
+      </div>
+    </div>
   );
 }
 
-export default BookingDetail;
