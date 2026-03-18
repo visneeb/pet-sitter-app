@@ -13,7 +13,11 @@ export type RHFInputProps<T extends FieldValues> = {
   label: React.ReactNode;
   required?: boolean;
   description?: string;
-  value?: string;
+  // FIX: Removed the `value` prop override entirely.
+  // Passing an external `value` on top of `field.value` creates a conflict
+  // between controlled and uncontrolled input, and can cause RHF to
+  // re-register the field on every render. If you need a custom value,
+  // use setValue() from the form context instead.
 } & Omit<InputProps, "name">;
 
 export function RHFInput<T extends FieldValues>({
@@ -21,10 +25,10 @@ export function RHFInput<T extends FieldValues>({
   label,
   required,
   description,
-  value,
   ...props
 }: RHFInputProps<T>) {
   const { control } = useFormContext<T>();
+
   return (
     <FormField name={name} disabled={props.disabled}>
       <FormLabel>
@@ -36,21 +40,19 @@ export function RHFInput<T extends FieldValues>({
         <Controller
           name={name}
           control={control}
-          render={(
-            { field, fieldState: { error } },
-          ) => (
-            <>
-              <Input
-                {...field}
-                {...props}
-                value={value || field.value}
-                onChange={(e) => {
-                  field.onChange(e);
-                  props.onChange?.(e);
-                }}
-                autoComplete="on"
-              />
-            </>
+          render={({ field, fieldState: { error } }) => (
+            <Input
+              {...field}
+              {...props}
+              // FIX: Use field.value directly — no external value override.
+              // field.value is always the single source of truth from RHF.
+              value={field.value ?? ""}
+              onChange={(e) => {
+                field.onChange(e);
+                props.onChange?.(e);
+              }}
+              autoComplete="on"
+            />
           )}
         />
       </FormControl>
