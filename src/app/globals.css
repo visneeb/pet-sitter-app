@@ -264,3 +264,151 @@ input:-webkit-autofill:active {
 .enter-from-bottom {
   animation: enter-from-bottom 0.2s ease-out;
 }
+
+/* FullCalendar */
+@media (max-width: 1023px) {
+  .fc .fc-toolbar.fc-header-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fc .fc-toolbar-chunk {
+    margin-bottom: 0.25rem;
+  }
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+  background-color: var(--color-white);
+}
+
+.fc .fc-toolbar .fc-button {
+  background-color: var(--color-orange-500);
+  border: none;
+  color: var(--color-white);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.fc .fc-toolbar .fc-button:hover {
+  background-color: var(--color-orange-400);
+}
+
+.fc .fc-toolbar .fc-button:active {
+  background-color: var(--color-orange-600);
+}
+
+.fc .fc-toolbar .fc-button.fc-button-active {
+  background-color: var(--color-orange-600);
+  color: var(--color-white);
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-headline);
+  color: var(--color-gray-600);
+}
+
+/* cell / day */
+.fc .fc-daygrid-day.fc-day-past {
+  background-color: var(--color-gray-100);
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: var(--color-orange-100);
+}
+
+.fc .fc-timegrid-slot {
+  height: 72px;
+}
+
+.fc .fc-timegrid-cols .fc-day.fc-timegrid-col {
+  border: 1px solid #e0e0e0;
+}
+
+.fc .fc-timegrid-cols .fc-day.fc-day-past {
+  background-color: var(--color-gray-100);
+}
+
+.fc .fc-timegrid-cols .fc-day.fc-day-today {
+  background-color: var(--color-orange-100);
+}
+
+.fc .fc-timegrid-slot.fc-timegrid-slot-label {
+  background-color: #00000000;
+  font-size: 12px;
+  color: var(--color-gray-400);
+}
+
+.fc .fc-col-header-cell {
+  background-color: #f9fafc;
+}
+
+.fc .fc-col-header-cell-cushion {
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-headline);
+  color: var(--color-gray-600);
+  padding: 12px 0px;
+}
+
+.fc .fc-day-today {
+  color: var(--color-orange-500);
+  font-weight: 900;
+}
+
+.fc .fc-day-today .fc-col-header-cell-cushion {
+  color: var(--color-orange-500);
+  font-weight: 900;
+}
+
+.fc .event-pink {
+  @apply bg-pink-100 text-pink-500 border-4 border-pink-500;
+  padding: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  --fc-event-text-color: theme(colors.pink.500);
+}
+
+.fc .event-orange {
+  @apply bg-orange-100 text-orange-400 border-4 border-orange-400;
+  padding: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  --fc-event-text-color: theme(colors.orange.400);
+}
+
+.fc .event-green {
+  @apply bg-green-100 text-green-500 border-4 border-green-500;
+  padding: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  --fc-event-text-color: theme(colors.green.500);
+}
+
+/* FullCalendar sets text color on inner elements; force it to follow our tag colors */
+.fc .event-pink .fc-event-main,
+.fc .event-pink .fc-event-title,
+.fc .event-pink .fc-event-time {
+  @apply text-pink-500;
+}
+
+.fc .event-orange .fc-event-main,
+.fc .event-orange .fc-event-title,
+.fc .event-orange .fc-event-time {
+  @apply text-orange-400;
+}
+
+.fc .event-green .fc-event-main,
+.fc .event-green .fc-event-title,
+.fc .event-green .fc-event-time {
+  @apply text-green-500;
+}
+
+/* Center event text inside timeGrid blocks */
+.fc .fc-event-main-frame .fc-sticky {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
