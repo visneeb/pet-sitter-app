@@ -43,6 +43,7 @@ export interface SitterApi {
   postCode?: number;
   reviewCount?: number;
   hasPendingUpdate: boolean;
+  adminNote?: string | null;
 }
 
 export interface SittersResponse {

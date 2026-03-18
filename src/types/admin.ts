@@ -91,4 +91,5 @@ export interface SitterProfileResponse {
   postCode?: number;
   hasPendingUpdate: boolean;
   status: SitterStatus;
+  adminNote?: string | null;
 }

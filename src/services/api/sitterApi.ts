@@ -80,6 +80,7 @@ export type PetSitterStatus =
 /** API response shape for pet-sitter detail; derives from SitterApi for type compatibility with toSitter() */
 export type PetSitterDetail = SitterApi & {
   status?: string;
+  adminNote?: string | null;
   provinceId?: number | null;
   districtId?: number | null;
   subDistrictId?: number | null;
