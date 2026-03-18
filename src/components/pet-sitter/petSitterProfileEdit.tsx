@@ -41,12 +41,15 @@ export default function ProfileEdit() {
     isSubmitting: sitterIsSubmitting,
     isUpdating: sitterIsUpdating,
     onSubmit: onSitterSubmit,
+    hasPendingUpdate,
     petTypes,
     provinces,
     districts,
     subDistricts,
     statusConfig,
     status,
+    isCancelLoading,
+    cancelUpdate,
     existingImages,
     removeExistingImage,
     reorderExistingImages,
@@ -153,7 +156,11 @@ export default function ProfileEdit() {
         </div>
       </FormProvider>
 
-      <FormProvider methods={sitterMethods} onSubmit={onSitterSubmit}>
+      <FormProvider
+        methods={sitterMethods}
+        onSubmit={onSitterSubmit}
+        disabled={hasPendingUpdate}
+      >
         <div className="flex flex-col gap-6 pb-20">
           <ActionProfileHeader
             title="Pet Sitter Profile"
@@ -177,7 +184,9 @@ export default function ProfileEdit() {
                 requireDirty={true}
                 extraDirty={imagesChanged}
               >
-                Update Sitter Info
+                {hasPendingUpdate
+                  ? "Waiting admin approval"
+                  : "Update Sitter Info"}
               </SubmitButton>
             }
           />
@@ -324,6 +333,18 @@ export default function ProfileEdit() {
           onSuccess={onEmailConfirmed}
           onClose={onModalClose}
         />
+      )}
+
+      {hasPendingUpdate && (
+        <div className="flex justify-end mb-20">
+          <ActionButton
+            variant="primary"
+            disabled={isCancelLoading}
+            onClick={cancelUpdate}
+          >
+            {isCancelLoading ? "Cancelling..." : "Cancel Update"}
+          </ActionButton>
+        </div>
       )}
     </>
   );

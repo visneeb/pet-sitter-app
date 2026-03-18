@@ -12,6 +12,7 @@ import {
   getPrivatePetSitterById,
   getCurrentSitter,
   PetSitterDetail,
+  cancelPetSitterProfileUpdate,
 } from "@/services/api/sitterApi";
 import { petApi } from "@/services/api/petApi";
 import {
@@ -27,6 +28,9 @@ export interface SitterProfileFormReturn {
   methods: UseFormReturn<SitterProfileFormValues>;
   isSubmitting: boolean;
   isUpdating: boolean;
+  hasPendingUpdate: boolean;
+  isCancelLoading: boolean;
+  cancelUpdate: () => Promise<void>;
   onSubmit: (data: SitterProfileFormValues) => Promise<void>;
   petTypes: { id: number; name: string }[];
   provinces: Province[];
@@ -36,7 +40,7 @@ export interface SitterProfileFormReturn {
   statusConfig: Record<string, { text: string; bg: string; label: string }>;
   existingImages: string[];
   removeExistingImage: (url: string) => void;
-  reorderExistingImages: (urls: string[]) => void;
+  reorderExistingImages: (images: { url: string; order: number }[]) => void;
   imagesChanged: boolean;
   setExternalUpdate: (isExternal: boolean) => void;
   setDistricts: React.Dispatch<React.SetStateAction<District[]>>;
@@ -94,6 +98,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
   const { setError, formState } = methods;
   const router = useRouter();
 
+  const [isCancelLoading, setIsCancelLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [sitterId, setSitterId] = useState<number | null>(null);
   const [petTypes, setPetTypes] = useState<{ id: number; name: string }[]>([]);
@@ -101,7 +106,11 @@ export function usePetSitterForm(): SitterProfileFormReturn {
   const [districts, setDistricts] = useState<District[]>([]);
   const [subDistricts, setSubDistricts] = useState<SubDistrict[]>([]);
   const [status, setStatus] = useState<string | null>(null);
+  const [hasPendingUpdate, setHasPendingUpdate] = useState<boolean>(false);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [existingImageOrders, setExistingImageOrders] = useState<
+    { url: string; order: number }[]
+  >([]);
   const [imagesChanged, setImagesChanged] = useState(false);
   const [sitterData, setSitterData] = useState<PetSitterDetail | null>(null);
 
@@ -114,13 +123,18 @@ export function usePetSitterForm(): SitterProfileFormReturn {
 
   const removeExistingImage = useCallback((url: string) => {
     setExistingImages((prev) => prev.filter((img) => img !== url));
+    setExistingImageOrders((prev) => prev.filter((img) => img.url !== url));
     setImagesChanged(true);
   }, []);
 
-  const reorderExistingImages = useCallback((urls: string[]) => {
-    setExistingImages(urls);
-    setImagesChanged(true);
-  }, []);
+  const reorderExistingImages = useCallback(
+    (images: { url: string; order: number }[]) => {
+      setExistingImages(images.map((img) => img.url));
+      setExistingImageOrders(images);
+      setImagesChanged(true);
+    },
+    [],
+  );
 
   // Step 1: fetch current user + sitter profile once on mount
   useEffect(() => {
@@ -132,7 +146,14 @@ export function usePetSitterForm(): SitterProfileFormReturn {
         setSitterId(data.id);
         setSitterData(data);
         setStatus(data.status || "Waiting for approval");
+        setHasPendingUpdate(data.hasPendingUpdate);
         setExistingImages(data.imgUrls || []);
+        setExistingImageOrders(
+          (data.imgUrls || []).map((url, index) => ({
+            url,
+            order: index,
+          })),
+        );
 
         methods.setValue("experience", data.experience ?? 0, {
           shouldDirty: false,
@@ -383,10 +404,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
           provinceId: Number(data.provinceId),
           districtId: Number(data.districtId),
           subDistrictId: Number(data.subDistrictId),
-          existingImages: existingImages.map((url, index) => ({
-            url,
-            order: index,
-          })),
+          existingImages: existingImageOrders,
         },
         data.images && data.images.length > 0 ? data.images : undefined,
       );
@@ -452,7 +470,14 @@ export function usePetSitterForm(): SitterProfileFormReturn {
           shouldValidate: false,
         });
 
-        setExistingImages(updatedData.imgUrls || []);
+        const refreshedImageOrders = (updatedData.imgUrls || []).map(
+          (url, index) => ({
+            url,
+            order: index,
+          }),
+        );
+        setExistingImages(refreshedImageOrders.map((img) => img.url));
+        setExistingImageOrders(refreshedImageOrders);
         setImagesChanged(false);
 
         await populateAddressFields(updatedData);
@@ -488,11 +513,45 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     }
   };
 
+  const cancelUpdate = async () => {
+    setIsCancelLoading(true);
+    try {
+      await cancelPetSitterProfileUpdate();
+      showCustomToast({
+        title: "Sitter profile update cancelled",
+        description: "Your sitter info update has been cancelled.",
+        variant: "success",
+      });
+    } catch (error: any) {
+      setError("root", {
+        type: "server",
+        message:
+          error?.response?.data?.error ||
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to cancel sitter profile update",
+      });
+      showCustomToast({
+        title: "Failed to cancel sitter profile update",
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to cancel sitter profile update",
+        variant: "error",
+      });
+    } finally {
+      setIsCancelLoading(false);
+    }
+  };
+
   return {
     methods,
     isSubmitting: formState.isSubmitting,
+    hasPendingUpdate,
     isUpdating,
+    isCancelLoading,
     onSubmit,
+    cancelUpdate,
     petTypes,
     provinces,
     districts,

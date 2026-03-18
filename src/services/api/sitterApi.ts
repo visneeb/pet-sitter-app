@@ -282,3 +282,10 @@ export async function updatePetSitterProfile(
     };
   }
 }
+
+export async function cancelPetSitterProfileUpdate() {
+  const res = await privateApi.delete<{ message: string }>(
+    "/pet-sitter/profile/cancel",
+  );
+  return { message: res.data.message };
+}
