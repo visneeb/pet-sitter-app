@@ -70,7 +70,7 @@ export interface SitterBookingList{
   petOwnerName: string;
   petCount: number;
   duration: string;
-  bookedDate: string;
+  bookingDate: string;
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;

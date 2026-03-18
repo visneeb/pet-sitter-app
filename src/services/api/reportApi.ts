@@ -1,4 +1,11 @@
+import { privateApi } from "./client";
 import axios from "axios";
+import { ReportData, ReportsData, ReportStatus } from "@/types/reportData";
+interface ReportQueryParams {
+  status?: Extract<ReportStatus, "new_report" | "pending" | "resolved" | "canceled">;
+  page: number;
+  limit: number;
+}
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -28,4 +35,13 @@ export const reportApi = {
 
     return response.data;
   },
+  getReports: (params: ReportQueryParams): Promise<ReportsData> =>
+    privateApi.get(`/admin/reports`, { params }).then((res) => res.data),
+  getById: (reportId: number): Promise<ReportData> =>
+    privateApi.get(`/admin/reports/${reportId}`).then((res) => res.data),
+  patchStatusReport: (reportId: number, status: ReportStatus): Promise<void> =>
+    privateApi.patch(`/admin/reports/${reportId}/status`, { status }).then((res) => res.data),
 };
+
+
+
