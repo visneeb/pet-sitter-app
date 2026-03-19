@@ -4,16 +4,10 @@ import { Select } from "@/components/ui/input/Select";
 import useReport from "@/hooks/admin/reports/useReport";
 import { useState } from "react";
 import ReportListTile from "./ReportList";
-import { ReportStatus } from "@/types/reportData";
+import { REPORT_STATUS, ReportStatus } from "@/types/reportData";
 import { useRouter } from "next/navigation";
 
-const REPORT_STATUS = [
-  { value: "all", label: "All status" },
-  { value: "new_report", label: "New Report" },
-  { value: "pending", label: "Pending" },
-  { value: "resolved", label: "Resolved" },
-  { value: "canceled", label: "Canceled" },
-];
+
 
 const LIMIT_ITEMS = 10;
 const DEFAULT_PAGE = 1;

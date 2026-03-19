@@ -1,21 +1,60 @@
-import { UserProfileHeader } from "@/components/profile/ProfileHeader";
+import { ActionProfileHeader } from "@/components/profile/ProfileHeader";
 import { ActionButton } from "@/components/ui/Button";
 import InformationContainer from "@/components/ui/InformationContainer";
+import Modal from "@/components/ui/Modal";
+import { reportStatusVariant } from "@/constants/report/reportStatus";
+import { usePatchStatusReport } from "@/hooks/admin/reports/usePatchStatusReport";
 import { useReportById } from "@/hooks/admin/reports/useReportById";
+import { REPORT_STATUS } from "@/types/reportData";
+import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 
 export default function ReportDetail() {
   const params = useParams();
   const reportId = Number(params.reportId);
-  const { report, isLoading, error } = useReportById(reportId);
+  const { report, isLoading, error, fetchReport } = useReportById(reportId);
+  const { handleResolveReport, handleCancelReport } = usePatchStatusReport(
+    reportId,
+    { onSuccess: fetchReport },
+  );
 
-  console.log(report);
-  console.log(report?.reportedName);
+  const showCancelModal = () => {
+    const dialog = document.getElementById(
+      "cancel-report",
+    ) as HTMLDialogElement | null;
+
+    if (!dialog) return;
+
+    dialog.showModal();
+  };
+
+  const showResolveModal = () => {
+    const dialog = document.getElementById(
+      "resolve-report",
+    ) as HTMLDialogElement | null;
+
+    if (!dialog) return;
+
+    dialog.showModal();
+  };
+
+  const reportStatus = REPORT_STATUS.find(
+    (status) => status.label === report?.status,
+  )?.value;
+
+  const isCancelable =
+    reportStatus !== "resolved" && reportStatus !== "canceled";
+
+  const dateFormatted = report?.createdAt
+    ? format(new Date(report.createdAt), "dd MMM, yyyy 'at' hh:mmaaa")
+    : null;
+
   if (isLoading) {
     return (
-      <section className="flex flex-col items-center justify-center gap-[24px] px-[40px] pt-[40px] pb-[80px]">
+      <section className="flex flex-col h-full items-center justify-center gap-[24px] px-[40px] pt-[40px] pb-[80px]">
         <p>Loading...</p>
       </section>
     );
@@ -23,7 +62,7 @@ export default function ReportDetail() {
 
   if (error) {
     return (
-      <section className="flex flex-col items-center justify-center gap-[24px] px-[40px] pt-[40px] pb-[80px]">
+      <section className="flex flex-col h-full items-center justify-center gap-[24px] px-[40px] pt-[40px] pb-[80px]">
         <p>Failed to load report.</p>
       </section>
     );
@@ -31,7 +70,7 @@ export default function ReportDetail() {
 
   if (!report) {
     return (
-      <section className="flex flex-col items-center justify-center gap-[24px] px-[40px] pt-[40px] pb-[80px]">
+      <section className="flex flex-col h-full items-center justify-center gap-[24px] px-[40px] pt-[40px] pb-[80px]">
         <p>Report not found.</p>
       </section>
     );
@@ -40,18 +79,43 @@ export default function ReportDetail() {
   return (
     <section className="flex flex-col gap-[24px] px-[40px] pt-[40px] pb-[80px]">
       <header>
-        <UserProfileHeader
+        <ActionProfileHeader
           title={"Report Detail"}
+          status={
+            <span
+              className={
+                reportStatusVariant[
+                  reportStatus as keyof typeof reportStatusVariant
+                ]
+              }
+            >
+              • {report.status}
+            </span>
+          }
           leftAction={
             <Link href="/admin/reports">
               <ChevronLeft />
             </Link>
           }
           action={
-            <div className="flex flex-row gap-[8px]">
-              <ActionButton variant="secondary">Cancel Report</ActionButton>
-              <ActionButton variant="primary">Resolve</ActionButton>
-            </div>
+            isCancelable && (
+              <div className="flex flex-row gap-[8px]">
+                <ActionButton
+                  variant="secondary"
+                  disabled={!isCancelable}
+                  onClick={showCancelModal}
+                >
+                  Cancel Report
+                </ActionButton>
+                <ActionButton
+                  variant="primary"
+                  disabled={!isCancelable}
+                  onClick={showResolveModal}
+                >
+                  Resolve
+                </ActionButton>
+              </div>
+            )
           }
         />
       </header>
@@ -79,9 +143,25 @@ export default function ReportDetail() {
         />
         <InformationContainer
           title="Date Submitted"
-          detail={report.createdAt ? report.createdAt : "-"}
+          detail={dateFormatted ?? "-"}
         />
       </article>
+      <Modal
+        id="cancel-report"
+        title="Cancel Report"
+        massage="Are you sure to cancel this report?"
+        cancelText="Cancel"
+        confirmText="Cancel Report"
+        onConfirm={handleCancelReport}
+      />
+      <Modal
+        id="resolve-report"
+        title="Resolve Report"
+        massage="Has this report already been resolved?"
+        cancelText="Cancel"
+        confirmText="Resolved"
+        onConfirm={handleResolveReport}
+      />
     </section>
   );
 }

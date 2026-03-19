@@ -7,19 +7,21 @@ export function useReportById(reportId: number) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const fetchReport = async () => {
+    try {
+      setIsLoading(true);
+      const response = await reportApi.getById(reportId);
+      const data = response.data;
+      setReport(Array.isArray(data) ? (data[0] ?? null) : data);
+    } catch (error) {
+      setError(error as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        const response = await reportApi.getById(reportId);
-        // console.log(response);
-        setReport(response);
-      } catch (error) {
-        setError(error as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchReport();
   }, [reportId]);
-  return { report, isLoading, error };
+
+  return { report, isLoading, error, fetchReport };
 }

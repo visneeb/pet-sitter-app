@@ -37,7 +37,7 @@ export const reportApi = {
   },
   getReports: (params: ReportQueryParams): Promise<ReportsData> =>
     privateApi.get(`/admin/reports`, { params }).then((res) => res.data),
-  getById: (reportId: number): Promise<ReportData> =>
+  getById: (reportId: number): Promise<ReportsData> =>
     privateApi.get(`/admin/reports/${reportId}`).then((res) => res.data),
   patchStatusReport: (reportId: number, status: ReportStatus): Promise<void> =>
     privateApi.patch(`/admin/reports/${reportId}/status`, { status }).then((res) => res.data),
