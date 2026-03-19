@@ -10,7 +10,7 @@ import { services, features, PetImage } from "@/constants/homeContent";
 import SearchBar from "@/components/home/SearchBar";
 import HeroSection from "@/components/home/HeroSection";
 import { PetSitterSearchProvider } from "@/contexts/PetSitterSearchContext";
-
+import PinGoogleMap from "@/components/link-google-map/PinGoogleMap";
 
 const servicesContainerClassName =
   "flex flex-col items-center md:flex-row justify-between mx-auto max-w-[1064px] gap-24";
@@ -43,7 +43,10 @@ export default function HomePage() {
         >
           "Your Pets, Our Priority: Perfect Care, Anytime, Anywhere."
         </h1>
-
+        <PinGoogleMap
+          origin={[13.7563, 100.5018]}
+          destination={[13.7367, 100.5231]}
+        />
         <div className={servicesContainerClassName}>
           <div className="flex flex-col gap-14 max-w-[504px]">
             {services.map((service) => (
@@ -74,7 +77,6 @@ export default function HomePage() {
       </section>
 
       <PerfectPetSitterSection />
-
     </>
   );
 }

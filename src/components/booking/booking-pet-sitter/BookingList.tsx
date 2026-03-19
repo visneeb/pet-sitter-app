@@ -31,9 +31,9 @@ export function BookingList() {
   return (
     <>
       <div className="pb-[40px]">
-        <header className="flex flex-row justify-between items-center mb-6">
+        <header className="flex flex-col gap-6 sm:gap-0 sm:flex-row justify-between items-center mb-6">
           <h1 className="style-heading-3 text-gray-900">Booking List</h1>
-          <div className="flex items-between gap-6">
+          <div className="flex flex-col sm:flex-row items-between gap-6 ">
             <Input
               value={searchKeyword}
               onChange={(event) => handleKeywordChange(event.target.value)}

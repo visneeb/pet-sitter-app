@@ -5,7 +5,7 @@ export function UserProfileHeader({
   action,
   leftAction,
 }: {
-  title: string;
+  title: string | React.ReactNode;
   action?: React.ReactNode;
   leftAction?: React.ReactNode;
 }) {
