@@ -52,6 +52,11 @@ export const petApi = {
     return data;
   },
 
+  getMyPets: async (): Promise<PetDetail[]> => {
+    const { data } = await privateApi.get<PetDetail[]>("/pet-owner/pet");
+    return data;
+  },
+
   getById: async (petId: number | string): Promise<PetDetail> => {
     const { data } = await privateApi.get<PetDetail>(`/pet-owner/pet/${petId}`);
     return data;

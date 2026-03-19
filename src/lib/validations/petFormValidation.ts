@@ -91,10 +91,7 @@ export function validatePetForm(
         type: "validate",
         message: "Weight must be less than 1000.",
       };
-    } else if (
-      String(parsedWeight).split(".")[1] &&
-      String(parsedWeight).split(".")[1].length > 2
-    ) {
+    } else if (String(parsedWeight).split(".")[1]?.length > 2) {
       errors.weight = {
         type: "validate",
         message: "Weight must be less than 2 decimal places.",

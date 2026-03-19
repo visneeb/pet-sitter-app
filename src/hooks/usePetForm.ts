@@ -14,6 +14,7 @@ interface Props {
   mode: "create" | "edit";
   petId?: number | string;
   defaultValues?: Partial<PetFormValues>;
+  redirectOnSuccess?: boolean;
 }
 
 export function usePetForm(props: Props) {

@@ -45,7 +45,7 @@ export default function EditPetPage() {
             onSubmit={handleSubmit}
             disabled={isSubmitting}
           >
-            <PetFields mode="edit" petTypes={petTypes} />
+            <PetFields mode="edit" petTypes={petTypes} showCancel={true} />
           </Form>
           <Modal
             id="delete-pet"
