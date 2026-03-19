@@ -13,6 +13,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { RejectConfirmModal } from "@/components/admin/pet-sitter/reject-confirmation/RejectConfirmModal";
+import { RejectionNote } from "@/components/pet-sitter/RejectionNote";
+import { StatusConfig } from "../../../../types/booking";
 
 const showApproveModal = () => {
   const dialog = document.getElementById(
@@ -40,6 +42,10 @@ export default function PetSitterLayout() {
     handleBan,
     handleUnban,
   } = useSitterProfile(sitterId, refreshKey);
+
+  const status = sitterProfile?.status;
+  const adminNote = sitterProfile?.adminNote ?? null;
+  const isReject = status === "Rejected";
 
   if (isLoading) {
     return (
@@ -115,6 +121,7 @@ export default function PetSitterLayout() {
             </div>
           )}
         </header>
+        {isReject && <RejectionNote adminNote={adminNote} />}
         <div className="w-full min-w-0">
           <section className="tabs tabs-lift tabs-xl w-full min-w-0 gap-x-2 md:gap-x-4">
             <input
