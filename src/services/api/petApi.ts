@@ -30,14 +30,19 @@ export type PetDetail = {
 };
 
 function toRequestBody(values: PetFormValues): PetRequestBody {
+  const formatLocalDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   return {
     petName: values.petName.trim(),
     petTypeId: Number(values.petTypeId),
     sex: values.sex as PetRequestBody["sex"],
     breed: values.breed.trim(),
-    dateOfBirth: values.dateOfBirth
-      ? values.dateOfBirth.toISOString().slice(0, 10)
-      : "",
+    dateOfBirth: values.dateOfBirth ? formatLocalDate(values.dateOfBirth) : "",
     color: values.color.trim(),
     weight: Number(values.weight),
     about: values.about?.trim() || "",

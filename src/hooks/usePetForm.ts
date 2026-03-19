@@ -104,8 +104,6 @@ export function usePetForm(props: Props) {
   }, [pet, methods]);
 
   const handleSubmit = async (data: PetFormValues) => {
-    console.log(data);
-
     try {
       if (props.mode === "create") {
         await petApi.createPet(data);

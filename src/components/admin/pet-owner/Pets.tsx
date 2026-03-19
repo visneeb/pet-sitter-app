@@ -46,7 +46,7 @@ function Pets({ owner }: { owner: OwnerProfileResponse }) {
               </form>
             </div>
             <div className="flex flex-col gap-4 overflow-y-scroll h-[528px] p-4 lg:p-10 lg:flex-row lg:gap-10">
-              <div className="flex flex-col items-center gap-2 w-30 md:w-60">
+              <div className="flex flex-col items-center gap-2 w-30 md:gap-4 md:w-60">
                 {pet.imgUrl ? (
                   <div className="avatar">
                     <div className="size-30 rounded-full md:size-60">
