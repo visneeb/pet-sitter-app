@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useScreenContext } from "@/contexts/ScreenContext";
 import { ActionProfileHeader } from "../profile/ProfileHeader";
 import Link from "next/link";
 import { ChevronLeft, Eye } from "lucide-react";
@@ -52,7 +51,6 @@ function formatBookingDate(startTime: string, endTime: string): string {
 
 function BookingDetail() {
   const router = useRouter();
-  const { isLarge } = useScreenContext();
   const params = useParams();
   const bookingId = Number(params.bookingId);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -152,9 +150,7 @@ function BookingDetail() {
           />
         </div>
 
-        <div
-          className={`flex flex-col bg-white ${isLarge ? "gap-[24px] p-[40px]" : "gap-[24px] px-[16px] py-[24px] -mx-10"}  rounded-2xl`}
-        >
+        <div className="flex flex-col bg-white gap-[24px] px-[16px] py-[24px] -mx-10 lg:p-[40px] lg:mx-0 rounded-2xl">
           <div className="flex justify-between">
             <DetailLabel
               label="Pet Owner Name"
@@ -173,7 +169,7 @@ function BookingDetail() {
           {booking?.pets && booking.pets.length > 0 ? (
             <>
               <p className="text-gray-400 style-headline-4">Pet Detail</p>
-              <div className="flex gap-[12px]">
+              <div className="flex gap-[12px] overflow-x-auto">
                 {booking.pets.map((pet) => (
                   <div key={pet.petId}>
                     <PetCard
