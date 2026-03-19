@@ -18,9 +18,6 @@ import { bookingApi } from "@/services/api/bookingApi";
 import { calcBookingTotal } from "@/domain/booking/pricing";
 import { BookingDetailModal } from "@/components/booking-history/BookingDetailModal";
 
-
-
-
 const PAGE_SIZE = 6;
 const CONFIRM_MODAL_ID = "confirm-booking-modal";
 
