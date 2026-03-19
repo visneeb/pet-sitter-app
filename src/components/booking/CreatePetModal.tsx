@@ -98,7 +98,7 @@ export function CreatePetModal({ open, onClose, onCreated }: Props) {
           </div>
 
           <Form methods={methods} onSubmit={handleCreate} disabled={isSubmitting}>
-            <PetFields mode="create" petTypes={petTypes} onCancel={handleClose} />
+            <PetFields mode="create" petTypes={petTypes} showCancel={false} />
           </Form>
         </div>
       </div>

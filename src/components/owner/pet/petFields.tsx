@@ -18,6 +18,7 @@ const sexes = ["Male", "Female", "Unknown"];
 interface Props {
   mode: "create" | "edit";
   petTypes: { id: number; name: string }[];
+  showCancel?: boolean;
 }
 
 const showDeletePetModal = () => {
@@ -124,13 +125,14 @@ function PetFields(props: Props) {
           </ActionButton>
         )}
         <div className="flex justify-between gap-4">
-          <NavigationButton
+          {props.showCancel && <NavigationButton 
             variant="secondary"
             href="/pets"
             className="flex-1 sm:flex-0 sm:min-w-30"
+            
           >
             Cancel
-          </NavigationButton>
+          </NavigationButton>}
           <ActionButton
             variant="primary"
             type="submit"
