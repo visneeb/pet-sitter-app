@@ -10,7 +10,7 @@ export interface ChatbotResponse {
   query: string;
   introduction: string;
   petSitters: ChatbotSitter[];
-  confidence: ChatbotConfidence;
+  confidence?: ChatbotConfidence;
 }
 
 export interface ChatbotRequest {
