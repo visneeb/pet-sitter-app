@@ -37,6 +37,7 @@ export interface OwnerProfileResponse {
   email: string;
   status: UserStatus;
   pets: (Omit<PetFormValues, "img_url" | "petTypeId"> & {
+    id: number;
     imgUrl: string | null;
     petType: string;
   })[];

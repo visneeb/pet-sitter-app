@@ -1,11 +1,12 @@
+import { BasePetCard } from "@/components/booking/BasePetCard";
 import InformationContainer from "@/components/ui/InformationContainer";
 import { OwnerProfileResponse } from "@/types/admin";
 import { format } from "date-fns";
 import { PawPrint, X } from "lucide-react";
 
-const showPetModal = (index: number) => {
+const showPetModal = (petId: number) => {
   const dialog = document.getElementById(
-    `pet-detail-${index}`,
+    `pet-detail-${petId}`,
   ) as HTMLDialogElement | null;
 
   if (!dialog) return;
@@ -16,15 +17,25 @@ const showPetModal = (index: number) => {
 function Pets({ owner }: { owner: OwnerProfileResponse }) {
   return owner.pets.length ? (
     <>
-      <div>
-        <ul>
-          {owner.pets.map((pet, index) => (
-            <div onClick={() => showPetModal(index)}>{pet.petName}</div>
-          ))}
-        </ul>
-      </div>
-      {owner.pets.map((pet, index) => (
-        <dialog id={`pet-detail-${index}`} className="modal">
+      <ul className="flex flex-wrap justify-between gap-x-4 gap-y-4">
+        {owner.pets.map((pet) => (
+          <li>
+            <BasePetCard
+              key={pet.id}
+              variant="action"
+              onClick={() => showPetModal(pet.id)}
+              pet={{
+                id: String(pet.id),
+                imgUrl: pet.imgUrl ?? undefined,
+                name: pet.petName,
+                type: pet.petType,
+              }}
+            />
+          </li>
+        ))}
+      </ul>
+      {owner.pets.map((pet) => (
+        <dialog key={pet.id} id={`pet-detail-${pet.id}`} className="modal">
           <div className="modal-box w-[calc(100%-2rem)] max-w-200 bg-white rounded-2xl p-0">
             <div className="relative flex justify-between items-center px-6 py-4 border-b border-gray-300 md:px-10 md:py-6">
               <h3 className="style-headline-3 text-black">{pet.petName}</h3>
