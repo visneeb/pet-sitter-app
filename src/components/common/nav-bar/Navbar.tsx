@@ -6,20 +6,16 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const { user } = useAuth();
-  if (!user) {
-    return (
-      <nav>
-        <NavbarGuest />
-      </nav>
-    );
-  }
-  if (user.role === "sitter") {
-    return <NavbarPetSitterHome />;
-  }
+
+  const NavbarComponent = !user
+    ? NavbarGuest
+    : user.role === "sitter"
+      ? NavbarPetSitterHome
+      : NavbarUser;
 
   return (
-    <nav className="font-sans">
-      <NavbarUser />
+    <nav className="font-sans sticky top-0 z-50">
+      <NavbarComponent />
     </nav>
   );
 }

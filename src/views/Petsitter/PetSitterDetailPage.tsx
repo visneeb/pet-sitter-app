@@ -105,7 +105,7 @@ export default function PetSitterDetailPage() {
                 <Markdown>{sitter.description}</Markdown>
               </ContentSection>
 
-              <div className="relative h-[219px] w-full overflow-hidden rounded-2xl">
+              <div className="relative h-[219px] w-full overflow-hidden rounded-2xl z-20">
                 {isMapReady && (
                   <LeafletMap
                     key="sitter-detail-map"

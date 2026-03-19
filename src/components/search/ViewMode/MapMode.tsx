@@ -27,7 +27,7 @@ export default function MapMode({
   return (
     <section
       id="map-fullscreen-wrapper"
-      className="relative max-w-[850px] min-w-[300px] max-h-[840px] h-screen w-full  sm:aspect-square"
+      className="relative max-w-[850px] min-w-[300px] max-h-[840px] h-screen w-full  sm:aspect-square z-20"
     >
       {/* wrapper นี้ขอ fullscreen ทั้งก้อน — ครอบทั้ง map + slider */}
       <LeafletMap className="w-full h-full" center={selectedMarker?.position}>
