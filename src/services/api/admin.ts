@@ -59,8 +59,15 @@ export const adminApi = {
   approveUpdateSitter: (sitterId: number, signal?: AbortSignal) =>
     privateApi.patch(`/admin/pet-sitter/approve/${sitterId}`, { signal }),
 
-  rejectUpdateSitter: (sitterId: number, signal?: AbortSignal) =>
-    privateApi.delete(`/admin/pet-sitter/reject/${sitterId}`, { signal }),
+  rejectUpdateSitter: (
+    sitterId: number,
+    body: { adminNote: string },
+    signal?: AbortSignal,
+  ) =>
+    privateApi.delete(`/admin/pet-sitter/reject/${sitterId}`, {
+      data: body,
+      signal,
+    }),
 
   banUser: (userId: string, signal?: AbortSignal) =>
     privateApi.patch(`/admin/ban/${userId}`, { signal }),

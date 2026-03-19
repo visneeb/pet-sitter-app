@@ -6,10 +6,13 @@ import { ActionButton } from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { sitterStatusVariant, userStatusVariant } from "@/constants/status";
 import { useSitterProfile } from "@/hooks/admin/useSitterProfile";
+import { showCustomToast } from "@/components/ui/toast/Toast";
 import cn from "@/utils/cn";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
+import { RejectConfirmModal } from "@/components/admin/pet-sitter/reject-confirmation/RejectConfirmModal";
 
 const showApproveModal = () => {
   const dialog = document.getElementById(
@@ -21,19 +24,12 @@ const showApproveModal = () => {
   dialog.showModal();
 };
 
-const showRejectModal = () => {
-  const dialog = document.getElementById(
-    "reject-sitter",
-  ) as HTMLDialogElement | null;
-
-  if (!dialog) return;
-
-  dialog.showModal();
-};
-
 export default function PetSitterLayout() {
   const params = useParams<{ sitterId: string }>();
   const sitterId = params.sitterId;
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const {
     sitterProfile,
     sitterPendingProfile,
@@ -41,10 +37,9 @@ export default function PetSitterLayout() {
     isModalLoading,
     error,
     handleApprove,
-    handleReject,
     handleBan,
     handleUnban,
-  } = useSitterProfile(sitterId);
+  } = useSitterProfile(sitterId, refreshKey);
 
   if (isLoading) {
     return (
@@ -80,7 +75,7 @@ export default function PetSitterLayout() {
             <div className="flex items-center gap-2.5">
               <Link
                 href="/admin/pet-sitter"
-                aria-label="Back to pet owner list"
+                aria-label="Back to pet sitter list"
               >
                 <ChevronLeft className="text-gray-400" />
               </Link>
@@ -104,7 +99,10 @@ export default function PetSitterLayout() {
           </div>
           {sitterProfile.hasPendingUpdate && (
             <div className="flex gap-2">
-              <ActionButton variant="secondary" onClick={showRejectModal}>
+              <ActionButton
+                variant="secondary"
+                onClick={() => setIsRejectModalOpen(true)}
+              >
                 Reject
               </ActionButton>
               <ActionButton
@@ -182,17 +180,26 @@ export default function PetSitterLayout() {
             massage="Are you sure to approve this sitter?"
             cancelText="Cancel"
             confirmText="Approve"
-            onConfirm={handleApprove}
+            onConfirm={async () => {
+              await handleApprove();
+              setRefreshKey((k) => k + 1);
+            }}
             disabled={isModalLoading}
           />
-          <Modal
-            id="reject-sitter"
-            title="Reject Confirmation"
-            massage="Are you sure to reject this sitter?"
-            cancelText="Cancel"
-            confirmText="Reject"
-            onConfirm={handleReject}
-            disabled={isModalLoading}
+          <RejectConfirmModal
+            open={isRejectModalOpen}
+            onClose={() => setIsRejectModalOpen(false)}
+            sitterId={Number(sitterId)}
+            hasPendingUpdate={sitterProfile.hasPendingUpdate}
+            onSuccess={() => {
+              setIsRejectModalOpen(false);
+              setRefreshKey((k) => k + 1);
+              showCustomToast({
+                title: "Reject sitter",
+                description: "Reject sitter successfully",
+                variant: "success",
+              });
+            }}
           />
         </>
       )}
