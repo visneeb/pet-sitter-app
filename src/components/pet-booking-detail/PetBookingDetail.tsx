@@ -197,6 +197,7 @@ function BookingDetail() {
                         imgUrl: pet.imgUrl,
                       }}
                       variant="action"
+                      className="cursor-pointer"
                       onClick={() => setSelectedPet(pet)}
                     />
                   </div>
