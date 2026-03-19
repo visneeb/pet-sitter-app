@@ -55,9 +55,9 @@ export function useBookingList() {
         router.replace(`/bookings?${queryString}`, { scroll: false });
 
         const response = await bookingApi.getAll(params);
-        setBookings(response.bookings);
-        setTotalPages(response.totalPages);
-        setTotalBookings(response.totalBookings);
+        setBookings(response.bookings ?? []);
+        setTotalPages(response.totalPages ?? 1);
+        setTotalBookings(response.totalBookings ?? 0);
       } catch (error) {
         setError(`Failed to fetch bookings : ${error}`);
       }
