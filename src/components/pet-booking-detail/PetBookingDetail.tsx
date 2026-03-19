@@ -11,14 +11,23 @@ import { useBookingDetail } from "@/hooks/booking/useBookingDetail";
 import { bookingApi } from "@/services/api/bookingApi";
 import ProfileModal from "./ProfileModal";
 import PetModal from "./PetProfileModal";
-import { PetCard } from "../booking/PetCard";
+import { BasePetCard } from "../booking/BasePetCard";
 import useBookingStatus from "@/hooks/booking/useBookingStatus";
 import {
   BookingDetail as BookingDetailType,
   BookingStatus,
 } from "@/types/booking";
+import { bookingStatusVariant } from "@/constants/bookinglist/bookingStatus";
 
 type Pet = BookingDetailType["pets"][number];
+
+// Map petTypeId to type name (temporary until backend returns petType)
+const PET_TYPE_MAP: Record<number, string> = {
+  1: "Dog",
+  2: "Cat",
+  3: "Bird",
+  4: "Rabbit",
+};
 
 function formatBookingDate(startTime: string, endTime: string): string {
   const start = new Date(startTime);
@@ -118,8 +127,13 @@ function BookingDetail() {
           <ActionProfileHeader
             title={booking?.contactName ?? "-"}
             status={
-              <span className={statusConfig?.badgeClass}>
-                {statusConfig?.label}
+              <span
+                className={`style-body-2 flex items-center gap-2 ${bookingStatusVariant[booking?.status as BookingStatus]}`}
+              >
+                <span
+                  className={`size-1.5 rounded-full ${bookingStatusVariant[booking?.status as BookingStatus]?.replace("text-", "bg-")}`}
+                />
+                {booking?.status}
               </span>
             }
             leftAction={
@@ -172,11 +186,18 @@ function BookingDetail() {
               <div className="flex gap-[12px] overflow-x-auto">
                 {booking.pets.map((pet) => (
                   <div key={pet.petId}>
-                    <PetCard
-                      pet={pet}
-                      selected={false}
-                      disabled={false}
-                      onSelect={() => setSelectedPet(pet)}
+                    <BasePetCard
+                      pet={{
+                        id: String(pet.petId),
+                        name: pet.petName,
+                        type:
+                          PET_TYPE_MAP[(pet as any).petTypeId] ??
+                          pet.petType ??
+                          "Unknown",
+                        imgUrl: pet.imgUrl,
+                      }}
+                      variant="action"
+                      onClick={() => setSelectedPet(pet)}
                     />
                   </div>
                 ))}

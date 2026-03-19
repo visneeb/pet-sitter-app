@@ -21,7 +21,7 @@ function PetModal({ pet, onClose }: PetModalProps) {
           <X className="w-[24px] h-[24px] cursor-pointer" onClick={onClose} />
         </div>
         <div className="flex gap-[40px] p-[40px]">
-          <div>
+          <div className="flex flex-col gap-[16px]">
             <div className="flex items-center justify-center w-[240px] h-[240px] bg-gray-100 rounded-full text-gray-300 overflow-hidden">
               {pet.imgUrl ? (
                 <img
@@ -33,8 +33,11 @@ function PetModal({ pet, onClose }: PetModalProps) {
                 <PawPrint className="w-[120px] h-[120px]" />
               )}
             </div>
+            <div className="flex justify-center">
+              <h4>{pet.petName}</h4>
+            </div>
           </div>
-          <div className="flex flex-col bg-bg-gray rounded-lg p-[24px] gap-[40px] w-[440px]">
+          <div className="grid grid-cols-2 bg-bg-gray rounded-lg p-[24px] gap-[40px] w-[440px]">
             <DetailLabel label="Pet Name" value={pet.petName ?? "-"} />
             <DetailLabel label="Pet Type" value={pet.petType ?? "-"} />
             <DetailLabel label="Breed" value={pet.breed ?? "-"} />
