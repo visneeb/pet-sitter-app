@@ -115,7 +115,7 @@ export function useOwnerProfile(userId?: string) {
       const response = await adminApi.unbanUser(state.ownerProfile.id);
       router.push("/admin/pet-owner");
       showCustomToast({
-        title: "Ban owner",
+        title: "Unban owner",
         description: response.data?.message || "Unban owner successfully",
         variant: "success",
       });

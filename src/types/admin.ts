@@ -36,7 +36,10 @@ export interface OwnerProfileResponse {
   dateOfBirth?: string;
   email: string;
   status: UserStatus;
-  pets: PetFormValues[];
+  pets: (Omit<PetFormValues, "img_url" | "petTypeId"> & {
+    imgUrl: string | null;
+    petType: string;
+  })[];
 }
 
 export interface SitterItem {
