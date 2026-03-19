@@ -87,7 +87,7 @@ export default function PetOwnerLayout() {
             aria-label="Pets"
           />
           <article className="tab-content bg-white border-base-300 p-6">
-            <Pets />
+            <Pets owner={ownerProfile} />
           </article>
         </section>
       </section>
