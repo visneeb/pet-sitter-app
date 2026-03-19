@@ -7,6 +7,7 @@ import type {
   SitterListResponse,
   SitterProfileResponse,
 } from "@/types/admin";
+import { SitterStatus } from "@/constants/status";
 
 export const adminApi = {
   getOwnerList: (
@@ -66,4 +67,11 @@ export const adminApi = {
 
   unbanUser: (userId: string, signal?: AbortSignal) =>
     privateApi.patch(`/admin/unban/${userId}`, { signal }),
+
+  adminReviewSitter: (
+    sitterId: number,
+    body: { status: SitterStatus; adminNote?: string },
+    signal?: AbortSignal,
+  ) =>
+    privateApi.patch(`/admin/pet-sitter/${sitterId}/review`, body, { signal }),
 };

@@ -19,6 +19,7 @@ import Section from "@/components/form/FormSection";
 import ProfileContainer from "@/components/profile/ProfileContainer";
 import cn from "@/utils/cn";
 import SitterProfileMap from "./map/SitterProfileMap";
+import { RejectionNote } from "./RejectionNote";
 
 export default function ProfileEdit() {
   const {
@@ -57,12 +58,15 @@ export default function ProfileEdit() {
     setExternalUpdate,
     setDistricts,
     setSubDistricts,
+    adminNote,
   } = usePetSitterForm();
 
   const petTypeOptions = petTypes.map((pet) => ({
     value: pet.id,
     label: pet.name,
   }));
+
+  const isReject = status === "Rejected";
 
   if (isLoadingProfile) {
     return (
@@ -162,34 +166,37 @@ export default function ProfileEdit() {
         disabled={hasPendingUpdate}
       >
         <div className="flex flex-col gap-6 pb-20">
-          <ActionProfileHeader
-            title="Pet Sitter Profile"
-            status={
-              status && (
-                <span className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "w-2 h-2 rounded-full",
-                      statusConfig[status]?.bg,
-                    )}
-                  />
-                  <span className={statusConfig[status]?.text}>{status}</span>
-                </span>
-              )
-            }
-            action={
-              <SubmitButton
-                isLoading={sitterIsSubmitting || sitterIsUpdating}
-                requireValid={true}
-                requireDirty={true}
-                extraDirty={imagesChanged}
-              >
-                {hasPendingUpdate
-                  ? "Waiting admin approval"
-                  : "Update Sitter Info"}
-              </SubmitButton>
-            }
-          />
+          <div className="flex flex-col gap-6">
+            <ActionProfileHeader
+              title="Pet Sitter Profile"
+              status={
+                status && (
+                  <span className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full",
+                        statusConfig[status]?.bg,
+                      )}
+                    />
+                    <span className={statusConfig[status]?.text}>{status}</span>
+                  </span>
+                )
+              }
+              action={
+                <SubmitButton
+                  isLoading={sitterIsSubmitting || sitterIsUpdating}
+                  requireValid={true}
+                  requireDirty={true}
+                  extraDirty={imagesChanged}
+                >
+                  {hasPendingUpdate
+                    ? "Waiting admin approval"
+                    : "Update Sitter Info"}
+                </SubmitButton>
+              }
+            />
+            {isReject && <RejectionNote adminNote={adminNote} />}
+          </div>
           <ProfileContainer>
             <div className="flex flex-col gap-15 px-6">
               <Section title="Pet Sitter">
