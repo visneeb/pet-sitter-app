@@ -5,11 +5,10 @@ import {
   validateSitterProfile,
 } from "@/lib/validations/sitterProfileValidation";
 import { showCustomToast } from "@/components/ui/toast/Toast";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import {
   updatePetSitterProfile,
-  getPrivatePetSitterById,
   getCurrentSitter,
   PetSitterDetail,
   cancelPetSitterProfileUpdate,
@@ -234,10 +233,9 @@ export function usePetSitterForm(): SitterProfileFormReturn {
       router.refresh();
       methods.setValue("images", []);
 
-      const { data: updatedData } = await getPrivatePetSitterById(
-        String(sitterId),
-      );
+      const { data: updatedData } = await getCurrentSitter();
       if (updatedData) {
+        setHasPendingUpdate(updatedData.hasPendingUpdate);
         const updatedFields: Partial<
           Record<keyof SitterProfileFormValues, any>
         > = {
@@ -295,6 +293,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     setIsCancelLoading(true);
     try {
       await cancelPetSitterProfileUpdate();
+      setHasPendingUpdate(false);
       showCustomToast({
         title: "Sitter profile update cancelled",
         description: "Your sitter info update has been cancelled.",
