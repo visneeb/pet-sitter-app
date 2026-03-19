@@ -1,81 +1,94 @@
 "use client";
 
-import { BookingDetail } from "@/types/booking";
+import React from "react";
+import { Pet } from "@/contexts/booking/bookingTypes";
+import { CheckIcon } from "@/assets/icons/components";
+import petTypeColorTag from "@/constants/petTag";
 
-type Pet = BookingDetail["pets"][number];
+type PetType = "Dog" | "Cat" | "Bird" | "Rabbit";
 
-type Props = {
+/** 🔥 Base props (ใช้ร่วมกันทุก mode) */
+type BaseProps = {
   pet: Pet;
-  selected: boolean;
-  disabled: boolean;
+  disabled?: boolean;
   disabledReason?: string;
-  onSelect: () => void;
+  className?: string;
 };
 
-function badgeClass(petType: string) {
-  const t = petType?.toLowerCase?.() ?? "";
-  if (t.includes("dog"))
-    return "border-emerald-300 bg-emerald-50 text-emerald-600";
-  if (t.includes("cat")) return "border-pink-300 bg-pink-50 text-pink-600";
-  if (t.includes("bird")) return "border-sky-300 bg-sky-50 text-sky-600";
-  return "border-gray-300 bg-gray-50 text-gray-600";
-}
+/** ✅ Select mode */
+type SelectProps = BaseProps & {
+  variant: "select";
+  selected: boolean;
+  onClick: () => void;
+};
 
-export function PetCard({
-  pet,
-  selected,
-  disabled,
-  disabledReason,
-  onSelect,
-}: Props) {
+/** ✅ Action mode */
+type ActionProps = BaseProps & {
+  variant: "action";
+  onClick: () => void;
+};
+
+/** 🔥 Union type */
+type Props = SelectProps | ActionProps;
+
+export function BasePetCard(props: Props) {
+  const { pet, disabled = false, disabledReason, className } = props;
+
+  const isSelect = props.variant === "select";
+
+  const badgeColor =
+    petTypeColorTag[pet.type as PetType] ??
+    "border-gray-300 bg-gray-50 text-gray-600";
+
   return (
     <button
       type="button"
-      onClick={disabled ? undefined : onSelect}
+      onClick={disabled ? undefined : props.onClick}
       disabled={disabled}
       title={disabled ? disabledReason : undefined}
       className={[
-        "relative w-[240px] h-[240px] rounded-3xl border bg-white p-6 shadow-sm transition",
+        "relative w-[240px] h-[240px] rounded-3xl border bg-white p-6 shadow-sm transition ",
         "flex flex-col items-center justify-center gap-3",
-        selected ? "border-orange-300" : "border-gray-200",
-        disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow",
+        isSelect && props.selected
+          ? "border-orange-300"
+          : "border-gray-200",
+        disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow  hover:border-orange-500",
+        className,
       ].join(" ")}
     >
-      {/* Checkbox มุมขวาบน (ตกแต่งให้เหมือนในรูป) */}
-      <span
-        className={[
-          "absolute right-4 top-4 h-6 w-6 rounded-md border flex items-center justify-center",
-          selected
-            ? "border-orange-400 bg-orange-400 text-white"
-            : "border-gray-200 bg-white",
-        ].join(" ")}
-        aria-hidden="true"
-      >
-        {selected ? "✓" : ""}
-      </span>
+      {/* ✅ Checkbox (เฉพาะ select mode เท่านั้น) */}
+      {isSelect && (
+        <span
+          className={[
+            "absolute right-4 top-4 h-6 w-6 rounded-md border flex items-center justify-center",
+            props.selected
+              ? "border-orange-400 bg-orange-400 text-white"
+              : "border-gray-200 bg-white",
+          ].join(" ")}
+        >
+          {props.selected && <CheckIcon size={16} />}
+        </span>
+      )}
 
       {/* Avatar */}
       <div className="h-24 w-24 overflow-hidden rounded-full bg-gray-100">
-        {pet.imgUrl ? (
+        {"imgUrl" in pet && (pet as any).imgUrl ? (
           <img
-            src={pet.imgUrl}
-            alt={pet.petName}
+            src={(pet as any).imgUrl}
+            alt={pet.name}
             className="h-full w-full object-cover"
           />
         ) : null}
       </div>
 
       {/* Name */}
-      <p className="text-xl font-semibold text-gray-800">{pet.petName}</p>
+      <p className="text-xl font-semibold text-gray-800">
+        {pet.name}
+      </p>
 
       {/* Type badge */}
-      <span
-        className={[
-          "rounded-full border px-5 py-1 text-sm",
-          badgeClass(pet.petType),
-        ].join(" ")}
-      >
-        {pet.petType}
+      <span className={`rounded-full border px-5 py-1 text-sm ${badgeColor}`}>
+        {pet.type}
       </span>
     </button>
   );

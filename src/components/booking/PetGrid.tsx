@@ -3,7 +3,7 @@
 import React from "react";
 import { Pet, Sitter } from "@/contexts/booking/bookingTypes";
 import { isPetAcceptedBySitter } from "@/domain/booking/acceptance";
-import { PetCard } from "./BasePetCard";
+import { BasePetCard } from "./BasePetCard";
 import { PlusCircleIcon } from "@/assets/icons/components";
 
 type Props = {
@@ -34,7 +34,7 @@ export function PetGrid({
         const { accepted, reason } = isPetAcceptedBySitter(pet, sitter);
 
         return (
-          <PetCard
+          <BasePetCard
             key={pet.id}
             pet={pet}
             selected={selectedPetIds.includes(pet.id)}
