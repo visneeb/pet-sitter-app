@@ -19,7 +19,7 @@ export interface UseSitterProfileResult {
   modalError: string | null;
 }
 
-export function useSitterProfile(sitterId?: string) {
+export function useSitterProfile(sitterId?: string, refreshKey?: number) {
   const router = useRouter();
   const [state, setState] = useState<UseSitterProfileResult>({
     sitterProfile: null,
@@ -66,6 +66,11 @@ export function useSitterProfile(sitterId?: string) {
             sitterPendingProfile: pendingData,
             error: null,
           }));
+        } else {
+          setState((prev) => ({
+            ...prev,
+            sitterPendingProfile: null,
+          }));
         }
 
         setState((prev) => ({
@@ -94,7 +99,7 @@ export function useSitterProfile(sitterId?: string) {
     return () => {
       controller.abort();
     };
-  }, [sitterId]);
+  }, [sitterId, refreshKey]);
 
   useEffect(() => {
     if (!state.modalError) {
@@ -117,32 +122,10 @@ export function useSitterProfile(sitterId?: string) {
       const response = await adminApi.approveUpdateSitter(
         state.sitterProfile.id,
       );
-      router.push("/admin/pet-sitter");
+      router.refresh();
       showCustomToast({
         title: "Approve sitter",
         description: response.data?.message || "Approve sitter successfully",
-        variant: "success",
-      });
-    } catch (error) {
-      setState((prev) => ({ ...prev, modalError: "Failed to approve sitter" }));
-    } finally {
-      setState((prev) => ({ ...prev, isModalLoading: false }));
-    }
-  };
-
-  const handleReject = async () => {
-    if (!state.sitterProfile) return;
-
-    setState((prev) => ({ ...prev, isModalLoading: true, modalError: null }));
-
-    try {
-      const response = await adminApi.rejectUpdateSitter(
-        state.sitterProfile.id,
-      );
-      router.push("/admin/pet-sitter");
-      showCustomToast({
-        title: "Reject sitter",
-        description: response.data?.message || "Reject sitter successfully",
         variant: "success",
       });
     } catch (error) {
@@ -193,7 +176,7 @@ export function useSitterProfile(sitterId?: string) {
   };
 
   return useMemo(
-    () => ({ ...state, handleApprove, handleReject, handleBan, handleUnban }),
+    () => ({ ...state, handleApprove, handleBan, handleUnban }),
     [state],
   );
 }

@@ -24,7 +24,6 @@ export function RHFTextarea<T extends FieldValues>({
 }: Props<T>) {
   const {
     register,
-    trigger,
     formState: { errors },
   } = useFormContext<T>();
 
@@ -42,10 +41,6 @@ export function RHFTextarea<T extends FieldValues>({
           id={label}
           {...register(name, {
             required: required ? `${label} is required` : false,
-            onChange: () => {
-              // Trigger form validation to update dirty state
-              trigger(name);
-            },
           })}
           {...props}
         />
