@@ -3,7 +3,7 @@
 import React from "react";
 import { Pet, Sitter } from "@/contexts/booking/bookingTypes";
 import { isPetAcceptedBySitter } from "@/domain/booking/acceptance";
-import { PetCard } from "./PetCard";
+import { PetCard } from "./BasePetCard";
 import { PlusCircleIcon } from "@/assets/icons/components";
 
 type Props = {
