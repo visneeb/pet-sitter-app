@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Markdown from "react-markdown";
 import {
   ImageCarousel,
   ContentSection,
@@ -93,37 +94,37 @@ export default function PetSitterDetailPage() {
               </h1>
 
               <ContentSection title="Introduction">
-                <p>{sitter.introduction}</p>
+                <Markdown>{sitter.introduction}</Markdown>
               </ContentSection>
 
               <ContentSection title="Services">
-                <p>{sitter.services}</p>
+                <Markdown>{sitter.services}</Markdown>
               </ContentSection>
 
               <ContentSection title="My places">
-                <p>{sitter.description}</p>
+                <Markdown>{sitter.description}</Markdown>
+              </ContentSection>
 
-                <div className="relative h-[219px] w-full overflow-hidden rounded-2xl">
-                  {isMapReady && (
-                    <LeafletMap
-                      key="sitter-detail-map"
-                      center={[
+              <div className="relative h-[219px] w-full overflow-hidden rounded-2xl">
+                {isMapReady && (
+                  <LeafletMap
+                    key="sitter-detail-map"
+                    center={[
+                      sitter.latitude ?? 13.7563,
+                      sitter.longitude ?? 100.5018,
+                    ]}
+                    zoom={20}
+                    className="h-full w-full"
+                  >
+                    <SitterMarker
+                      position={[
                         sitter.latitude ?? 13.7563,
                         sitter.longitude ?? 100.5018,
                       ]}
-                      zoom={20}
-                      className="h-full w-full"
-                    >
-                      <SitterMarker
-                        position={[
-                          sitter.latitude ?? 13.7563,
-                          sitter.longitude ?? 100.5018,
-                        ]}
-                      />
-                    </LeafletMap>
-                  )}
-                </div>
-              </ContentSection>
+                    />
+                  </LeafletMap>
+                )}
+              </div>
             </div>
             <div className="lg:hidden lg:shrink-0 lg:self-stretch w-full lg:w-auto">
               <PetSitterBookingCard

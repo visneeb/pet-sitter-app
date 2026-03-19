@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
 import AvatarPlaceholder from "@/components/ui/AvatarPlaceholder";
+import Markdown from "react-markdown";
 
 interface ReviewCardProps {
   reviewerName: string;
@@ -66,8 +67,9 @@ export default function ReviewCard({
       <div className="flex flex-col gap-4 w-full lg:max-w-[516px]">
         {/* เรียกใช้ดาว: ให้แสดงผลเฉพาะบน Desktop ขึ้นไป (hidden lg:flex) */}
         {renderStars("hidden lg:flex")}
-        
-        <p className="style-body-2 text-gray-500 w-full ">{comment}</p>
+        <div className="style-body-2 text-gray-500 w-full">
+          <Markdown>{comment}</Markdown>
+        </div>
       </div>
     </div>
   );
