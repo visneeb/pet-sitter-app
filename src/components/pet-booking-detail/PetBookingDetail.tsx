@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ActionProfileHeader } from "../profile/ProfileHeader";
 import Link from "next/link";
 import { ChevronLeft, Eye } from "lucide-react";
@@ -20,14 +20,6 @@ import {
 import { bookingStatusVariant } from "@/constants/bookinglist/bookingStatus";
 
 type Pet = BookingDetailType["pets"][number];
-
-// Map petTypeId to type name (temporary until backend returns petType)
-const PET_TYPE_MAP: Record<number, string> = {
-  1: "Dog",
-  2: "Cat",
-  3: "Bird",
-  4: "Rabbit",
-};
 
 function formatBookingDate(startTime: string, endTime: string): string {
   const start = new Date(startTime);
@@ -68,6 +60,11 @@ function BookingDetail() {
   const [isRejecting, setIsRejecting] = useState(false);
   const [isConfirm, setIsConFirm] = useState(false);
   const [isConfirmModal, setIsConFirmModal] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hasDragged, setHasDragged] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const petListRef = useRef<HTMLDivElement>(null);
   const { booking, isLoading, error, refetch } = useBookingDetail(bookingId);
   const statusConfig = useBookingStatus(
     booking?.status as BookingStatus,
@@ -120,9 +117,43 @@ function BookingDetail() {
   const openConfirm = () => {
     setIsConFirmModal(true);
   };
+
+  {
+    /* handle mouse dragging @Pet Detail */
+  }
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!petListRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.pageX - petListRef.current.offsetLeft);
+    setScrollLeft(petListRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !petListRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - petListRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true);
+    }
+    petListRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handlePetClick = (pet: Pet) => {
+    if (hasDragged) return;
+    setSelectedPet(pet);
+  };
+  {
+    /* handle mouse dragging @Pet Detail */
+  }
   return (
     <>
-      <div className="flex flex-col gap-[24px] px-[40px] pt-[40px] pb-[80px]">
+      <div className="flex flex-col gap-[24px] md:pb-[80px]">
         <div>
           <ActionProfileHeader
             title={booking?.contactName ?? "-"}
@@ -164,7 +195,7 @@ function BookingDetail() {
           />
         </div>
 
-        <div className="flex flex-col bg-white gap-[24px] px-[16px] py-[24px] -mx-10 lg:p-[40px] lg:mx-0 rounded-2xl">
+        <div className="flex flex-col bg-white gap-[24px] px-[16px] py-[24px] md:px-[80px] md:py-[40px]  rounded-2xl">
           <div className="flex justify-between">
             <DetailLabel
               label="Pet Owner Name"
@@ -183,22 +214,26 @@ function BookingDetail() {
           {booking?.pets && booking.pets.length > 0 ? (
             <>
               <p className="text-gray-400 style-headline-4">Pet Detail</p>
-              <div className="flex gap-[12px] overflow-x-auto">
+              <div
+                ref={petListRef}
+                className={`flex gap-[12px] overflow-x-auto scrollbar-hide ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
                 {booking.pets.map((pet) => (
                   <div key={pet.petId}>
                     <BasePetCard
                       pet={{
                         id: String(pet.petId),
                         name: pet.petName,
-                        type:
-                          PET_TYPE_MAP[(pet as any).petTypeId] ??
-                          pet.petType ??
-                          "Unknown",
+                        type: pet.petType ?? "Unknown",
                         imgUrl: pet.imgUrl,
                       }}
                       variant="action"
                       className="cursor-pointer"
-                      onClick={() => setSelectedPet(pet)}
+                      onClick={() => handlePetClick(pet)}
                     />
                   </div>
                 ))}
