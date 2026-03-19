@@ -8,6 +8,7 @@ import { BookingStatus, BookingReview } from "@/types/BookingType";
 import Link from "next/link";
 import ReviewModal from "@/components/review/ReviewModal";
 import ViewReviewModal from "@/components/review/ViewReviewModal";
+import ReportModal from "@/components/report/ReportModal";
 
 interface BookingCardFooterProps {
   status: BookingStatus;
@@ -39,6 +40,8 @@ export function BookingCardFooter({
   const hasReviewed = !!review;
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isViewReviewOpen, setIsViewReviewOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
 
   return (
     <div
@@ -60,6 +63,7 @@ export function BookingCardFooter({
               <ActionButton
                 variant="ghost"
                 className="style-body-2 md:style-button"
+                onClick={() => setIsReportOpen(true)}
               >
                 Report
               </ActionButton>
@@ -105,6 +109,12 @@ export function BookingCardFooter({
         bookingId={bookingId}
         onClose={() => setIsReviewOpen(false)}
         onSuccess={() => setIsReviewOpen(false)}
+      />
+      <ReportModal
+        open={isReportOpen}
+        bookingId={bookingId}
+        onClose={() => setIsReportOpen(false)}
+        onSuccess={() => setIsReportOpen(false)}
       />
 
       {review && (
