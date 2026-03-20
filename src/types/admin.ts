@@ -97,3 +97,61 @@ export interface SitterProfileResponse {
   status: SitterStatus;
   adminNote?: string | null;
 }
+
+export interface GetSitterReviewParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface SitterReview {
+  readonly id: number;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  reviewer: {
+    name: string;
+    profileImgUrl?: string;
+  };
+}
+
+export interface SitterReviewListResponse {
+  totalReviews: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  reviews: SitterReview[];
+}
+
+export interface GetSitterBookingParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface SitterBookingItem {
+  bookingId: number;
+  petOwnerName: string;
+  petCount: number;
+  status:
+    | "Waiting for confirm"
+    | "Waiting for service"
+    | "In service"
+    | "Success"
+    | "Canceled";
+  startTime: string;
+  endTime: string;
+  bookingDate: string;
+  duration: string;
+  totalPrice: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
+  note: string | null;
+}
+
+export interface SitterBookingListResponse {
+  bookings: SitterBookingItem[];
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  total: number;
+}

@@ -1,13 +1,17 @@
 import { privateApi } from "./client";
 import type {
+  GetSitterBookingParams,
   GetOwnerListParams,
   GetSitterListParams,
+  GetSitterReviewParams,
   OwnerListResponse,
   OwnerProfileResponse,
+  SitterBookingListResponse,
   SitterListResponse,
+  SitterReviewListResponse,
   SitterProfileResponse,
 } from "@/types/admin";
-import { SitterStatus } from "@/constants/status";
+import type { BookingDetail } from "@/types/booking";
 
 export const adminApi = {
   getOwnerList: (
@@ -56,6 +60,41 @@ export const adminApi = {
       })
       .then((res) => res.data),
 
+  getSitterBooking: (
+    sitterId: string | number,
+    params: GetSitterBookingParams,
+    signal?: AbortSignal,
+  ): Promise<SitterBookingListResponse> =>
+    privateApi
+      .get<SitterBookingListResponse>(
+        `/admin/pet-sitter/bookings/${sitterId}`,
+        {
+          params,
+          signal,
+        },
+      )
+      .then((res) => res.data),
+
+  getSitterBookingDetail: (
+    bookingId: string | number,
+    signal?: AbortSignal,
+  ): Promise<BookingDetail> =>
+    privateApi
+      .get<BookingDetail>(`/admin/pet-sitter/booking/${bookingId}`, { signal })
+      .then((res) => res.data),
+
+  getSitterReview: (
+    sitterId: string | number,
+    params: GetSitterReviewParams,
+    signal?: AbortSignal,
+  ): Promise<SitterReviewListResponse> =>
+    privateApi
+      .get<SitterReviewListResponse>(`/admin/pet-sitter/reviews/${sitterId}`, {
+        params,
+        signal,
+      })
+      .then((res) => res.data),
+
   approveUpdateSitter: (sitterId: number, signal?: AbortSignal) =>
     privateApi.patch(`/admin/pet-sitter/approve/${sitterId}`, { signal }),
 
@@ -64,8 +103,7 @@ export const adminApi = {
     body: { adminNote: string },
     signal?: AbortSignal,
   ) =>
-    privateApi.delete(`/admin/pet-sitter/reject/${sitterId}`, {
-      data: body,
+    privateApi.patch(`/admin/pet-sitter/reject/${sitterId}`, body, {
       signal,
     }),
 
@@ -74,11 +112,4 @@ export const adminApi = {
 
   unbanUser: (userId: string, signal?: AbortSignal) =>
     privateApi.patch(`/admin/unban/${userId}`, { signal }),
-
-  adminReviewSitter: (
-    sitterId: number,
-    body: { status: SitterStatus; adminNote?: string },
-    signal?: AbortSignal,
-  ) =>
-    privateApi.patch(`/admin/pet-sitter/${sitterId}/review`, body, { signal }),
 };

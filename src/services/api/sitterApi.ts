@@ -290,3 +290,7 @@ export async function cancelPetSitterProfileUpdate() {
   );
   return { message: res.data.message };
 }
+
+export async function deleteRejectNote() {
+  await privateApi.delete("/pet-sitter/note");
+}

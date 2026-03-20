@@ -12,6 +12,7 @@ import {
   getCurrentSitter,
   PetSitterDetail,
   cancelPetSitterProfileUpdate,
+  deleteRejectNote,
 } from "@/services/api/sitterApi";
 import { petApi } from "@/services/api/petApi";
 import { District, SubDistrict } from "@/services/api/addressApi";
@@ -26,7 +27,9 @@ export interface SitterProfileFormReturn {
   isUpdating: boolean;
   hasPendingUpdate: boolean;
   isCancelLoading: boolean;
+  isShowRejectNote: boolean;
   cancelUpdate: () => Promise<void>;
+  hideRejectNote: () => Promise<void>;
   onSubmit: (data: SitterProfileFormValues) => Promise<void>;
   petTypes: { id: number; name: string }[];
   provinces: ReturnType<typeof useAddressFields>["provinces"];
@@ -91,6 +94,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
   const [adminNote, setAdminNote] = useState<string | null>(null);
   const [hasPendingUpdate, setHasPendingUpdate] = useState(false);
   const [sitterData, setSitterData] = useState<PetSitterDetail | null>(null);
+  const [isShowRejectNote, setIsShowRejectNote] = useState<boolean>(false);
 
   const {
     provinces,
@@ -122,6 +126,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
         setSitterData(data);
         setStatus(data.status || "Waiting for approval");
         setAdminNote(data.adminNote ?? null);
+        setIsShowRejectNote(Boolean(data.adminNote));
         setHasPendingUpdate(data.hasPendingUpdate);
         initImages(data.imgUrls || []);
 
@@ -316,14 +321,24 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     }
   };
 
+  const hideRejectNote = async () => {
+    try {
+      setIsShowRejectNote(false);
+      await deleteRejectNote();
+    } finally {
+    }
+  };
+
   return {
     methods,
     isSubmitting: formState.isSubmitting,
     hasPendingUpdate,
     isUpdating,
     isCancelLoading,
+    isShowRejectNote,
     onSubmit,
     cancelUpdate,
+    hideRejectNote,
     petTypes,
     provinces,
     districts,

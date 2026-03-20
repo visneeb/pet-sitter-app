@@ -7,29 +7,17 @@ interface RejectFormValues {
 
 interface UseRejectSitterProps {
   sitterId: number;
-  hasPendingUpdate: boolean;
   onSuccess?: () => void;
 }
 
-export function useRejectSitter({
-  sitterId,
-  hasPendingUpdate,
-  onSuccess,
-}: UseRejectSitterProps) {
+export function useRejectSitter({ sitterId, onSuccess }: UseRejectSitterProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const reject = async ({ adminNote }: RejectFormValues) => {
     setIsLoading(true);
 
     try {
-      if (hasPendingUpdate) {
-        await adminApi.rejectUpdateSitter(sitterId, { adminNote });
-      } else {
-        await adminApi.adminReviewSitter(sitterId, {
-          status: "Rejected",
-          adminNote,
-        });
-      }
+      await adminApi.rejectUpdateSitter(sitterId, { adminNote });
       onSuccess?.();
     } finally {
       setIsLoading(false);

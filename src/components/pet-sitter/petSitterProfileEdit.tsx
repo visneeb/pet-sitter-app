@@ -50,7 +50,9 @@ export default function ProfileEdit() {
     statusConfig,
     status,
     isCancelLoading,
+    isShowRejectNote,
     cancelUpdate,
+    hideRejectNote,
     existingImages,
     removeExistingImage,
     reorderExistingImages,
@@ -65,8 +67,6 @@ export default function ProfileEdit() {
     value: pet.id,
     label: pet.name,
   }));
-
-  const isReject = status === "Rejected";
 
   if (isLoadingProfile) {
     return (
@@ -195,7 +195,12 @@ export default function ProfileEdit() {
                 </SubmitButton>
               }
             />
-            {isReject && <RejectionNote adminNote={adminNote} />}
+            {adminNote && isShowRejectNote && (
+              <RejectionNote
+                adminNote={adminNote}
+                handleHideReview={hideRejectNote}
+              />
+            )}
           </div>
           <ProfileContainer>
             <div className="flex flex-col gap-15 px-6">

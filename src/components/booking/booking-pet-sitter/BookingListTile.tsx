@@ -6,29 +6,21 @@ import {
 } from "@/constants/bookinglist/bookingStatus";
 import { Dot } from "lucide-react";
 interface BookingListTileProps {
-  booking: SitterBookingList;
+  booking: Omit<SitterBookingList, "createdAt" | "updatedAt">;
   isLast: boolean;
   onClick: () => void;
 }
 
 function BookingListTile(props: BookingListTileProps) {
-  const {
-    bookingId,
-    petOwnerName,
-    petCount,
-    duration,
-    bookingDate,
-    status,
-    createdAt,
-    updatedAt,
-  } = props.booking;
+  const { bookingId, petOwnerName, petCount, duration, bookingDate, status } =
+    props.booking;
   const bookingStatus: BookingStatus = status;
-  
+
   return (
     <li
       key={bookingId.toString()}
       className={cn(
-        "flex items-center w-full h-23 bg-white",
+        "flex items-center w-full h-23 bg-white hover:bg-gray-100",
         props.isLast ? "rounded-b-2xl" : "border-b border-gray-200",
       )}
       onClick={props.onClick}

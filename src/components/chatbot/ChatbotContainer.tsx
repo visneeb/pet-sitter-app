@@ -5,6 +5,7 @@ import type useChatbot from "@/hooks/chatbot/useChatbot";
 import Loading from "../common/loading/loading";
 import Markdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
+import { Paw } from "@/decorations/Paw";
 
 interface Props {
   chatbot: ReturnType<typeof useChatbot>;
@@ -33,7 +34,7 @@ function ChatbotContainer({ chatbot }: Props) {
   };
 
   return (
-    <div className="enter-from-bottom flex flex-col gap-2 bg-white h-[50svh] w-[calc(100vw-2rem)] max-w-lg p-2 rounded-xl shadow-[0_0_8px_-2px_rgba(0,0,0,0.3)]">
+    <div className="enter-from-bottom flex flex-col gap-2 bg-white h-[50svh] w-[calc(100vw-3rem)] max-w-lg p-2 rounded-xl shadow-[0_0_8px_-2px_rgba(0,0,0,0.3)]">
       {chatLength ? (
         <div className="flex-1 overflow-y-scroll" ref={chatScrollRef}>
           <ul
@@ -103,7 +104,8 @@ function ChatbotContainer({ chatbot }: Props) {
           </ul>
         </div>
       ) : (
-        <div className="flex flex-1 justify-center items-center style-body-2">
+        <div className="flex flex-col gap-4 flex-1 justify-center items-center style-body-2">
+          <Paw className="size-16 text-pink-500" />
           <p className="style-body-2 text-center text-gray-600">
             No messages yet. Start a conversation!
           </p>

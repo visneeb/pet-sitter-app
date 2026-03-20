@@ -15,6 +15,8 @@ import { useState } from "react";
 import { RejectConfirmModal } from "@/components/admin/pet-sitter/reject-confirmation/RejectConfirmModal";
 import { RejectionNote } from "@/components/pet-sitter/RejectionNote";
 import { StatusConfig } from "../../../../types/booking";
+import Review from "@/components/admin/pet-sitter/Review";
+import Booking from "@/components/admin/pet-sitter/Booking";
 
 const showApproveModal = () => {
   const dialog = document.getElementById(
@@ -43,9 +45,7 @@ export default function PetSitterLayout() {
     handleUnban,
   } = useSitterProfile(sitterId, refreshKey);
 
-  const status = sitterProfile?.status;
   const adminNote = sitterProfile?.adminNote ?? null;
-  const isReject = status === "Rejected";
 
   if (isLoading) {
     return (
@@ -121,7 +121,7 @@ export default function PetSitterLayout() {
             </div>
           )}
         </header>
-        {isReject && <RejectionNote adminNote={adminNote} />}
+        {adminNote && <RejectionNote adminNote={adminNote} />}
         <div className="w-full min-w-0">
           <section className="tabs tabs-lift tabs-xl w-full min-w-0 gap-x-2 md:gap-x-4">
             <input
@@ -144,7 +144,7 @@ export default function PetSitterLayout() {
               aria-label="Booking"
             />
             <article className="tab-content w-full min-w-0 rounded-b-xl bg-white p-4 md:p-6 lg:p-10">
-              Booking
+              <Booking />
             </article>
             <input
               type="radio"
@@ -153,7 +153,7 @@ export default function PetSitterLayout() {
               aria-label="Reviews"
             />
             <article className="tab-content w-full min-w-0 rounded-b-xl bg-white p-4 md:p-6 lg:p-10">
-              Reviews
+              <Review />
             </article>
           </section>
         </div>
