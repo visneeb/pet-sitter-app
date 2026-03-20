@@ -81,16 +81,18 @@ export default function GoogleMapsDirections({
 
   const isDisabled = loading || (!origin && !requestGeolocationOnClick);
 
+  //Edit hover style to include icon.
+
   return (
     <ActionButton
       type="button"
       variant={variant}
-      className={classnameProp}
+      className={`flex text-orange-500 gap-0.5 hover:text-orange-400 ${classnameProp ?? ""}`}
       onClick={handleClick}
       disabled={isDisabled}
       aria-label="Open directions in Google Maps"
     >
-      <MapMarkerIcon className="w-6 h-6 text-orange-500" />
+      <MapMarkerIcon className="w-6 h-6" />
       <p>{buttonLabel}</p>
     </ActionButton>
   );

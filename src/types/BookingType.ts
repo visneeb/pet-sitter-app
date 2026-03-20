@@ -33,6 +33,9 @@ export interface Booking {
   note: string | null;
   createdAt: string;
   updatedAt: string;
+  completedAt: string | null;
+  latitude: string | null;
+  longitude: string | null;
 }
 
 export interface BookingReview {
@@ -55,12 +58,15 @@ export type OwnerBookingHistory = Pick<
   | "contactEmail"
   | "note"
   | "createdAt"
+  | "completedAt"
   | "petSitterId"
 > & {
   tradeName: string | null;
   sitterName: string | null;
   sitterImgUrl: string | undefined;
   sitterPhone: string | null;
+  latitude: string | null;
+  longitude: string | null;
   pets: BookingPet[];
   review: BookingReview | null;
 };

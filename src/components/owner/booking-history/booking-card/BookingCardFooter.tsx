@@ -10,6 +10,7 @@ import ReviewModal from "@/components/review/ReviewModal";
 import ViewReviewModal from "@/components/review/ViewReviewModal";
 import ReportModal from "@/components/report/ReportModal";
 import PhoneNumberModal from "../PhoneCallModal";
+import { formatBookingDateTime } from "@/utils/dateFormat";
 
 interface BookingCardFooterProps {
   status: BookingStatus;
@@ -19,6 +20,7 @@ interface BookingCardFooterProps {
   sitterName: string;
   sitterImgUrl?: string | null;
   phoneNumber: string;
+  completedAt: string | null;
 }
 
 const statusMessageMap: Record<BookingStatus, string> = {
@@ -37,6 +39,7 @@ export function BookingCardFooter({
   sitterName,
   sitterImgUrl,
   phoneNumber,
+  completedAt,
 }: BookingCardFooterProps) {
   const router = useRouter();
   const isSuccess = status === "Success";
@@ -57,7 +60,13 @@ export function BookingCardFooter({
             isSuccess ? "text-green-500" : "text-gray-400"
           }`}
         >
-          {statusMessageMap[status]}
+          {status === "Success" && completedAt ? (
+            <span className="flex flex-col">
+              Success date: <span>{formatBookingDateTime(completedAt)}</span>
+            </span>
+          ) : (
+            statusMessageMap[status]
+          )}
         </p>
 
         <div className="flex gap-4 h-12">
