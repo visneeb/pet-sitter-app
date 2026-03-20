@@ -9,6 +9,7 @@ import Link from "next/link";
 import ReviewModal from "@/components/review/ReviewModal";
 import ViewReviewModal from "@/components/review/ViewReviewModal";
 import ReportModal from "@/components/report/ReportModal";
+import PhoneNumberModal from "../PhoneCallModal";
 
 interface BookingCardFooterProps {
   status: BookingStatus;
@@ -17,6 +18,7 @@ interface BookingCardFooterProps {
   petSitterId: number;
   sitterName: string;
   sitterImgUrl?: string | null;
+  phoneNumber: string;
 }
 
 const statusMessageMap: Record<BookingStatus, string> = {
@@ -34,6 +36,7 @@ export function BookingCardFooter({
   petSitterId,
   sitterName,
   sitterImgUrl,
+  phoneNumber,
 }: BookingCardFooterProps) {
   const router = useRouter();
   const isSuccess = status === "Success";
@@ -41,7 +44,7 @@ export function BookingCardFooter({
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isViewReviewOpen, setIsViewReviewOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
-
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div
@@ -96,7 +99,7 @@ export function BookingCardFooter({
                   Send Message
                 </ActionButton>
               </Link>
-              <ActionButton variant="icon">
+              <ActionButton variant="icon" onClick={() => setIsOpen(true)}>
                 <PhoneAltIcon />
               </ActionButton>
             </div>
@@ -129,6 +132,13 @@ export function BookingCardFooter({
           onViewSitter={() => router.push(`/petsitter/${petSitterId}`)}
         />
       )}
+
+      <PhoneNumberModal
+        isOpen={isOpen}
+        petSitterName={sitterName}
+        phoneNumber={phoneNumber}
+        onClose={() => setIsOpen(false)}
+      />
     </div>
   );
 }
