@@ -34,7 +34,6 @@ export function RejectConfirmModal({
 
   const { reject, isLoading } = useRejectSitter({
     sitterId,
-    hasPendingUpdate,
     onSuccess: () => {
       onClose();
       onSuccess?.();

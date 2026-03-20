@@ -64,8 +64,7 @@ export const adminApi = {
     body: { adminNote: string },
     signal?: AbortSignal,
   ) =>
-    privateApi.delete(`/admin/pet-sitter/reject/${sitterId}`, {
-      data: body,
+    privateApi.patch(`/admin/pet-sitter/reject/${sitterId}`, body, {
       signal,
     }),
 
@@ -74,11 +73,4 @@ export const adminApi = {
 
   unbanUser: (userId: string, signal?: AbortSignal) =>
     privateApi.patch(`/admin/unban/${userId}`, { signal }),
-
-  adminReviewSitter: (
-    sitterId: number,
-    body: { status: SitterStatus; adminNote?: string },
-    signal?: AbortSignal,
-  ) =>
-    privateApi.patch(`/admin/pet-sitter/${sitterId}/review`, body, { signal }),
 };

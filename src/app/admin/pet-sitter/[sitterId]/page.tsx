@@ -43,9 +43,7 @@ export default function PetSitterLayout() {
     handleUnban,
   } = useSitterProfile(sitterId, refreshKey);
 
-  const status = sitterProfile?.status;
   const adminNote = sitterProfile?.adminNote ?? null;
-  const isReject = status === "Rejected";
 
   if (isLoading) {
     return (
@@ -121,7 +119,7 @@ export default function PetSitterLayout() {
             </div>
           )}
         </header>
-        {isReject && <RejectionNote adminNote={adminNote} />}
+        {adminNote && <RejectionNote adminNote={adminNote} />}
         <div className="w-full min-w-0">
           <section className="tabs tabs-lift tabs-xl w-full min-w-0 gap-x-2 md:gap-x-4">
             <input
