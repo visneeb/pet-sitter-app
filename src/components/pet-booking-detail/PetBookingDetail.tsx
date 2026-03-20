@@ -12,6 +12,7 @@ import { bookingApi } from "@/services/api/bookingApi";
 import ProfileModal from "./ProfileModal";
 import PetModal from "./PetProfileModal";
 import { BasePetCard } from "../booking/BasePetCard";
+import { BaseModal } from "../review/BaseModal";
 import useBookingStatus from "@/hooks/booking/useBookingStatus";
 import {
   BookingDetail as BookingDetailType,
@@ -56,6 +57,7 @@ function BookingDetail() {
   const bookingId = Number(params.bookingId);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [isPetModalOpen, setIsPetModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [isConfirm, setIsConFirm] = useState(false);
@@ -147,13 +149,14 @@ function BookingDetail() {
   const handlePetClick = (pet: Pet) => {
     if (hasDragged) return;
     setSelectedPet(pet);
+    setIsPetModalOpen(true);
   };
   {
     /* handle mouse dragging @Pet Detail */
   }
   return (
     <>
-      <div className="flex flex-col gap-[24px] md:pb-[80px]">
+      <div className="flex flex-col gap-[24px] pb-[100px] md:pb-[80px]">
         <div>
           <ActionProfileHeader
             title={booking?.contactName ?? "-"}
@@ -173,7 +176,7 @@ function BookingDetail() {
               </Link>
             }
             action={
-              <div className="flex flex-row gap-[8px]">
+              <div className="hidden md:flex flex-row gap-[8px]">
                 {statusConfig?.showReject && (
                   <ActionButton variant="secondary" onClick={openReject}>
                     Reject Booking
@@ -193,6 +196,7 @@ function BookingDetail() {
               </div>
             }
           />
+          {/* Hide Button on mobile size ^^^^^^^^ */}
         </div>
 
         <div className="flex flex-col bg-white gap-[24px] px-[16px] py-[24px] md:px-[80px] md:py-[40px]  rounded-2xl">
@@ -213,7 +217,7 @@ function BookingDetail() {
           <DetailLabel label="Pet(s)" value={booking?.pets?.length ?? "-"} />
           {booking?.pets && booking.pets.length > 0 ? (
             <>
-              <p className="text-gray-400 style-headline-4">Pet Detail</p>
+              <p className="text-gray-300 style-headline-4">Pet Detail</p>
               <div
                 ref={petListRef}
                 className={`flex gap-[12px] overflow-x-auto scrollbar-hide ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
@@ -263,72 +267,105 @@ function BookingDetail() {
           />
         </div>
       </div>
-      {isModalOpen && <ProfileModal onClose={() => setIsModalOpen(false)} />}
+
+      {/* Mobile Action Bar */}
+      {(statusConfig?.showReject || statusConfig?.buttonLabel) && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex gap-3 md:hidden z-40">
+          {statusConfig?.showReject && (
+            <ActionButton
+              variant="secondary"
+              onClick={openReject}
+              className="flex-1"
+            >
+              Reject Booking
+            </ActionButton>
+          )}
+          {statusConfig?.buttonLabel && (
+            <ActionButton
+              variant="primary"
+              onClick={openConfirm}
+              className={`flex-1 ${statusConfig?.isDisabled ? "pointer-events-none" : ""}`}
+            >
+              {statusConfig.buttonLabel}
+            </ActionButton>
+          )}
+        </div>
+      )}
+      {/* Mobile Action Bar */}
+
+      <ProfileModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
       {selectedPet && (
-        <PetModal pet={selectedPet} onClose={() => setSelectedPet(null)} />
+        <PetModal
+          pet={selectedPet}
+          open={isPetModalOpen}
+          onClose={() => {
+            setIsPetModalOpen(false);
+            setTimeout(() => setSelectedPet(null), 300); // รอ animation จบก่อน clear pet
+          }}
+        />
       )}
 
-      {isRejectModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl max-w-[400px] w-full">
-            <div className="border-b border-gray-200 px-[24px] py-[16px]">
-              <h4 className="style-headline-4">Reject Confirmation</h4>
-            </div>
-            <div className="p-[24px]">
-              <p className="style-body-2 text-gray-400 mb-[24px]">
-                Are you sure to reject this booking?
-              </p>
-              <div className="flex gap-[12px] justify-between">
-                <ActionButton
-                  variant="secondary"
-                  onClick={() => setIsRejectModalOpen(false)}
-                  disabled={isRejecting}
-                >
-                  Cancel
-                </ActionButton>
-                <ActionButton
-                  variant="primary"
-                  onClick={handleRejectBooking}
-                  disabled={isRejecting}
-                >
-                  {isRejecting ? "Rejecting..." : "Reject Booking"}
-                </ActionButton>
-              </div>
-            </div>
+      <BaseModal
+        open={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        className="!h-auto"
+      >
+        <div className="border-b border-gray-200 px-[24px] py-[16px]">
+          <h4 className="style-headline-4">Reject Confirmation</h4>
+        </div>
+        <div className="p-[24px]">
+          <p className="style-body-2 text-gray-400 mb-[24px]">
+            Are you sure to reject this booking?
+          </p>
+          <div className="flex gap-[12px] justify-between">
+            <ActionButton
+              variant="secondary"
+              onClick={() => setIsRejectModalOpen(false)}
+              disabled={isRejecting}
+            >
+              Cancel
+            </ActionButton>
+            <ActionButton
+              variant="primary"
+              onClick={handleRejectBooking}
+              disabled={isRejecting}
+            >
+              {isRejecting ? "Rejecting..." : "Reject Booking"}
+            </ActionButton>
           </div>
         </div>
-      )}
+      </BaseModal>
 
-      {isConfirmModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl max-w-[400px] w-full">
-            <div className="border-b border-gray-200 px-[24px] py-[16px]">
-              <h4 className="style-headline-4">Confirm Booking</h4>
-            </div>
-            <div className="p-[24px] gap-[24px]">
-              <p className="style-body-2 text-gray-400 mb-[24px]">
-                Are you sure to confirm this booking?
-              </p>
-              <div className="flex justify-between">
-                <ActionButton
-                  variant="secondary"
-                  onClick={() => setIsConFirmModal(false)}
-                  disabled={isConfirm}
-                >
-                  Cancel
-                </ActionButton>
-                <ActionButton
-                  variant="primary"
-                  onClick={handleConfirmBooking}
-                  disabled={isConfirm}
-                >
-                  {isConfirm ? "Confirming..." : "Confirm Booking"}
-                </ActionButton>
-              </div>
-            </div>
+      <BaseModal
+        open={isConfirmModal}
+        onClose={() => setIsConFirmModal(false)}
+        className="!h-auto"
+      >
+        <div className="border-b border-gray-200 px-[24px] py-[16px]">
+          <h4 className="style-headline-4">Confirm Booking</h4>
+        </div>
+        <div className="p-[24px] gap-[24px]">
+          <p className="style-body-2 text-gray-400 mb-[24px]">
+            Are you sure to confirm this booking?
+          </p>
+          <div className="flex justify-between">
+            <ActionButton
+              variant="secondary"
+              onClick={() => setIsConFirmModal(false)}
+              disabled={isConfirm}
+            >
+              Cancel
+            </ActionButton>
+            <ActionButton
+              variant="primary"
+              onClick={handleConfirmBooking}
+              disabled={isConfirm}
+            >
+              {isConfirm ? "Confirming..." : "Confirm Booking"}
+            </ActionButton>
           </div>
         </div>
-      )}
+      </BaseModal>
     </>
   );
 }
