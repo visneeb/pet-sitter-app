@@ -18,11 +18,11 @@ export default function FeatureCard({
   description,
 }: FeatureCardProps) {
   return (
-    <div className="flex flex-col gap-10 items-center px-6 max-w-sm">
+    <div className="flex flex-col gap-10 items-center px-6 ">
       <Image
         src={image}
         alt={alt}
-        className="w-72 h-72 object-contain rounded-full shrink-0"
+        className="w-50 h-50 md:w-72 md:h-72 object-contain rounded-full shrink-0"
       />
       <div className="flex flex-col gap-3 items-center">
         <p className="style-headline-3">

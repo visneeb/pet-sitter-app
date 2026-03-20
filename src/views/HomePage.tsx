@@ -11,11 +11,10 @@ import SearchBar from "@/components/home/SearchBar";
 import HeroSection from "@/components/home/HeroSection";
 import { PetSitterSearchProvider } from "@/contexts/PetSitterSearchContext";
 
-
 const servicesContainerClassName =
-  "flex flex-col items-center md:flex-row justify-between mx-auto max-w-[1064px] gap-24";
+  "flex flex-col items-center md:flex-row justify-between mx-auto max-w-[1064px] gap-24 px-4";
 const featuresContainerClassName =
-  "flex flex-col md:flex-row justify-center max-w-[1280px] mx-auto gap-8";
+  "flex flex-col md:flex-row justify-center max-w-[1280px] mx-auto gap-10 md:gap-4";
 
 export default function HomePage() {
   const { isMedium } = useScreenContext();
@@ -34,18 +33,13 @@ export default function HomePage() {
           </Suspense>
         </section>
       </div>
-      <section className="flex flex-col gap-20 md:gap-32 px-20 pt-10 md:p-20">
-        <h1
-          className={cn(
-            "flex text-center justify-center",
-            isMedium ? "style-headline-2" : "style-headline-3",
-          )}
-        >
+      <section className="flex flex-col gap-10 md:gap-32 px-4 md:px-20 pb-10 md:p-20">
+        <h1 className="flex text-center justify-center style-headline-3 md:style-headline-2 px-4 ">
           "Your Pets, Our Priority: Perfect Care, Anytime, Anywhere."
         </h1>
 
         <div className={servicesContainerClassName}>
-          <div className="flex flex-col gap-14 max-w-[504px]">
+          <div className="flex flex-col gap-6 md:gap-14 max-w-[504px]">
             {services.map((service) => (
               <ServiceCard
                 key={service.title}
@@ -55,6 +49,11 @@ export default function HomePage() {
               />
             ))}
           </div>
+          <div className="hidden md:block">
+          <Image src={PetImage} alt="Pet Image" className="object-cover" />
+          </div>
+        </div>
+        <div className="md:hidden block mb-10">
           <Image src={PetImage} alt="Pet Image" className="object-cover" />
         </div>
 
