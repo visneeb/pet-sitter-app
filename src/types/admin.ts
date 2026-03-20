@@ -121,3 +121,37 @@ export interface SitterReviewListResponse {
   limit: number;
   reviews: SitterReview[];
 }
+
+export interface GetSitterBookingParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface SitterBookingItem {
+  bookingId: number;
+  petOwnerName: string;
+  petCount: number;
+  status:
+    | "Waiting for confirm"
+    | "Waiting for service"
+    | "In service"
+    | "Success"
+    | "Canceled";
+  startTime: string;
+  endTime: string;
+  bookingDate: string;
+  duration: string;
+  totalPrice: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
+  note: string | null;
+}
+
+export interface SitterBookingListResponse {
+  bookings: SitterBookingItem[];
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  total: number;
+}

@@ -16,6 +16,7 @@ import { RejectConfirmModal } from "@/components/admin/pet-sitter/reject-confirm
 import { RejectionNote } from "@/components/pet-sitter/RejectionNote";
 import { StatusConfig } from "../../../../types/booking";
 import Review from "@/components/admin/pet-sitter/Review";
+import Booking from "@/components/admin/pet-sitter/Booking";
 
 const showApproveModal = () => {
   const dialog = document.getElementById(
@@ -143,7 +144,7 @@ export default function PetSitterLayout() {
               aria-label="Booking"
             />
             <article className="tab-content w-full min-w-0 rounded-b-xl bg-white p-4 md:p-6 lg:p-10">
-              Booking
+              <Booking />
             </article>
             <input
               type="radio"

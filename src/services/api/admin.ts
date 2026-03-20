@@ -1,15 +1,17 @@
 import { privateApi } from "./client";
 import type {
+  GetSitterBookingParams,
   GetOwnerListParams,
   GetSitterListParams,
   GetSitterReviewParams,
   OwnerListResponse,
   OwnerProfileResponse,
+  SitterBookingListResponse,
   SitterListResponse,
   SitterReviewListResponse,
   SitterProfileResponse,
 } from "@/types/admin";
-import { SitterStatus } from "@/constants/status";
+import type { BookingDetail } from "@/types/booking";
 
 export const adminApi = {
   getOwnerList: (
@@ -56,6 +58,29 @@ export const adminApi = {
       >(`/admin/pet-sitter/pending-update/${sitterId}`, {
         signal,
       })
+      .then((res) => res.data),
+
+  getSitterBooking: (
+    sitterId: string | number,
+    params: GetSitterBookingParams,
+    signal?: AbortSignal,
+  ): Promise<SitterBookingListResponse> =>
+    privateApi
+      .get<SitterBookingListResponse>(
+        `/admin/pet-sitter/bookings/${sitterId}`,
+        {
+          params,
+          signal,
+        },
+      )
+      .then((res) => res.data),
+
+  getSitterBookingDetail: (
+    bookingId: string | number,
+    signal?: AbortSignal,
+  ): Promise<BookingDetail> =>
+    privateApi
+      .get<BookingDetail>(`/admin/pet-sitter/booking/${bookingId}`, { signal })
       .then((res) => res.data),
 
   getSitterReview: (

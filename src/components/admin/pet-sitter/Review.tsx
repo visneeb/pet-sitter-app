@@ -4,7 +4,7 @@ import { ReviewCard } from "@/components/pet-sitter-detail";
 import ReviewCardSkeleton from "@/components/pet-sitter-detail/ReviewCardSkeleton";
 import { Pagination } from "@/components/ui/Pagination";
 import { Paw } from "@/decorations/Paw";
-import { useReviews } from "@/hooks/pet-sitter-detail/useReviews";
+import { useReviewList } from "@/hooks/admin/useReviewList";
 import { formatReviewDate } from "@/utils/dateFormat";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,14 +13,8 @@ function Review() {
   const params = useParams<{ sitterId: string }>();
   const sitterId = params.sitterId;
 
-  const [page, setPage] = useState(1);
-  useEffect(() => {
-    setPage(1);
-  }, [sitterId]);
-
-  const { reviews, totalPages, isLoading, error } = useReviews(sitterId, {
-    page,
-  });
+  const { reviews, totalPages, currentPage, isLoading, error, setPage } =
+    useReviewList(sitterId);
 
   return (
     <section>
@@ -61,7 +55,7 @@ function Review() {
             <div className="pt-10 pb-16 flex justify-center">
               <Pagination
                 totalPages={totalPages}
-                currentPage={page}
+                currentPage={currentPage}
                 onPageChange={setPage}
               />
             </div>

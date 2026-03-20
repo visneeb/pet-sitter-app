@@ -3,15 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { adminApi } from "@/services/api/admin";
-import type { SitterReview } from "@/types/admin";
+import type { SitterBookingItem } from "@/types/admin";
 
-export interface UseReviewListOptions {
+export interface UseBookingListOptions {
   limit?: number;
 }
 
-export interface UseReviewListResult {
-  reviews: SitterReview[];
-  totalReviews: number;
+export interface UseBookingListResult {
+  bookings: SitterBookingItem[];
+  totalBookings: number;
   totalPages: number;
   currentPage: number;
   isLoading: boolean;
@@ -19,18 +19,18 @@ export interface UseReviewListResult {
   setPage: (page: number) => void;
 }
 
-const DEFAULT_LIMIT = 5;
+const DEFAULT_LIMIT = 8;
 
-export function useReviewList(
+export function useBookingList(
   sitterId?: string | null,
-  options?: UseReviewListOptions,
+  options?: UseBookingListOptions,
   refreshKey?: number,
-): UseReviewListResult {
+): UseBookingListResult {
   const limit = options?.limit ?? DEFAULT_LIMIT;
   const [page, setPage] = useState(1);
-  const [state, setState] = useState<Omit<UseReviewListResult, "setPage">>({
-    reviews: [],
-    totalReviews: 0,
+  const [state, setState] = useState<Omit<UseBookingListResult, "setPage">>({
+    bookings: [],
+    totalBookings: 0,
     totalPages: 1,
     currentPage: 1,
     isLoading: false,
@@ -47,8 +47,8 @@ export function useReviewList(
         ...prev,
         isLoading: false,
         error: "Invalid pet sitter id",
-        reviews: [],
-        totalReviews: 0,
+        bookings: [],
+        totalBookings: 0,
         totalPages: 1,
         currentPage: 1,
       }));
@@ -57,19 +57,19 @@ export function useReviewList(
 
     const controller = new AbortController();
 
-    const fetchReviews = async () => {
+    const fetchBookings = async () => {
       try {
         setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-        const data = await adminApi.getSitterReview(
+        const data = await adminApi.getSitterBooking(
           sitterId,
           { page, limit },
           controller.signal,
         );
 
         setState({
-          reviews: Array.isArray(data.reviews) ? data.reviews : [],
-          totalReviews: data.totalReviews ?? 0,
+          bookings: Array.isArray(data.bookings) ? data.bookings : [],
+          totalBookings: data.total ?? 0,
           totalPages: data.totalPages ?? 1,
           currentPage: data.currentPage ?? page,
           isLoading: false,
@@ -86,12 +86,12 @@ export function useReviewList(
           error:
             error instanceof Error
               ? error.message
-              : "Failed to fetch sitter review list",
+              : "Failed to fetch sitter booking list",
         }));
       }
     };
 
-    fetchReviews();
+    fetchBookings();
 
     return () => {
       controller.abort();
@@ -103,6 +103,6 @@ export function useReviewList(
       ...state,
       setPage,
     }),
-    [state, setPage],
+    [state],
   );
 }

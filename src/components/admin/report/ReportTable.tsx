@@ -7,8 +7,6 @@ import ReportListTile from "./ReportList";
 import { REPORT_STATUS, ReportStatus } from "@/types/reportData";
 import { useRouter } from "next/navigation";
 
-
-
 const LIMIT_ITEMS = 10;
 const DEFAULT_PAGE = 1;
 
@@ -30,7 +28,7 @@ export default function ReportTable() {
   });
   return (
     <>
-      <header className="flex items-center justify-between mb-8">
+      <header className="flex items-center justify-between mb-6">
         <p className="style-headline-3">Report</p>
         <Select
           className="w-60 h-[48px] style-body-2 text-gray-400 font-normal"
