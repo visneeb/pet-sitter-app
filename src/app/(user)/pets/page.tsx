@@ -4,9 +4,6 @@ import { UserProfileHeader } from "@/components/profile/ProfileHeader";
 import Link from "next/link";
 
 export default function UserProfilePage() {
-  //   const handleCreatePet = () => {
-
-  //   };
 
   return (
     <>

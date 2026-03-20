@@ -121,6 +121,7 @@ export function BookingCard({ booking }: BookingCardProps) {
             petSitterId={booking.petSitterId}
             sitterName={booking.sitterName ?? ""}
             sitterImgUrl={booking.sitterImgUrl}
+            phoneNumber={booking.sitterPhone ?? ""}
           />
         </div>
       </div>

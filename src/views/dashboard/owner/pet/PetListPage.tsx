@@ -1,3 +1,9 @@
+import { PetList } from "@/components/owner/pet/petList";
+
 export default function PetListPage() {
-  return <div>PetsList from hook usePetList</div>;
+  return (
+    <div>
+      <PetList />
+    </div>
+  );
 }

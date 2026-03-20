@@ -48,7 +48,7 @@ export function BasePetCard(props: Props) {
       disabled={disabled}
       title={disabled ? disabledReason : undefined}
       className={cn(
-        "relative w-[240px] h-[240px] rounded-3xl border bg-white p-6 shadow-sm transition ",
+        "relative w-[240px] h-[240px] rounded-3xl border bg-white p-6 shadow-sm transition cursor-pointer",
         "flex flex-col items-center justify-center gap-3",
         isSelect && props.selected ? "border-orange-300" : "border-gray-200",
         disabled

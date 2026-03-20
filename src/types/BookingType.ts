@@ -60,12 +60,12 @@ export type OwnerBookingHistory = Pick<
   tradeName: string | null;
   sitterName: string | null;
   sitterImgUrl: string | undefined;
+  sitterPhone: string | null;
   pets: BookingPet[];
   review: BookingReview | null;
 };
 
-
-export interface SitterBookingList{
+export interface SitterBookingList {
   bookingId: number;
   petOwnerName: string;
   petCount: number;
