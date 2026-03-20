@@ -17,6 +17,7 @@ import type { PetSitterDetail } from "@/hooks/search/map/useSelectMaker";
 import useOsrmRoute, {
   type LatLngTuple as OsrmLatLngTuple,
 } from "@/hooks/map/useOsrmRoute";
+import { showCustomToast } from "../ui/toast/Toast";
 
 export interface MapControlsProps {
   readonly selectedMarker: PetSitterDetail | null;
@@ -28,7 +29,7 @@ export default function MapControls({
   selectedMarker,
   handleSelectPetSitter,
 }: Readonly<MapControlsProps>) {
-  const { userPosition, accuracy, loading, handleLocate } = useUserLocate();
+  const { userPosition, accuracy, loading, handleLocate, errorMessage } = useUserLocate();
   const { petSitters } = usePetSitterSearch();
   const [lockUserAndSitter, setLockUserAndSitter] = useState(false);
   const [routeEnabled, setRouteEnabled] = useState(false);
@@ -102,10 +103,18 @@ export default function MapControls({
       setLockUserAndSitter(true);
     }
     handleLocate();
+    if(errorMessage)
+      showCustomToast({
+        title: "Permission for location is required",
+        description: "Please grant permission for location to locate",
+        variant: "error",
+        position: "top-center",
+      });
   };
 
   return (
     <>
+    
       {/* Marker ตำแหน่งร้าน */}
       {petSitters.map((item) => {
         const position: [number, number] = [item.latitude, item.longitude];

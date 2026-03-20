@@ -1,7 +1,7 @@
 import Link from "next/link";
 import cn from "@/utils/cn";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "icon";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "icon";
 
 interface ActionButtonProps {
   variant: ButtonVariant;
