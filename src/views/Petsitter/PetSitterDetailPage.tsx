@@ -16,6 +16,7 @@ import { useReviews } from "@/hooks/pet-sitter-detail/useReviews";
 import type { Sitter } from "@/types/sitter";
 import { ExclamationCircleIcon } from "@/assets/icons/components";
 import dynamic from "next/dynamic";
+import GoogleMapsDirections from "@/components/routing-google-map/GoogleMapsDirections";
 
 const LeafletMap = dynamic(() => import("@/components/Map/LeafletMap"), {
   ssr: false,
@@ -29,8 +30,8 @@ function getCarouselImages(sitter: Sitter): CarouselImage[] {
   const urls = sitter.imgUrls?.length
     ? sitter.imgUrls
     : sitter.imgUrl
-    ? [sitter.imgUrl]
-    : [];
+      ? [sitter.imgUrl]
+      : [];
   return urls.map((src, i) => ({ src, alt: `Pet sitter image ${i + 1}` }));
 }
 
@@ -105,6 +106,16 @@ export default function PetSitterDetailPage() {
                 <Markdown>{sitter.description}</Markdown>
               </ContentSection>
 
+              {typeof sitter.latitude === "number" &&
+              typeof sitter.longitude === "number" ? (
+                <div>
+                  <GoogleMapsDirections
+                    destination={[sitter.latitude, sitter.longitude]}
+                    requestGeolocationOnClick
+                    buttonLabel="Open google maps"
+                  />
+                </div>
+              ) : null}
               <div className="relative h-[219px] w-full overflow-hidden rounded-2xl z-20">
                 {isMapReady && (
                   <LeafletMap
