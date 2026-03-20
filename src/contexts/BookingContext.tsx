@@ -37,7 +37,7 @@ type BookingContextValue = {
   setSitter: (
     sitterId: string,
     sitterName?: string,
-    acceptedTypes?: string[]
+    acceptedTypes?: string[],
   ) => void;
   setPets: (petIds: string[]) => void;
   togglePet: (petId: string) => void;
@@ -46,6 +46,8 @@ type BookingContextValue = {
   reset: () => void;
   canGoStep2: boolean;
   canGoStep3: boolean;
+  isBooked: boolean;
+  setIsBooked: (value: boolean) => void;
 };
 
 const initialState: BookingState = {
@@ -58,13 +60,10 @@ const initialState: BookingState = {
 
 const BookingContext = createContext<BookingContextValue | null>(null);
 
-export function BookingProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function BookingProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<BookingState>(initialState);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isBooked, setIsBooked] = useState(false);
 
   // โหลดข้อมูลจาก sessionStorage ตอนเปิดหน้า/refresh
   useEffect(() => {
@@ -76,7 +75,10 @@ export function BookingProvider({
         setState(parsed);
       }
     } catch (error) {
-      console.error("Failed to load booking context from sessionStorage:", error);
+      console.error(
+        "Failed to load booking context from sessionStorage:",
+        error,
+      );
     } finally {
       setIsHydrated(true);
     }
@@ -96,7 +98,7 @@ export function BookingProvider({
   const setSitter = (
     sitterId: string,
     sitterName?: string,
-    acceptedTypes?: string[]
+    acceptedTypes?: string[],
   ) => {
     setState((prev) => ({
       ...prev,
@@ -137,7 +139,7 @@ export function BookingProvider({
   // };
 
   const updateInfo = (
-    patch: Partial<BookingInfo> | ((prev: BookingInfo) => Partial<BookingInfo>)
+    patch: Partial<BookingInfo> | ((prev: BookingInfo) => Partial<BookingInfo>),
   ) => {
     setState((prev) => ({
       ...prev,
@@ -159,25 +161,28 @@ export function BookingProvider({
 
   const reset = () => {
     setState(initialState);
-
+    setIsBooked(false);
     try {
       sessionStorage.removeItem(STORAGE_KEY);
     } catch (error) {
-      console.error("Failed to clear booking context from sessionStorage:", error);
+      console.error(
+        "Failed to clear booking context from sessionStorage:",
+        error,
+      );
     }
   };
 
   const canGoStep2 = Boolean(
-    state.selectedSitterId && state.selectedPetIds.length > 0
+    state.selectedSitterId && state.selectedPetIds.length > 0,
   );
 
   const canGoStep3 = Boolean(
     canGoStep2 &&
-      state.info.startDate &&
-      state.info.endDate &&
-      state.info.startTime &&
-      state.info.endTime &&
-      state.info.durationHours
+    state.info.startDate &&
+    state.info.endDate &&
+    state.info.startTime &&
+    state.info.endTime &&
+    state.info.durationHours,
   );
 
   const value = useMemo<BookingContextValue>(
@@ -191,8 +196,10 @@ export function BookingProvider({
       reset,
       canGoStep2,
       canGoStep3,
+      isBooked,
+      setIsBooked,
     }),
-    [state, canGoStep2, canGoStep3]
+    [state, canGoStep2, canGoStep3],
   );
 
   return (
