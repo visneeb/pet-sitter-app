@@ -108,3 +108,4 @@ export function formatTransactionDate(createdAt: string) {
     year: "numeric",
   });
 }
+

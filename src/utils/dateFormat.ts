@@ -1,6 +1,16 @@
 const MONTH_ABBREV = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 /**
@@ -9,7 +19,7 @@ const MONTH_ABBREV = [
  * @returns Formatted string "Mon DD, YYYY" or empty string if invalid
  */
 export function formatReviewDate(
-  date: Date | string | number | null | undefined
+  date: Date | string | number | null | undefined,
 ): string {
   if (date == null) return "";
   const d = typeof date === "object" ? date : new Date(date);
@@ -26,7 +36,7 @@ export function formatReviewDate(
  * @returns Formatted string "DD Mon, YYYY" or empty string if invalid
  */
 export function formatDatePickerDisplay(
-  date: Date | string | number | null | undefined
+  date: Date | string | number | null | undefined,
 ): string {
   if (date == null) return "";
   const d = typeof date === "object" ? date : new Date(date);
@@ -35,4 +45,25 @@ export function formatDatePickerDisplay(
   const month = MONTH_ABBREV[d.getMonth()];
   const year = d.getFullYear();
   return `${day} ${month}, ${year}`;
+}
+
+export function formatBookingDateTime(
+  date: Date | string | number | null | undefined,
+): string {
+  if (date == null) return "";
+  const d = typeof date === "object" ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+
+  const weekday = d.toLocaleDateString("en-GB", { weekday: "short" });
+  const day = d.getDate();
+  const month = MONTH_ABBREV[d.getMonth()];
+  const year = d.getFullYear();
+  const time = d.toLocaleTimeString("en-US", {
+    // "11:03 AM"
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return `${weekday}, ${day} ${month} ${year}  |  ${time}`;
 }

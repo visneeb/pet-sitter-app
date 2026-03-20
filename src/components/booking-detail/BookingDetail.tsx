@@ -1,4 +1,4 @@
-import { MapMarkerIcon, EditIcon } from "@/assets/icons/components";
+import { EditIcon } from "@/assets/icons/components";
 import { OwnerBookingHistory } from "@/types/BookingType";
 import { ActionButton } from "../ui/Button";
 import {
@@ -7,6 +7,7 @@ import {
   formatTransactionDate,
 } from "@/utils/timeFormat";
 import { statusStyleMap } from "@/constants/status";
+import GoogleMapsDirections from "@/components/routing-google-map/GoogleMapsDirections";
 
 interface BookingDetailProps {
   booking: OwnerBookingHistory;
@@ -59,10 +60,16 @@ export function BookingDetail({
             {booking.tradeName ?? `Pet Sitter #${booking.petSitterId}`}
           </p>
         </div>
-        <ActionButton variant="ghost">
-          <MapMarkerIcon />
-          View Map
-        </ActionButton>
+        {booking.latitude && booking.longitude && (
+          <GoogleMapsDirections
+            buttonLabel="View Map"
+            variant="ghost"
+            requestGeolocationOnClick={true}
+            destination={
+              [Number(booking.latitude), Number(booking.longitude)] as const
+            }
+          />
+        )}
       </div>
 
       {/* Date & Time + Duration */}
@@ -122,4 +129,3 @@ export function BookingDetail({
     </div>
   );
 }
-

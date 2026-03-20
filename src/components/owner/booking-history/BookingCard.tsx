@@ -122,6 +122,7 @@ export function BookingCard({ booking }: BookingCardProps) {
             sitterName={booking.sitterName ?? ""}
             sitterImgUrl={booking.sitterImgUrl}
             phoneNumber={booking.sitterPhone ?? ""}
+            completedAt={booking.completedAt}
           />
         </div>
       </div>
