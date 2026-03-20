@@ -5,10 +5,12 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import { useBookingDateRangeHistory } from "@/hooks/booking-history/useBookingDateRangeHistory";
+import { useRouter } from "next/navigation";
 
 export default function PetSitterCalendar() {
   const { isMedium } = useScreenContext();
   const { events, ensureMonthLoaded } = useBookingDateRangeHistory();
+  const router = useRouter();
 
   return (
     <section className="flex flex-col gap-6 px-4 lg:p-0">
@@ -63,6 +65,10 @@ export default function PetSitterCalendar() {
             right: `dayGridMonth${isMedium ? ",timeGridWeek" : ""}`,
           }}
           events={events}
+          eventClick={(info) => {
+            const bookingId = info.event.id;
+            router.push(`/bookings/${bookingId}`);
+          }}
           datesSet={(arg) => {
             ensureMonthLoaded(arg.view.currentStart);
           }}

@@ -53,11 +53,11 @@ function addDays(date: Date, days: number): Date {
 
 function getStyle(status: string) {
   if (status === "Waiting for confirm") {
-    return "event-pink";
+    return "event-pink hover:opacity-75";
   } else if (["Waiting for service", "In service"].includes(status)) {
-    return "event-orange";
+    return "event-orange hover:opacity-75";
   } else if (status === "Success") {
-    return "event-green";
+    return "event-green hover:opacity-75";
   }
 
   return "";
@@ -190,7 +190,7 @@ export function useBookingDateRangeHistory(): UseBookingDateRangeHistoryResult {
         title: b.ownerName,
         start: b.startTime,
         end: b.endTime,
-        className: [getStyle(b.status)],
+        className: [getStyle(b.status), "hover:cursor-pointer"],
       })),
     [bookings],
   );
