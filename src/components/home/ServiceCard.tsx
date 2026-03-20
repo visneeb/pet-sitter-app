@@ -13,10 +13,10 @@ export default function ServiceCard({
 }: ServiceCardProps) {
   return (
     <div className="flex gap-3">
-      <Star className={`w-6 h-6 shrink-0 ${iconColor}`} />
+      <Star className={`w-6 h-6 rotate-35 shrink-0 ${iconColor}`} />
       <div className="flex flex-col gap-3">
         <h3 className="style-headline-3">{title}</h3>
-        <p className="style-body-1">{description}</p>
+        <p className="style-body-2 md:style-body-1 text-gray-500">{description}</p>
       </div>
     </div>
   );

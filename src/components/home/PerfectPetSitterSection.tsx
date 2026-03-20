@@ -29,13 +29,13 @@ export default function PerfectPetSitterSection() {
       <FullEllipse className={fullEllipseClassName} />
       <Star className={starClassName} />
 
-      <div className="relative z-10 flex flex-col items-center gap-8 mx-4">
-        <h2 className="style-headline-2 text-center text-black mt-12">
+      <div className="relative z-10 flex flex-col items-center gap-8 mx-4 w-full">
+        <h2 className="style-headline-2 md:style-headline-1 text-center text-black mt-12">
           Perfect Pet Sitter
           <br />
           For Your Pet
         </h2>
-        <div className="flex flex-col md:flex-row gap-4 w-full max-w-sm md:max-w-md">
+        <div className="flex flex-col md:flex-row gap-4 w-full px-4 md:max-w-md">
           <NavigationButton
             variant="secondary"
             href="/auth/register"
@@ -46,7 +46,7 @@ export default function PerfectPetSitterSection() {
           <NavigationButton
             variant="primary"
             href="/search"
-            className="w-full min-w-[168px]"
+            className="w-full md:min-w-[168px]"
           >
             Find A Pet Sitter
           </NavigationButton>
