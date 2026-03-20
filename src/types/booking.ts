@@ -41,6 +41,8 @@ export type LabelValueProps = {
   label: string;
   value: string | number;
   className?: string;
+  labelClassName?: string;
+  valueClassName?: string;
 };
 
 export type StatusConfig = {
