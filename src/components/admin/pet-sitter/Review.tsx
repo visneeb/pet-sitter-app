@@ -31,7 +31,7 @@ function Review() {
           <ReviewCardSkeleton isLast />
         </article>
       ) : reviews.length === 0 ? (
-        <article className="flex flex-col gap-4 items-center justify-center py-12 px-6 rounded-xl">
+        <article className="flex flex-col gap-4 items-center justify-center p-12 rounded-xl">
           <Paw className="size-16 text-pink-500" />
           <h4 className="style-headline-4 text-gray-500">
             No Reviews for this pet sitter
