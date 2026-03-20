@@ -15,6 +15,7 @@ import { useState } from "react";
 import { RejectConfirmModal } from "@/components/admin/pet-sitter/reject-confirmation/RejectConfirmModal";
 import { RejectionNote } from "@/components/pet-sitter/RejectionNote";
 import { StatusConfig } from "../../../../types/booking";
+import Review from "@/components/admin/pet-sitter/Review";
 
 const showApproveModal = () => {
   const dialog = document.getElementById(
@@ -151,7 +152,7 @@ export default function PetSitterLayout() {
               aria-label="Reviews"
             />
             <article className="tab-content w-full min-w-0 rounded-b-xl bg-white p-4 md:p-6 lg:p-10">
-              Reviews
+              <Review />
             </article>
           </section>
         </div>

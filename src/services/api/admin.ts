@@ -2,9 +2,11 @@ import { privateApi } from "./client";
 import type {
   GetOwnerListParams,
   GetSitterListParams,
+  GetSitterReviewParams,
   OwnerListResponse,
   OwnerProfileResponse,
   SitterListResponse,
+  SitterReviewListResponse,
   SitterProfileResponse,
 } from "@/types/admin";
 import { SitterStatus } from "@/constants/status";
@@ -52,6 +54,18 @@ export const adminApi = {
       .get<
         Omit<SitterProfileResponse, "sitter" | "hasPendingUpdate" | "status">
       >(`/admin/pet-sitter/pending-update/${sitterId}`, {
+        signal,
+      })
+      .then((res) => res.data),
+
+  getSitterReview: (
+    sitterId: string | number,
+    params: GetSitterReviewParams,
+    signal?: AbortSignal,
+  ): Promise<SitterReviewListResponse> =>
+    privateApi
+      .get<SitterReviewListResponse>(`/admin/pet-sitter/reviews/${sitterId}`, {
+        params,
         signal,
       })
       .then((res) => res.data),

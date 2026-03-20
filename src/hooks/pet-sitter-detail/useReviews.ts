@@ -10,7 +10,7 @@ export interface UseReviewsParams {
 
 export function useReviews(
   sitterId: string | null | undefined,
-  params: UseReviewsParams = {}
+  params: UseReviewsParams = {},
 ) {
   const [reviews, setReviews] = useState<ReviewApi[]>([]);
   const [totalPages, setTotalPages] = useState(1);

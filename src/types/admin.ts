@@ -97,3 +97,27 @@ export interface SitterProfileResponse {
   status: SitterStatus;
   adminNote?: string | null;
 }
+
+export interface GetSitterReviewParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface SitterReview {
+  readonly id: number;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  reviewer: {
+    name: string;
+    profileImgUrl?: string;
+  };
+}
+
+export interface SitterReviewListResponse {
+  totalReviews: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  reviews: SitterReview[];
+}
