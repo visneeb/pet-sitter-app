@@ -100,13 +100,19 @@ function BookingDetail() {
     if (isConfirm) return;
     setIsConFirm(true);
     try {
-      await bookingApi.confirmBooking(bookingId);
+      const status = booking?.status;
+      if (status === "Waiting for confirm") {
+        await bookingApi.confirmBooking(bookingId);
+      } else if (status === "Waiting for service") {
+        await bookingApi.startService(bookingId);
+      } else if (status === "In service") {
+        await bookingApi.markAsSuccess(bookingId);
+      }
       await refetch();
       setIsConFirmModal(false);
-      router.push("/bookings");
     } catch (error) {
-      console.error("Failed to confirm booking", error);
-      alert("Failed to confirm booking. Please try again.");
+      console.error("Failed to update booking status", error);
+      alert("Failed to update booking. Please try again.");
     } finally {
       setIsConFirm(false);
     }
@@ -184,10 +190,18 @@ function BookingDetail() {
                 )}
                 {statusConfig?.buttonLabel && (
                   <ActionButton
-                    variant="primary"
+                    variant={
+                      statusConfig?.isDisabled &&
+                      statusConfig?.buttonLabel === "Success"
+                        ? "secondary"
+                        : "primary"
+                    }
                     onClick={openConfirm}
                     className={
-                      statusConfig?.isDisabled ? "pointer-events-none" : ""
+                      statusConfig?.isDisabled &&
+                      statusConfig?.buttonLabel === "Success"
+                        ? "pointer-events-none"
+                        : ""
                     }
                   >
                     {statusConfig.buttonLabel}
@@ -282,9 +296,19 @@ function BookingDetail() {
           )}
           {statusConfig?.buttonLabel && (
             <ActionButton
-              variant="primary"
+              variant={
+                statusConfig?.isDisabled &&
+                statusConfig?.buttonLabel === "Success"
+                  ? "secondary"
+                  : "primary"
+              }
               onClick={openConfirm}
-              className={`flex-1 ${statusConfig?.isDisabled ? "pointer-events-none" : ""}`}
+              className={`flex-1 ${
+                statusConfig?.isDisabled &&
+                statusConfig?.buttonLabel === "Success"
+                  ? "pointer-events-none"
+                  : ""
+              }`}
             >
               {statusConfig.buttonLabel}
             </ActionButton>
@@ -308,7 +332,7 @@ function BookingDetail() {
       <BaseModal
         open={isRejectModalOpen}
         onClose={() => setIsRejectModalOpen(false)}
-        className="!h-auto"
+        className="!h-auto w-[400px]"
       >
         <div className="border-b border-gray-200 px-[24px] py-[16px]">
           <h4 className="style-headline-4">Reject Confirmation</h4>
@@ -339,14 +363,23 @@ function BookingDetail() {
       <BaseModal
         open={isConfirmModal}
         onClose={() => setIsConFirmModal(false)}
-        className="!h-auto"
+        className="!h-auto w-[400px]"
       >
         <div className="border-b border-gray-200 px-[24px] py-[16px]">
-          <h4 className="style-headline-4">Confirm Booking</h4>
+          <h4 className="style-headline-4">
+            {booking?.status === "Waiting for confirm" && "Confirm Booking"}
+            {booking?.status === "Waiting for service" && "Start Service"}
+            {booking?.status === "In service" && "Complete Booking"}
+          </h4>
         </div>
         <div className="p-[24px] gap-[24px]">
           <p className="style-body-2 text-gray-400 mb-[24px]">
-            Are you sure to confirm this booking?
+            {booking?.status === "Waiting for confirm" &&
+              "Are you sure to confirm this booking?"}
+            {booking?.status === "Waiting for service" &&
+              "Are you sure to start this service?"}
+            {booking?.status === "In service" &&
+              "Are you sure to mark this booking as complete?"}
           </p>
           <div className="flex justify-between">
             <ActionButton
@@ -361,7 +394,9 @@ function BookingDetail() {
               onClick={handleConfirmBooking}
               disabled={isConfirm}
             >
-              {isConfirm ? "Confirming..." : "Confirm Booking"}
+              {isConfirm
+                ? "Processing..."
+                : (statusConfig?.buttonLabel ?? "Confirm")}
             </ActionButton>
           </div>
         </div>

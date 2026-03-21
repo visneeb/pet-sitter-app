@@ -17,7 +17,6 @@ const useBookingStatus = (status: BookingStatus, endTime: string) => {
       buttonLabel: "In Service",
       showReject: false,
       nextStatus: "In service",
-      isDisabled: true,
     },
     "In service": {
       label: "In service",

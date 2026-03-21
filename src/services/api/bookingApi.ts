@@ -53,6 +53,14 @@ export const bookingApi = {
         status: "Success",
       })
       .then((res) => res.data),
+
+  startService: (bookingId: number): Promise<BookingDetail> =>
+    privateApi
+      .patch(`/pet-sitter/booking/${bookingId}/status`, {
+        status: "In service",
+      })
+      .then((res) => res.data),
+
   create: (data: any) =>
     privateApi.post("/bookings", data).then((res) => res.data),
 };
