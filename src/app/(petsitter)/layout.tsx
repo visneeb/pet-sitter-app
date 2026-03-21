@@ -3,26 +3,33 @@ import { petsitterSidebarItems } from "@/config/sidebar/petsitter";
 import NavbarPetSitter from "@/components/common/nav-bar/NavbarPetSitter";
 import { SidebarLogout } from "@/components/ui/sidebar/SidebarLogout";
 import { SidebarHeader } from "@/components/ui/sidebar/SidebarHeader";
+import { BookingIndicator } from "@/components/ui/sidebar/BookingIndicator";
 
 export default function PetSitterLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const sidebarItems = petsitterSidebarItems.map((item) =>
+    item.href === "/bookings"
+      ? { ...item, indicator: <BookingIndicator /> }
+      : item,
+  );
+
   return (
     <div className="h-full bg-gray-100 text-gray-900 style-body-1">
       <div className="flex flex-col lg:flex-row">
         <div className="flex flex-col w-full lg:hidden">
           <NavbarPetSitter />
           <Sidebar
-            items={petsitterSidebarItems}
+            items={sidebarItems}
             header={<SidebarHeader role="petsitter" />}
             role="petsitter"
             footer={<SidebarLogout role="petsitter" />}
           />
         </div>
         <Sidebar
-          items={petsitterSidebarItems}
+          items={sidebarItems}
           header={<SidebarHeader role="petsitter" />}
           role="petsitter"
           footer={<SidebarLogout role="petsitter" />}

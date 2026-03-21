@@ -41,10 +41,12 @@ export function RegisterFields() {
         />
       </div>
       <div className="w-full">
-        <Submit disabled={isSubmitting} className="w-full">
-          {isSubmitting
-            ? "Creating account..."
-            : `Register as ${role === "owner" ? "Owner" : "Sitter"}`}
+        <Submit
+          disabled={isSubmitting}
+          className="w-full"
+          loadingText="Creating account..."
+        >
+          {`Register as ${role === "owner" ? "Owner" : "Sitter"}`}
         </Submit>
       </div>
     </>

@@ -80,7 +80,7 @@ export default function Sidebar({
                 `}
               >
                 <span
-                  className={`transition-colors ${
+                  className={` transition-colors ${
                     role === "admin"
                       ? isActive
                         ? roleStyles[role].activeText
@@ -94,7 +94,7 @@ export default function Sidebar({
                 </span>
 
                 <span
-                  className={`transition-colors ${
+                  className={`flex flex-row items-center justify-center gap-1 transition-colors ${
                     role === "admin"
                       ? isActive
                         ? roleStyles[role].activeText
@@ -105,6 +105,7 @@ export default function Sidebar({
                   }`}
                 >
                   {item.label}
+                  {item.indicator}
                 </span>
               </Link>
             );
