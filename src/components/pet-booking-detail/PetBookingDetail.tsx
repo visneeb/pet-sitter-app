@@ -75,6 +75,9 @@ function BookingDetail() {
   const ModalHandling = () => {
     setIsModalOpen(true);
   };
+  const isDisabled = statusConfig?.isDisabled ?? false;
+  const isSuccess =
+    statusConfig?.isDisabled && statusConfig?.buttonLabel === "Success";
 
   if (isLoading) return <div>Loading...</div>;
   if (error)
@@ -190,19 +193,10 @@ function BookingDetail() {
                 )}
                 {statusConfig?.buttonLabel && (
                   <ActionButton
-                    variant={
-                      statusConfig?.isDisabled &&
-                      statusConfig?.buttonLabel === "Success"
-                        ? "secondary"
-                        : "primary"
-                    }
+                    disabled={isDisabled}
+                    variant={isSuccess ? "secondary" : "primary"}
                     onClick={openConfirm}
-                    className={
-                      statusConfig?.isDisabled &&
-                      statusConfig?.buttonLabel === "Success"
-                        ? "pointer-events-none"
-                        : ""
-                    }
+                    className={isSuccess ? "pointer-events-none" : ""}
                   >
                     {statusConfig.buttonLabel}
                   </ActionButton>
@@ -296,19 +290,10 @@ function BookingDetail() {
           )}
           {statusConfig?.buttonLabel && (
             <ActionButton
-              variant={
-                statusConfig?.isDisabled &&
-                statusConfig?.buttonLabel === "Success"
-                  ? "secondary"
-                  : "primary"
-              }
+              disabled={isDisabled}
+              variant={isSuccess ? "secondary" : "primary"}
               onClick={openConfirm}
-              className={`flex-1 ${
-                statusConfig?.isDisabled &&
-                statusConfig?.buttonLabel === "Success"
-                  ? "pointer-events-none"
-                  : ""
-              }`}
+              className={`flex-1 ${isSuccess ? "pointer-events-none" : ""}`}
             >
               {statusConfig.buttonLabel}
             </ActionButton>

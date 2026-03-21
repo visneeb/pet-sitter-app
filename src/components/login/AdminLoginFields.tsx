@@ -29,8 +29,12 @@ export function LoginFields() {
         />
       </div>
       <div className="w-full">
-        <Submit disabled={isSubmitting} className="w-full">
-          {isSubmitting ? "Logging in..." : "Login"}
+        <Submit
+          disabled={isSubmitting}
+          className="w-full"
+          loadingText="Logging in..."
+        >
+          Login
         </Submit>
       </div>
     </>
