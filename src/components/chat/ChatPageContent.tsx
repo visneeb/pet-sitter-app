@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import ChatMain from "@/components/chat/ChatMain";
 import { useAuth } from "@/contexts/AuthContext";
-import Loading from "@/components/common/loading/loading";
+import ChatPageSkeleton from "@/components/chat/ChatPageSkeleton";
 import { chatApi } from "@/services/api/chatApi";
 import chatService, { ChatMessage } from "@/services/chatService";
 import { useChatUnread } from "@/contexts/ChatUnreadContext";
@@ -224,7 +224,7 @@ export default function ChatPageContent({
   const isAuthReady = !loading && !!user && canAccessChat(user.role);
 
   if (!isAuthReady || isConversationsLoading) {
-    return <Loading />;
+    return <ChatPageSkeleton />;
   }
 
   return (

@@ -4,7 +4,8 @@ import { CloseIcon } from "@/assets/icons/components";
 import type { Conversation } from "@/components/chat/ChatPageContent";
 import { Paw } from "@/decorations/Paw";
 import MessageList from "./MessageList";
-import { useChat } from  "@/hooks/chat/useChat";
+import Loading from "@/components/common/loading/loading";
+import { useChat } from "@/hooks/chat/useChat";
 import { useAuth } from "@/contexts/AuthContext";
 type ChatMainProps = {
   conversation: Conversation | null;
@@ -14,7 +15,7 @@ type ChatMainProps = {
 export default function ChatMain({ conversation, onClose }: ChatMainProps) {
   const { user } = useAuth();
   const currentUserId = user?.id ?? null;
-  const { messages, sendMessage } = useChat({
+  const { messages, sendMessage, isLoading } = useChat({
     conversationId: conversation?.id ?? null,
     currentUserId,
   });
@@ -58,10 +59,14 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
       <div className="flex min-h-0 flex-1 flex-col">
         {conversation ? (
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden py-2 px-2">
-          <MessageList
-            messages={messages}
-            currentUserId={currentUserId}
-          />
+            {isLoading ? (
+              <Loading className="min-h-[200px]" />
+            ) : (
+              <MessageList
+                messages={messages}
+                currentUserId={currentUserId}
+              />
+            )}
           </div>
         ) : (
           <div className="flex flex-1 flex-col justify-center">

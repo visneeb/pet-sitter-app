@@ -17,13 +17,17 @@ type UseChatParams = {
 
 export function useChat({ conversationId, currentUserId }: UseChatParams) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const conversationIdStr =
     conversationId != null ? String(conversationId) : null;
 
   // ✅ No connect/disconnect here — ChatUnreadProvider owns the socket lifecycle
 
   useEffect(() => {
-    if (!conversationIdStr) return;
+    if (!conversationIdStr) {
+      setIsLoading(false);
+      return;
+    }
 
     let cancelled = false;
 
@@ -32,6 +36,7 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
 
     // Fetch message history
     setMessages([]);
+    setIsLoading(true);
     chatApi
       .getConversationMessages(conversationIdStr)
       .then((data) => {
@@ -44,6 +49,7 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
           createdAt: msg.createdAt,
         }));
         setMessages(initialMessages);
+        setIsLoading(false);
 
         // Mark latest message as read if it's from someone else
         const latest = initialMessages[initialMessages.length - 1];
@@ -53,6 +59,7 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
       })
       .catch((error) => {
         console.error("Failed to load conversation messages:", error);
+        if (!cancelled) setIsLoading(false);
       });
 
     // Listen for incoming messages in this room
@@ -89,5 +96,5 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
     chatService.sendMessage({ conversationId: conversationIdStr, text: trimmed });
   };
 
-  return { messages, sendMessage };
+  return { messages, sendMessage, isLoading };
 }
