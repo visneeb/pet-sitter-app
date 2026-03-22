@@ -1,8 +1,11 @@
-
-
 "use client";
 
 import React from "react";
+import {
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+} from "@stripe/react-stripe-js";
 import { WalletIcon, CreditCardIcon } from "@/assets/icons/components";
 import { Paw } from "@/decorations/Paw";
 import { ActionButton } from "@/components/ui/Button";
@@ -13,20 +16,26 @@ import {
   type PaymentMethod,
 } from "@/lib/validations/paymentValidation";
 
+const elementOptions = {
+  style: {
+    base: {
+      fontSize: "14px",
+      color: "#1a1a1a",
+      fontFamily: "inherit",
+      "::placeholder": { color: "#9ca3af" },
+    },
+    invalid: { color: "#ef4444" },
+  },
+};
+
 type Props = {
   paymentMethod: PaymentMethod;
   cardName: string;
-  cardNumber: string;
-  expiryDate: string;
-  cvv: string;
   loading?: boolean;
   isConfirmOpen?: boolean;
 
   onChangePaymentMethod: (value: PaymentMethod) => void;
   onChangeCardName: (value: string) => void;
-  onChangeCardNumber: (value: string) => void;
-  onChangeExpiryDate: (value: string) => void;
-  onChangeCvv: (value: string) => void;
 
   onBack: () => void;
   onOpenConfirmModal: () => void;
@@ -35,51 +44,27 @@ type Props = {
 export function BookingPaymentStep({
   paymentMethod,
   cardName,
-  cardNumber,
-  expiryDate,
-  cvv,
   loading = false,
   isConfirmOpen = false,
   onChangePaymentMethod,
   onChangeCardName,
-  onChangeCardNumber,
-  onChangeExpiryDate,
-  onChangeCvv,
   onBack,
   onOpenConfirmModal,
 }: Props) {
   const [errors, setErrors] = React.useState({
     cardName: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
   });
 
   const handleClickSubmit = () => {
-    const nextErrors = validatePaymentForm({
-      paymentMethod,
-      cardName,
-      cardNumber,
-      expiryDate,
-      cvv,
-    });
-
-    setErrors(nextErrors);
-
-    if (hasPaymentErrors(nextErrors)) return;
-
+    if (paymentMethod === "credit_card" && !cardName.trim()) {
+      setErrors({ cardName: "Please enter cardholder name" });
+      return;
+    }
+    setErrors({ cardName: "" });
     onOpenConfirmModal();
   };
 
-  const canSubmit =
-    paymentMethod === "cash"
-      ? true
-      : Boolean(
-          cardName.trim() &&
-            cardNumber.trim() &&
-            expiryDate.trim() &&
-            cvv.trim(),
-        );
+  const canSubmit = paymentMethod === "cash" ? true : Boolean(cardName.trim());
 
   return (
     <div
@@ -120,6 +105,7 @@ export function BookingPaymentStep({
 
         {paymentMethod === "credit_card" ? (
           <div className="grid max-w-md gap-5">
+            {/* Card Name — input ปกติ */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">
                 Name on Card
@@ -135,48 +121,32 @@ export function BookingPaymentStep({
               )}
             </div>
 
+            {/* Card Number — Stripe Element */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">
                 Card Number
               </label>
-              <Input
-                placeholder="1234 5678 9012 3456"
-                value={cardNumber}
-                error={errors.cardNumber}
-                onChange={(e) => onChangeCardNumber(e.target.value)}
-              />
-              {errors.cardNumber && (
-                <p className="text-sm text-red-500">{errors.cardNumber}</p>
-              )}
+              <div className="rounded-lg border border-gray-300 bg-white px-3 py-3 focus-within:border-orange-500">
+                <CardNumberElement options={elementOptions} />
+              </div>
             </div>
 
+            {/* Expiry + CVC — Stripe Elements */}
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700">
                   Expiry Date
                 </label>
-                <Input
-                  placeholder="MM/YY"
-                  value={expiryDate}
-                  error={errors.expiryDate}
-                  onChange={(e) => onChangeExpiryDate(e.target.value)}
-                />
-                {errors.expiryDate && (
-                  <p className="text-sm text-red-500">{errors.expiryDate}</p>
-                )}
+                <div className="rounded-lg border border-gray-300 bg-white px-3 py-3 focus-within:border-orange-500">
+                  <CardExpiryElement options={elementOptions} />
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700">CVV</label>
-                <Input
-                  placeholder="123"
-                  value={cvv}
-                  error={errors.cvv}
-                  onChange={(e) => onChangeCvv(e.target.value)}
-                />
-                {errors.cvv && (
-                  <p className="text-sm text-red-500">{errors.cvv}</p>
-                )}
+                <div className="rounded-lg border border-gray-300 bg-white px-3 py-3 focus-within:border-orange-500">
+                  <CardCvcElement options={elementOptions} />
+                </div>
               </div>
             </div>
           </div>

@@ -15,6 +15,12 @@ import { BookingPaymentStep } from "@/components/booking/BookingPaymentStep";
 import Modal from "@/components/ui/Modal";
 import { bookingApi } from "@/services/api/bookingApi";
 import { calcBookingTotal } from "@/domain/booking/pricing";
+import {
+  useStripe,
+  useElements,
+  CardNumberElement,
+} from "@stripe/react-stripe-js";
+import { paymentApi } from "@/services/api/paymentApi";
 
 const PAGE_SIZE = 6;
 const CONFIRM_MODAL_ID = "confirm-booking-modal";
@@ -31,9 +37,6 @@ export default function BookingPage() {
     "credit_card" | "cash"
   >("credit_card");
   const [cardName, setCardName] = React.useState("");
-  const [cardNumber, setCardNumber] = React.useState("");
-  const [expiryDate, setExpiryDate] = React.useState("");
-  const [cvv, setCvv] = React.useState("");
   const [submittingPayment, setSubmittingPayment] = React.useState(false);
 
   const [openCreate, setOpenCreate] = React.useState(false);
@@ -46,6 +49,9 @@ export default function BookingPage() {
   const [page, setPage] = React.useState(1);
 
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+
+  const stripe = useStripe();
+  const elements = useElements();
 
   const fetchPets = React.useCallback(async () => {
     try {
@@ -211,10 +217,7 @@ export default function BookingPage() {
       setSubmittingPayment(true);
 
       const totalPrice = calcBookingTotal(hours, selectedPetIds.length);
-
-      if (!startTime || !endTime) {
-        throw new Error("Missing booking time.");
-      }
+      if (!startTime || !endTime) throw new Error("Missing booking time.");
 
       const payload = {
         pet_sitter_id: Number(state.selectedSitterId),
@@ -229,6 +232,38 @@ export default function BookingPage() {
       };
 
       const response = await bookingApi.create(payload);
+      const bookingId = response.bookingId;
+
+      if (paymentMethod === "cash") {
+        await paymentApi.createCashTransaction(bookingId);
+        setIsConfirmOpen(false);
+        setLatestBooking(response);
+        setIsSuccessOpen(true);
+        setIsBooked(true);
+        return;
+      }
+
+      if (!stripe || !elements) throw new Error("Stripe not loaded");
+
+      const { clientSecret } = await paymentApi.createCardIntent(
+        bookingId,
+        totalPrice,
+      );
+
+      const { error: confirmError } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: elements.getElement(CardNumberElement)!,
+            billing_details: { name: cardName },
+          },
+        },
+      );
+
+      if (confirmError) {
+        alert(confirmError.message);
+        return;
+      }
 
       setIsConfirmOpen(false);
       setLatestBooking(response);
@@ -241,7 +276,6 @@ export default function BookingPage() {
       setSubmittingPayment(false);
     }
   };
-
   const handlePetCreated = async () => {
     const latestPets = await fetchPets();
     const newTotalItems = latestPets.length + 1;
@@ -311,16 +345,10 @@ export default function BookingPage() {
               <BookingPaymentStep
                 paymentMethod={paymentMethod}
                 cardName={cardName}
-                cardNumber={cardNumber}
-                expiryDate={expiryDate}
-                cvv={cvv}
                 loading={submittingPayment}
                 isConfirmOpen={isConfirmOpen}
                 onChangePaymentMethod={setPaymentMethod}
                 onChangeCardName={setCardName}
-                onChangeCardNumber={setCardNumber}
-                onChangeExpiryDate={setExpiryDate}
-                onChangeCvv={setCvv}
                 onBack={handleBackToInformation}
                 onOpenConfirmModal={handleOpenConfirmModal}
               />

@@ -21,6 +21,7 @@ interface BookingCardFooterProps {
   sitterImgUrl?: string | null;
   phoneNumber: string;
   completedAt: string | null;
+  onReviewSuccess?: () => void;
 }
 
 const statusMessageMap: Record<BookingStatus, string> = {
@@ -40,6 +41,7 @@ export function BookingCardFooter({
   sitterImgUrl,
   phoneNumber,
   completedAt,
+  onReviewSuccess,
 }: BookingCardFooterProps) {
   const router = useRouter();
   const isSuccess = status === "Success";
@@ -120,7 +122,10 @@ export function BookingCardFooter({
         open={isReviewOpen}
         bookingId={bookingId}
         onClose={() => setIsReviewOpen(false)}
-        onSuccess={() => setIsReviewOpen(false)}
+        onSuccess={() => {
+          setIsReviewOpen(false);
+          onReviewSuccess?.();
+        }}
       />
       <ReportModal
         open={isReportOpen}

@@ -15,6 +15,7 @@ import { bookingApi } from "@/services/api/bookingApi";
 
 interface BookingCardProps {
   booking: OwnerBookingHistory;
+  onRefresh?: () => void;
 }
 
 const statusBorderMap: Record<BookingStatus, string> = {
@@ -25,7 +26,7 @@ const statusBorderMap: Record<BookingStatus, string> = {
   Canceled: "border-gray-200",
 };
 
-export function BookingCard({ booking }: BookingCardProps) {
+export function BookingCard({ booking, onRefresh }: BookingCardProps) {
   const [currentStartTime, setCurrentStartTime] = useState(booking.startTime);
   const [currentEndTime, setCurrentEndTime] = useState(booking.endTime);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -88,6 +89,9 @@ export function BookingCard({ booking }: BookingCardProps) {
   const confirm: ModalAction[] = [
     { label: "Confirm", type: "submit", variant: "primary" },
   ];
+  const handleReviewSuccess = async () => {
+    await onRefresh?.();
+  };
 
   return (
     <>
@@ -123,6 +127,7 @@ export function BookingCard({ booking }: BookingCardProps) {
             sitterImgUrl={booking.sitterImgUrl}
             phoneNumber={booking.sitterPhone ?? ""}
             completedAt={booking.completedAt}
+            onReviewSuccess={handleReviewSuccess}
           />
         </div>
       </div>

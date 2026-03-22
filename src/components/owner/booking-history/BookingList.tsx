@@ -39,7 +39,11 @@ export function BookingList() {
   return (
     <div className="flex flex-col gap-4">
       {paginatedBookings.map((booking) => (
-        <BookingCard key={booking.bookingId} booking={booking} />
+        <BookingCard
+          key={booking.bookingId}
+          booking={booking}
+          onRefresh={refetch}
+        />
       ))}
       <Pagination
         totalPages={totalPages}

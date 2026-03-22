@@ -48,7 +48,7 @@ export function BookingDetail({
           Booking date: {formatTransactionDate(booking.createdAt)}
         </p>
         <p className="style-body-2 font-normal text-gray-300">
-          Transaction No. : {booking.bookingId}
+          Transaction No. : {booking.transactionId}
         </p>
       </div>
 
