@@ -2,12 +2,14 @@
 import Link from "next/link";
 import { CommentsAltIcon } from "@/assets/icons/components/icons";
 import { useProfileImg } from "@/hooks/image/useProfileImg";
+import { useChatUnread } from "@/contexts/ChatUnreadContext";
 
 import Image from "next/image";
 import { UserRound } from "lucide-react";
 
 export default function NavbarPetSitter() {
   const { profile, loading } = useProfileImg();
+  const { unreadTotal } = useChatUnread();
   return (
     <div
       className={`relative flex items-center justify-between bg-white w-full style-body-2 h-20 lg:px-15 lg:py-4 px-4 py-3`}
@@ -36,9 +38,14 @@ export default function NavbarPetSitter() {
       </div>
       <Link
         href="/chat"
-        className="flex items-center justify-center rounded-full bg-gray-100 w-10 h-10 hover:bg-gray-200"
+        className="relative flex items-center justify-center rounded-full bg-gray-100 w-10 h-10 hover:bg-gray-200"
       >
         <CommentsAltIcon className="w-6 h-6 text-gray-400" />
+        {unreadTotal > 0 ? (
+          <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-semibold text-white">
+            {unreadTotal > 99 ? "99+" : unreadTotal}
+          </span>
+        ) : null}
       </Link>
     </div>
   );

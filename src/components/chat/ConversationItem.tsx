@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Conversation } from "@/components/chat/ChatPageContent";
+import { useChatUnread } from "@/contexts/ChatUnreadContext";
 
 type ConversationItemProps = {
   conversation: Conversation;
@@ -12,6 +13,10 @@ export default function ConversationItem({
   isActive,
   onClick,
 }: ConversationItemProps) {
+  const { unreadByConversation } = useChatUnread();
+  const unreadCount = unreadByConversation[conversation.id] ?? 0;
+  const shouldShowUnreadBadge = !isActive && unreadCount > 0;
+
   return (
     <button
       type="button"
@@ -41,6 +46,12 @@ export default function ConversationItem({
           {conversation.lastMessage}
         </p>
       </div>
+
+      {shouldShowUnreadBadge ? (
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-semibold text-white">
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </span>
+      ) : null}
     </button>
   );
 }

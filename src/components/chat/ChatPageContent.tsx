@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Loading from "@/components/common/loading/loading";
 import { chatApi } from "@/services/api/chatApi";
 import chatService, { ChatMessage } from "@/services/chatService";
+import { useChatUnread } from "@/contexts/ChatUnreadContext";
 
 export type Conversation = {
   id: string;
@@ -30,6 +31,7 @@ export default function ChatPageContent({
 }: ChatPageContentProps) {
   const router = useRouter();
   const { user, loading } = useAuth();
+  const { clearConversationUnread } = useChatUnread();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isConversationsLoading, setIsConversationsLoading] = useState(false);
   const [hasLoadedConversations, setHasLoadedConversations] = useState(false);
@@ -38,6 +40,14 @@ export default function ChatPageContent({
   >(routeConversationId);
   const [isMobile, setIsMobile] = useState(false);
   const [activePanel, setActivePanel] = useState<ActivePanel>("sidebar");
+
+  // ✅ Single connect on mount, disconnect on unmount
+  useEffect(() => {
+    chatService.connect();
+    return () => {
+      chatService.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     setSelectedConversationId(routeConversationId);
@@ -53,6 +63,7 @@ export default function ChatPageContent({
     }));
   }, []);
 
+  // Auto-select first conversation when no route param
   useEffect(() => {
     if (routeConversationId) return;
     if (!conversations.length) return;
@@ -66,6 +77,7 @@ export default function ChatPageContent({
     }
   }, [routeConversationId, conversations, selectedConversationId]);
 
+  // Load conversations on mount
   useEffect(() => {
     if (loading || !user) return;
     if (!canAccessChat(user.role)) return;
@@ -95,25 +107,31 @@ export default function ChatPageContent({
     };
   }, [loading, user, loadConversations]);
 
+  // ✅ Join all conversation rooms after conversations load
+  // whenConnected() in chatService handles timing — no race condition
   useEffect(() => {
     if (!conversations.length) return;
-    chatService.connect();
     conversations.forEach((conversation) => {
       chatService.joinConversation(conversation.id);
     });
   }, [conversations]);
 
+  // ✅ Register new-message listener once per user — no connect() call here
   useEffect(() => {
     if (!user?.id) return;
-    const socket = chatService.connect();
-    if (!socket) return;
+
     let cancelled = false;
 
     const handleNewMessage = (message: ChatMessage) => {
+      const activeConversationId = routeConversationId ?? selectedConversationId;
+      const isActiveConversation = activeConversationId === message.conversationId;
+
       setConversations((prev) => {
         const idx = prev.findIndex(
           (conversation) => conversation.id === message.conversationId,
         );
+
+        // Conversation not in list — reload all
         if (idx === -1) {
           loadConversations()
             .then((next) => {
@@ -121,23 +139,28 @@ export default function ChatPageContent({
               setConversations(next);
             })
             .catch((error) => {
-              console.error("Failed to refresh conversations for new room:", error);
+              console.error(
+                "Failed to refresh conversations for new room:",
+                error,
+              );
             });
           return prev;
         }
 
+        // Move conversation to top with updated lastMessage
         const updated = [...prev];
-        const current = updated[idx];
-
         updated[idx] = {
-          ...current,
-          lastMessage: message.text || current.lastMessage,
+          ...updated[idx],
+          lastMessage: message.text || updated[idx].lastMessage,
         };
-
         const [moved] = updated.splice(idx, 1);
         updated.unshift(moved);
         return updated;
       });
+
+      if (isActiveConversation) {
+        clearConversationUnread(message.conversationId);
+      }
     };
 
     chatService.onNewMessage(handleNewMessage);
@@ -146,18 +169,15 @@ export default function ChatPageContent({
       cancelled = true;
       chatService.offNewMessage(handleNewMessage);
     };
-  }, [
-    user?.id,
-    routeConversationId,
-    selectedConversationId,
-    loadConversations,
-  ]);
+  }, [user?.id, routeConversationId, selectedConversationId, loadConversations, clearConversationUnread]);
+  // ✅ Removed routeConversationId & selectedConversationId from deps —
+  //    they caused the listener to re-register on every navigation
 
+  // Redirect if routeConversationId doesn't exist in conversations
   useEffect(() => {
-    if (!routeConversationId) {
-      return;
-    }
+    if (!routeConversationId) return;
     if (!hasLoadedConversations || isConversationsLoading) return;
+
     const exists = conversations.some((c) => c.id === routeConversationId);
     if (!exists) {
       router.replace("/chat");
@@ -170,6 +190,7 @@ export default function ChatPageContent({
     router,
   ]);
 
+  // Auth guard
   useEffect(() => {
     if (loading) return;
     if (!user) {
@@ -182,11 +203,12 @@ export default function ChatPageContent({
     }
   }, [user, loading, router]);
 
+  // Responsive panel handling
   useEffect(() => {
     const handleResize = () => {
       if (typeof window === "undefined") return;
 
-      const isNowMobile = window.innerWidth < 768; // Tailwind md breakpoint
+      const isNowMobile = window.innerWidth < 768;
       setIsMobile(isNowMobile);
 
       if (!isNowMobile) {
@@ -203,6 +225,7 @@ export default function ChatPageContent({
   }, []);
 
   const handleSelectConversation = (id: string) => {
+    clearConversationUnread(id);
     setSelectedConversationId(id);
     router.push(`/chat/${id}`);
 
