@@ -1,10 +1,11 @@
 import chatService from "@/services/chatService";
+import { chatApi } from "@/services/api/chatApi";
 import { useState, useEffect } from "react";
 
 export type ChatMessage = {
   id: string;
   conversationId: string;
-  senderId: number;
+  senderId: string;
   text: string;
   createdAt: string;
 };
@@ -12,7 +13,7 @@ export type ChatMessage = {
 type UseChatParams = {
   /** รองรับทั้ง number (จาก Conversation.id) และ string */
   conversationId: string | number | null;
-  currentUserId: number | null;
+  currentUserId?: string | null;
 };
 
 export function useChat({ conversationId, currentUserId }: UseChatParams) {
@@ -30,21 +31,69 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
   useEffect(() => {
     if (!conversationIdStr) return;
 
+    let cancelled = false;
+
+    chatService.connect();
+    const socket = chatService.getSocket();
+    if (!socket) return;
+
+    const syncJoin = () => {
+      chatService.joinConversation(conversationIdStr);
+    };
+
     setMessages([]);
-    chatService.joinConversation(conversationIdStr);
+    syncJoin();
+    socket.on("connect", syncJoin);
+
+    chatApi
+      .getConversationMessages(conversationIdStr)
+      .then((data) => {
+        if (cancelled) return;
+        const initialMessages = (data.messages ?? []).map((message) => ({
+          id: message.id,
+          conversationId: message.conversationId,
+          senderId: message.senderId,
+          text: message.text,
+          createdAt: message.createdAt,
+        }));
+        setMessages(initialMessages);
+        const latestMessage = initialMessages[initialMessages.length - 1];
+        if (
+          latestMessage &&
+          latestMessage.senderId !== currentUserId &&
+          conversationIdStr
+        ) {
+          chatService.markAsRead(conversationIdStr, latestMessage.id);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load conversation messages:", error);
+      });
 
     const handleNewMessage = (message: ChatMessage) => {
       if (String(message.conversationId) !== conversationIdStr) return;
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === message.id)) {
+          return prev;
+        }
+        if (
+          message.senderId !== currentUserId &&
+          message.conversationId === conversationIdStr
+        ) {
+          chatService.markAsRead(conversationIdStr, message.id);
+        }
+        return [...prev, message];
+      });
     };
 
     chatService.onNewMessage(handleNewMessage);
 
     return () => {
+      cancelled = true;
+      socket.off("connect", syncJoin);
       chatService.offNewMessage(handleNewMessage);
-      chatService.leaveConversation(conversationIdStr);
     };
-  }, [conversationIdStr]);
+  }, [conversationIdStr, currentUserId]);
 
   const sendMessage = (text: string) => {
     if (!conversationIdStr) return;
@@ -54,7 +103,6 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
 
     chatService.sendMessage({
       conversationId: conversationIdStr,
-      senderId: currentUserId ?? 0,
       text: trimmed,
     });
   };

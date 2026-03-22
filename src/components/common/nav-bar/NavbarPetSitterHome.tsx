@@ -40,7 +40,7 @@ export default function NavbarPetSitterHome() {
         </div>
         <div>
           <Link
-            href="/message"
+            href="/chat"
             className="flex items-center justify-center md:w-12 md:h-12 transition text-gray-400 md:bg-gray-100 md:rounded-full md:text-gray-300 md:hover:bg-gray-200"
           >
             <MessagesSquare className="w-6 h-6" />

@@ -35,7 +35,7 @@ export default function NavbarPetSitter() {
         </h1>
       </div>
       <Link
-        href="/messages"
+        href="/chat"
         className="flex items-center justify-center rounded-full bg-gray-100 w-10 h-10 hover:bg-gray-200"
       >
         <CommentsAltIcon className="w-6 h-6 text-gray-400" />

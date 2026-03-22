@@ -3,6 +3,7 @@
 export { publicApi, privateApi, createApiInstance } from "./client";
 export * from "./auth";
 export * from "./userApi";
+export * from "./chatApi";
 export * from "./sitterApi";
 export * from "./addressApi";
 export {

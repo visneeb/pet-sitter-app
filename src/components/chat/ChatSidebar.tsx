@@ -1,5 +1,5 @@
 import ConversationItem from "./ConversationItem";
-import type { Conversation } from "@/app/chat/page";
+import type { Conversation } from "@/components/chat/ChatPageContent";
 
 type ChatSidebarProps = {
   conversations: Conversation[];

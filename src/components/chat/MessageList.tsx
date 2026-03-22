@@ -3,7 +3,7 @@ import { ChatMessage } from "@/hooks/chat/useChat";
 
 type MessageListProps = {
   messages: ChatMessage[];
-  currentUserId: number | null;
+  currentUserId: string | null;
 };
 
 export default function MessageList({ messages, currentUserId }: MessageListProps) {

@@ -2,28 +2,59 @@ import { io, Socket } from "socket.io-client";
 
 export interface SendMessagePayload {
   conversationId: string;
-  senderId: number;
   text: string;
 }
 
 export interface ChatMessage {
   id: string;
   conversationId: string;
-  senderId: number;
+  senderId: string;
   text: string;
   createdAt: string;
 }
 
+type SocketAck<T = undefined> = {
+  ok: boolean;
+  data?: T;
+  error?: string;
+};
+
 class ChatService {
   private socket: Socket | null = null;
+  /** Keep joined rooms for reconnect. */
+  private joinedConversationIds = new Set<string>();
+  /** Queue latest read marker per conversation while socket is disconnected. */
+  private pendingReadMarkers = new Map<string, string>();
+
+  private flushPendingReadMarkers() {
+    if (!this.socket || !this.socket.connected) return;
+
+    for (const [conversationId, messageId] of this.pendingReadMarkers.entries()) {
+      this.emitMarkAsRead(conversationId, messageId);
+    }
+    this.pendingReadMarkers.clear();
+  }
+
+  private emitMarkAsRead(conversationId: string, messageId: string) {
+    if (!this.socket || !this.socket.connected) return;
+
+    this.socket.emit(
+      "mark-as-read",
+      { conversationId, messageId },
+      (response: SocketAck) => {
+        if (!response?.ok) {
+          console.warn("Failed to mark message as read:", response?.error);
+        }
+      },
+    );
+  }
 
   connect() {
-    if (this.socket?.connected) return this.socket;
-
     if (this.socket) {
-      this.socket.removeAllListeners();
-      this.socket.disconnect();
-      this.socket = null;
+      if (this.socket.disconnected) {
+        this.socket.connect();
+      }
+      return this.socket;
     }
 
     const token =
@@ -37,6 +68,12 @@ class ChatService {
 
     this.socket.on("connect", () => {
       console.log("Socket connected:", this.socket?.id);
+      for (const conversationId of this.joinedConversationIds) {
+        this.socket?.emit("join-conversation", {
+          conversationId,
+        });
+      }
+      this.flushPendingReadMarkers();
     });
 
     this.socket.on("disconnect", (reason) => {
@@ -55,18 +92,26 @@ class ChatService {
   }
 
   joinConversation(conversationId: string) {
+    const alreadyJoined = this.joinedConversationIds.has(conversationId);
+    this.joinedConversationIds.add(conversationId);
     if (!this.socket) return;
-    this.socket.emit("join-conversation", conversationId);
-  }
-
-  leaveConversation(conversationId: string) {
-    if (!this.socket) return;
-    this.socket.emit("leave-conversation", conversationId);
+    if (this.socket.connected && !alreadyJoined) {
+      this.socket.emit("join-conversation", { conversationId });
+    }
   }
 
   sendMessage(payload: SendMessagePayload) {
     if (!this.socket) return;
     this.socket.emit("send-message", payload);
+  }
+
+  markAsRead(conversationId: string, messageId: string) {
+    this.pendingReadMarkers.set(conversationId, messageId);
+    const socket = this.connect();
+    if (!socket || !socket.connected) return;
+
+    this.emitMarkAsRead(conversationId, messageId);
+    this.pendingReadMarkers.delete(conversationId);
   }
 
   onNewMessage(callback: (message: ChatMessage) => void) {
@@ -84,6 +129,8 @@ class ChatService {
   disconnect() {
     this.socket?.disconnect();
     this.socket = null;
+    this.joinedConversationIds.clear();
+    this.pendingReadMarkers.clear();
   }
 }
 
