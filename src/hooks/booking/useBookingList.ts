@@ -41,6 +41,7 @@ export function useBookingList() {
 
   useEffect(() => {
     const fetchBookings = async () => {
+      setIsLoading(true);
       try {
         const params = new URLSearchParams();
         if (debouncedKeyword) params.set("keyword", debouncedKeyword);
@@ -60,6 +61,8 @@ export function useBookingList() {
         setTotalBookings(response.totalBookings ?? 0);
       } catch (error) {
         setError(`Failed to fetch bookings : ${error}`);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchBookings();

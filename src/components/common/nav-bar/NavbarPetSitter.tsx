@@ -30,7 +30,7 @@ export default function NavbarPetSitter() {
             )}
           </div>
         </div>
-        <h1 className="style-body-2 text-gray-600 text-center hidden md:block">
+        <h1 className="style-body-2 text-gray-600 text-center hidden sm:block">
           {profile?.name}
         </h1>
       </div>

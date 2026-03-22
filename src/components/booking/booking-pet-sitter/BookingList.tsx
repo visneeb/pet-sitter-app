@@ -7,6 +7,7 @@ import { Select } from "@/components/ui/input/Select";
 import { Input } from "@/components/ui/input/Input";
 import { useBookingList } from "@/hooks/booking/useBookingList";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/common/loading/loading";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All status" },
@@ -25,12 +26,13 @@ export function BookingList() {
     searchKeyword,
     statusFilter,
     setCurrentPage,
+    isLoading,
     handleKeywordChange,
     handleStatusChange,
   } = useBookingList();
   return (
     <>
-      <div className="pb-[40px]">
+      <div className="pb-[40px] px-4 md:px-8 lg:px-0">
         <header className="flex flex-col gap-6 sm:gap-0 sm:flex-row justify-between items-center mb-6">
           <h1 className="style-heading-3 text-gray-900">Booking List</h1>
           <div className="flex flex-col sm:flex-row items-between gap-6 ">
@@ -77,7 +79,13 @@ export function BookingList() {
           <ul>
             {bookings.length === 0 ? (
               <div className="flex items-center justify-center h-full rounded-b-2xl">
-                <p className="style-body-2 text-gray-400">No bookings found</p>
+                {!isLoading ? (
+                  <p className="style-body-2 text-gray-400 mt-10">
+                    No bookings found
+                  </p>
+                ) : (
+                  <Loading />
+                )}
               </div>
             ) : (
               bookings.map((booking, index, array) => (

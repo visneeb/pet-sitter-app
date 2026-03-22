@@ -37,12 +37,12 @@ export function PetList() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="flex flex-col grid-cols-[repeat(auto-fit,240px)] justify-between gap-4 sm:grid">
         {pagedPets.map((pet) => (
           <BasePetCard
             key={pet.id}
             variant="action"
-            className="!w-full !h-[240px]"
+            className="w-full"
             pet={{
               id: String(pet.id),
               name: pet.petName,
