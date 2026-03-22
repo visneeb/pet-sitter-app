@@ -9,11 +9,35 @@ import { useOwnerProfile } from "@/hooks/admin/useOwnerProfile";
 import cn from "@/utils/cn";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useCallback } from "react";
 
 export default function PetOwnerLayout() {
   const params = useParams<{ userId: string }>();
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") === "pets" ? "pets" : "profile";
   const userId = params?.userId;
+
+  const setTab = useCallback(
+    (next: "profile" | "pets") => {
+      const qs = new URLSearchParams(searchParams.toString());
+      if (next === "pets") {
+        qs.set("tab", "pets");
+      } else {
+        qs.delete("tab");
+      }
+      const url = qs.toString() ? `${pathname}?${qs.toString()}` : pathname;
+      router.replace(url, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
   const {
     ownerProfile,
     isLoading,
@@ -75,7 +99,8 @@ export default function PetOwnerLayout() {
             name="owner"
             className="tab px-4 md:px-8 style-headline-4 bg-gray-200 text-gray-400 rounded-t-xl checked:bg-white checked:text-orange-500"
             aria-label="Profile"
-            defaultChecked
+            checked={activeTab === "profile"}
+            onChange={() => setTab("profile")}
           />
           <article className="tab-content bg-white border-base-300 p-6 lg:p-10">
             <Profile owner={ownerProfile} />
@@ -85,6 +110,8 @@ export default function PetOwnerLayout() {
             name="owner"
             className="tab px-4 md:px-8 style-headline-4 bg-gray-200 text-gray-400 rounded-t-xl checked:bg-white checked:text-orange-500"
             aria-label="Pets"
+            checked={activeTab === "pets"}
+            onChange={() => setTab("pets")}
           />
           <article className="tab-content bg-white border-base-300 p-6">
             <Pets owner={ownerProfile} />

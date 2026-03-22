@@ -42,7 +42,7 @@ function BookingModal({ bookingId }: { bookingId: number | null }) {
               detail={booking.pets.map((pet, index) => (
                 <BasePetCard
                   variant="action"
-                  className="shrink-0 hover:border-gray-200"
+                  className="shrink-0 hover:border-gray-200 hover:cursor-auto"
                   pet={{
                     id: String(index),
                     name: pet.petName,

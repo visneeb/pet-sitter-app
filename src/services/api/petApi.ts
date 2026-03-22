@@ -1,5 +1,6 @@
 import { privateApi } from "./client";
 import type { PetFormValues } from "@/types/pet";
+import formatLocalDate from "@/utils/formatLocalDate";
 
 export type PetRequestBody = {
   petName: string;
@@ -30,13 +31,6 @@ export type PetDetail = {
 };
 
 function toRequestBody(values: PetFormValues): PetRequestBody {
-  const formatLocalDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
   return {
     petName: values.petName.trim(),
     petTypeId: Number(values.petTypeId),

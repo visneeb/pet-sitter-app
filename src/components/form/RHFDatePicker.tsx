@@ -10,6 +10,7 @@ import { FormControl } from "../ui/form/FormControl";
 import { FormDescription } from "../ui/form/FormDescription";
 import { FormMessage } from "../ui/form/FormMessage";
 import { Input } from "../ui/input/Input";
+import cn from "@/utils/cn";
 
 type RHFDatePickerProps<T extends FieldValues> = {
   name: Path<T>;
@@ -17,6 +18,7 @@ type RHFDatePickerProps<T extends FieldValues> = {
   required?: boolean;
   description?: string;
   placeholder?: string;
+  className?: string;
 } & Omit<
   React.ComponentPropsWithoutRef<typeof DayPicker>,
   "mode" | "selected" | "onSelect"
@@ -28,6 +30,7 @@ export function RHFDatePicker<T extends FieldValues>({
   required,
   description,
   placeholder,
+  className,
   ...dayPickerProps
 }: RHFDatePickerProps<T>) {
   const { control } = useFormContext<T>();
@@ -102,7 +105,7 @@ export function RHFDatePicker<T extends FieldValues>({
                 />
 
                 {isOpen && (
-                  <div className="absolute z-10 mt-2">
+                  <div className={cn("absolute z-10 mt-2", className)}>
                     <DayPicker
                       fixedWeeks
                       showOutsideDays

@@ -9,6 +9,7 @@ import {
   MultiSelect,
   MultiImageUpload,
   Select,
+  DatePicker,
 } from "@/components/form/index";
 import { useBaseProfileForm } from "@/hooks/profile/useBaseProfileForm";
 import { usePetSitterForm } from "@/hooks/profile/usePetSitterProfileForm";
@@ -140,6 +141,13 @@ export default function ProfileEdit() {
                     required
                   />
                   <Input
+                    name="email"
+                    label="Email"
+                    type="email"
+                    placeholder="Enter your email"
+                    required
+                  />
+                  <Input
                     name="phone"
                     label="Phone"
                     type="tel"
@@ -147,10 +155,15 @@ export default function ProfileEdit() {
                     required
                   />
                   <Input
-                    name="email"
-                    label="Email"
-                    type="email"
-                    placeholder="Enter your email"
+                    name="idNumber"
+                    label="ID Number"
+                    placeholder="Enter your ID Number"
+                  />
+                  <DatePicker
+                    name="dateOfBirth"
+                    label="Date Of Birth"
+                    placeholder="Select date"
+                    endMonth={new Date()}
                     required
                   />
                 </div>

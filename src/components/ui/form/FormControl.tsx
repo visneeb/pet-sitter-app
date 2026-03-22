@@ -16,6 +16,8 @@ export function FormControl({
 
   const child = React.Children.only(children) as React.ReactElement<any>;
 
+  const showErrorIcon = Boolean(error && !noErrorIcon);
+
   const sharedProps = {
     id: child.props.id ?? inputId,
     disabled: child.props.disabled ?? disabled,
@@ -27,16 +29,24 @@ export function FormControl({
     className: cn(
       child.props.className,
       inputClassName,
-      error && !noErrorIcon && "!border-transparent",
+      showErrorIcon && "!border-transparent",
       error && noErrorIcon && "border-red pr-10",
     ),
   };
 
-  if (error && !noErrorIcon) {
-    return (
-      <div className={cn("relative", className)}>
-        <div className="form-control-error-wrapper relative rounded-lg border border-red pr-10">
-          {React.cloneElement(child, sharedProps)}
+  // Keep the same wrapper depth whether or not there is an error so the
+  // controlled input (e.g. under Controller) is not remounted when error toggles.
+  return (
+    <div className={cn("relative", className)}>
+      <div
+        className={cn(
+          "relative rounded-lg",
+          showErrorIcon &&
+            "form-control-error-wrapper border border-red pr-10",
+        )}
+      >
+        {React.cloneElement(child, sharedProps)}
+        {showErrorIcon && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <div className="bg-red rounded-full flex items-center justify-center">
               <ExclamationCircleIcon
@@ -46,21 +56,8 @@ export function FormControl({
               />
             </div>
           </div>
-        </div>
+        )}
       </div>
-    );
-  }
-
-  return (
-    <div className={cn("relative", className)}>
-      {React.cloneElement(child, {
-        ...sharedProps,
-        className: cn(
-          child.props.className,
-          inputClassName,
-          error && "border-red pr-10",
-        ),
-      })}
     </div>
   );
 }

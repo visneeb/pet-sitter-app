@@ -20,14 +20,14 @@ function Pets({ owner }: { owner: OwnerProfileResponse }) {
 
   return owner.pets.length ? (
     <>
-      <ul className="grid grid-cols-[repeat(auto-fit,240px)] justify-between gap-4">
+      <ul className="flex flex-col grid-cols-[repeat(auto-fit,240px)] justify-between gap-4 sm:grid">
         {owner.pets.map((pet) => (
           <li key={pet.id}>
             <BasePetCard
               key={pet.id}
               variant="action"
               onClick={() => showPetModal(pet.id)}
-              className="cursor-pointer"
+              className="cursor-pointer w-full"
               pet={{
                 id: String(pet.id),
                 imgUrl: pet.imgUrl ?? undefined,

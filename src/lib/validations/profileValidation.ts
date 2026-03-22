@@ -4,6 +4,8 @@ export type ProfileFormValues = {
   name: string;
   email: string;
   phone: string;
+  idNumber?: string;
+  dateOfBirth: Date | null;
   profile_img_url?: string;
   password?: string;
   avatarFile?: File;
@@ -33,6 +35,22 @@ export function validateProfile(
       type: "pattern",
       message: "Phone must start with 0 and be 10 digits.",
     };
+  }
+
+  if (data.idNumber && !/^\d{13}$/.test(data.idNumber)) {
+    errors.idNumber = {
+      type: "pattern",
+      message: "ID number must be 13 digits",
+    };
+  }
+
+  if (data.dateOfBirth) {
+    if (data.dateOfBirth > new Date()) {
+      errors.dateOfBirth = {
+        type: "validate",
+        message: "Date of birth cannot be in the future",
+      };
+    }
   }
 
   return errors;

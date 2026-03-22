@@ -316,7 +316,7 @@ function Profile({
           detail={
             <>
               {sitter.imgUrls.length ? (
-                <ul className="flex flex-nowrap gap-4 overflow-x-auto">
+                <ul className="grid grid-cols-[repeat(auto-fit,240px)] justify-between gap-4">
                   {sitter.imgUrls.map((image, index) => (
                     <li key={index}>
                       <img
@@ -333,7 +333,7 @@ function Profile({
                 sitterPending &&
                 hasImageupdate &&
                 (sitterPending.imgUrls.length ? (
-                  <ul className="flex flex-nowrap gap-4 overflow-x-auto">
+                  <ul className="grid grid-cols-[repeat(auto-fit,240px)] justify-between gap-4">
                     {sitterPending.imgUrls.map((image, index) => (
                       <li key={index} className="border border-orange-500">
                         <img

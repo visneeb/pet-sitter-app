@@ -76,6 +76,8 @@ export function useBaseProfileForm(
       name: "",
       phone: "",
       email: "",
+      idNumber: "",
+      dateOfBirth: null,
       profile_img_url: "",
     },
   });
@@ -85,7 +87,7 @@ export function useBaseProfileForm(
     setError,
     clearErrors,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   useEffect(() => {
@@ -115,6 +117,10 @@ export function useBaseProfileForm(
               name: data.name || "",
               phone: data.phone || "",
               email: data.email || "",
+              idNumber: data.idNumber || "",
+              dateOfBirth: data.dateOfBirth
+                ? new Date(data.dateOfBirth + "T00:00:00+00:00")
+                : null,
               profile_img_url: data.profileImgUrl || "",
             });
           }, 0);
@@ -128,6 +134,16 @@ export function useBaseProfileForm(
 
     loadProfile();
   }, []);
+
+  useEffect(() => {
+    if (!errors.root?.message) return;
+
+    showCustomToast({
+      title: "Failed to update profile",
+      description: errors.root.message,
+      variant: "error",
+    });
+  }, [errors.root?.message]);
 
   useEffect(() => {
     if (resetData) {

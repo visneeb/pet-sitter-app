@@ -1,7 +1,12 @@
 "use client";
 
 import { FormProvider } from "@/components/form/FormProvider";
-import { Input, AvatarUpload, SubmitButton } from "@/components/form/index";
+import {
+  Input,
+  AvatarUpload,
+  SubmitButton,
+  DatePicker,
+} from "@/components/form/index";
 import { useOwnerProfileForm } from "@/hooks/profile/useOwnerProfileForm";
 import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
 import { ActionButton } from "@/components/ui/Button";
@@ -92,6 +97,19 @@ export default function ProfileEdit() {
                 label="Phone"
                 type="tel"
                 placeholder="Enter your phone"
+                required
+              />
+              <Input
+                name="idNumber"
+                label="ID Number"
+                placeholder="Enter your ID Number"
+              />
+              <DatePicker
+                name="dateOfBirth"
+                label="Date Of Birth"
+                placeholder="Select date"
+                endMonth={new Date()}
+                className="bottom-0 mt-0 mb-20"
                 required
               />
             </div>

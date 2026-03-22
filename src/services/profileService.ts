@@ -2,6 +2,7 @@ import { userApi } from "./api/userApi";
 import { ProfileFormValues } from "@/lib/validations/profileValidation";
 import { ImageFile } from "@/types/imageUploadType";
 import { validateImage } from "@/lib/validations/useImageValidation";
+import formatLocalDate from "@/utils/formatLocalDate";
 
 // Builds a FormData payload the backend expects:
 //    - field "body": stringified JSON with name/phone/email/password etc.
@@ -31,7 +32,10 @@ export class ProfileService {
 
   // Update name + phone (and optionally avatar file)
   static async updateProfile(
-    data: Pick<ProfileFormValues, "name" | "phone">,
+    data: Pick<
+      ProfileFormValues,
+      "name" | "phone" | "idNumber" | "dateOfBirth"
+    >,
     userRole: "owner" | "sitter" = "owner",
     file?: File | null,
   ) {
@@ -40,7 +44,14 @@ export class ProfileService {
     }
 
     const formData = buildFormData(
-      { name: data.name.trim(), phone: data.phone.trim() },
+      {
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+        idNumber: data.idNumber,
+        dateOfBirth: data.dateOfBirth
+          ? formatLocalDate(data.dateOfBirth)
+          : null,
+      },
       file,
     );
 
@@ -66,6 +77,10 @@ export class ProfileService {
         name: data.name.trim(),
         phone: data.phone.trim(),
         email: data.email.trim(),
+        idNumber: data.idNumber,
+        dateOfBirth: data.dateOfBirth
+          ? formatLocalDate(data.dateOfBirth)
+          : null,
         password: password.trim(),
       },
       file,
@@ -76,7 +91,10 @@ export class ProfileService {
 
   // Remove avatar
   static async removeAvatar(
-    data: Pick<ProfileFormValues, "name" | "phone">,
+    data: Pick<
+      ProfileFormValues,
+      "name" | "phone" | "idNumber" | "dateOfBirth"
+    >,
     userRole: "owner" | "sitter" = "owner",
   ) {
     if (!data.name?.trim() || !data.phone?.trim()) {
@@ -84,7 +102,14 @@ export class ProfileService {
     }
 
     const formData = buildFormData(
-      { name: data.name.trim(), phone: data.phone.trim() },
+      {
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+        idNumber: data.idNumber,
+        dateOfBirth: data.dateOfBirth
+          ? formatLocalDate(data.dateOfBirth)
+          : null,
+      },
       null,
       true,
     );
