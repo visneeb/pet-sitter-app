@@ -10,13 +10,20 @@ import { showCustomToast } from "@/components/ui/toast/Toast";
 import cn from "@/utils/cn";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useState } from "react";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useCallback, useState } from "react";
 import { RejectConfirmModal } from "@/components/admin/pet-sitter/reject-confirmation/RejectConfirmModal";
 import { RejectionNote } from "@/components/pet-sitter/RejectionNote";
 import { StatusConfig } from "../../../../types/booking";
 import Review from "@/components/admin/pet-sitter/Review";
 import Booking from "@/components/admin/pet-sitter/Booking";
+
+type SitterAdminTab = "profile" | "booking" | "reviews";
 
 const showApproveModal = () => {
   const dialog = document.getElementById(
@@ -30,6 +37,31 @@ const showApproveModal = () => {
 
 export default function PetSitterLayout() {
   const params = useParams<{ sitterId: string }>();
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const activeTab: SitterAdminTab =
+    tabParam === "booking"
+      ? "booking"
+      : tabParam === "reviews"
+        ? "reviews"
+        : "profile";
+
+  const setTab = useCallback(
+    (next: SitterAdminTab) => {
+      const qs = new URLSearchParams(searchParams.toString());
+      if (next === "profile") {
+        qs.delete("tab");
+      } else {
+        qs.set("tab", next);
+      }
+      const url = qs.toString() ? `${pathname}?${qs.toString()}` : pathname;
+      router.replace(url, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
   const sitterId = params.sitterId;
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -129,7 +161,8 @@ export default function PetSitterLayout() {
               name="sitter"
               className="tab px-4 md:px-8 style-headline-4 bg-gray-200 text-gray-400 rounded-t-xl whitespace-nowrap checked:bg-white checked:text-orange-500"
               aria-label="Profile"
-              defaultChecked
+              checked={activeTab === "profile"}
+              onChange={() => setTab("profile")}
             />
             <article className="tab-content w-full min-w-0 rounded-b-xl bg-white p-4 md:p-6 lg:p-10">
               <Profile
@@ -142,6 +175,8 @@ export default function PetSitterLayout() {
               name="sitter"
               className="tab px-4 md:px-8 style-headline-4 bg-gray-200 text-gray-400 rounded-t-xl border-t-0 whitespace-nowrap checked:bg-white checked:text-orange-500"
               aria-label="Booking"
+              checked={activeTab === "booking"}
+              onChange={() => setTab("booking")}
             />
             <article className="tab-content w-full min-w-0 rounded-b-xl bg-white p-4 md:p-6 lg:p-10">
               <Booking />
@@ -151,6 +186,8 @@ export default function PetSitterLayout() {
               name="sitter"
               className="tab px-4 md:px-8 style-headline-4 bg-gray-200 text-gray-400 rounded-t-xl whitespace-nowrap checked:bg-white checked:text-orange-500"
               aria-label="Reviews"
+              checked={activeTab === "reviews"}
+              onChange={() => setTab("reviews")}
             />
             <article className="tab-content w-full min-w-0 rounded-b-xl bg-white p-4 md:p-6 lg:p-10">
               <Review />
