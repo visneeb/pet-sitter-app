@@ -22,6 +22,8 @@ type ChatUnreadContextValue = {
   refreshUnreadCount: () => Promise<void>;
   incrementConversationUnread: (conversationId: string, amount?: number) => void;
   clearConversationUnread: (conversationId: string) => void;
+  /** Call this when the user opens a conversation so we skip incrementing */
+  setOpenConversationId: (id: string | null) => void;
 };
 
 const ChatUnreadContext = createContext<ChatUnreadContextValue | null>(null);
@@ -29,7 +31,11 @@ const ChatUnreadContext = createContext<ChatUnreadContextValue | null>(null);
 const canAccessChat = (role?: string) =>
   role === "owner" || role === "petsitter" || role === "sitter";
 
-export function ChatUnreadProvider({ children }: { children: React.ReactNode }) {
+export function ChatUnreadProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user, loading } = useAuth();
   const [unreadTotal, setUnreadTotal] = useState(0);
   const [unreadByConversation, setUnreadByConversation] = useState<
@@ -37,6 +43,13 @@ export function ChatUnreadProvider({ children }: { children: React.ReactNode }) 
   >({});
   const isRefreshingRef = useRef(false);
   const shouldRefreshAgainRef = useRef(false);
+
+  // Track which conversation is currently open so we don't increment its badge
+  const openConversationIdRef = useRef<string | null>(null);
+
+  const setOpenConversationId = useCallback((id: string | null) => {
+    openConversationIdRef.current = id;
+  }, []);
 
   const applyUnreadMap = useCallback((nextMap: Record<string, number>) => {
     setUnreadByConversation(nextMap);
@@ -50,9 +63,10 @@ export function ChatUnreadProvider({ children }: { children: React.ReactNode }) 
 
       setUnreadByConversation((prev) => {
         const current = prev[conversationId] ?? 0;
-        const nextCount = current + amount;
-        const next = { ...prev, [conversationId]: nextCount };
-        setUnreadTotal(Object.values(next).reduce((sum, count) => sum + count, 0));
+        const next = { ...prev, [conversationId]: current + amount };
+        setUnreadTotal(
+          Object.values(next).reduce((sum, count) => sum + count, 0),
+        );
         return next;
       });
     },
@@ -65,7 +79,9 @@ export function ChatUnreadProvider({ children }: { children: React.ReactNode }) 
     setUnreadByConversation((prev) => {
       if ((prev[conversationId] ?? 0) === 0) return prev;
       const next = { ...prev, [conversationId]: 0 };
-      setUnreadTotal(Object.values(next).reduce((sum, count) => sum + count, 0));
+      setUnreadTotal(
+        Object.values(next).reduce((sum, count) => sum + count, 0),
+      );
       return next;
     });
   }, []);
@@ -94,9 +110,11 @@ export function ChatUnreadProvider({ children }: { children: React.ReactNode }) 
       );
 
       applyUnreadMap(nextMap);
+
+      // ✅ ChatUnreadProvider is the single owner of connect + joinConversation
       chatService.connect();
-      conversations.forEach((conversation) => {
-        chatService.joinConversation(conversation.conversationId);
+      conversations.forEach((c) => {
+        chatService.joinConversation(c.conversationId);
       });
     } catch (error) {
       console.error("Failed to refresh unread count:", error);
@@ -120,7 +138,12 @@ export function ChatUnreadProvider({ children }: { children: React.ReactNode }) 
     void refreshUnreadCount();
 
     const handleNewMessage = (message: ChatMessage) => {
+      // Don't increment if it's our own message
       if (message.senderId === user.id) return;
+
+      // ✅ Don't increment if the user is currently in that conversation
+      if (openConversationIdRef.current === message.conversationId) return;
+
       incrementConversationUnread(message.conversationId);
     };
 
@@ -129,14 +152,9 @@ export function ChatUnreadProvider({ children }: { children: React.ReactNode }) 
       clearConversationUnread(payload.conversationId);
     };
 
-    const handleWindowFocus = () => {
-      void refreshUnreadCount();
-    };
-
+    const handleWindowFocus = () => void refreshUnreadCount();
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        void refreshUnreadCount();
-      }
+      if (document.visibilityState === "visible") void refreshUnreadCount();
     };
 
     chatService.onNewMessage(handleNewMessage);
@@ -167,6 +185,7 @@ export function ChatUnreadProvider({ children }: { children: React.ReactNode }) 
       refreshUnreadCount,
       incrementConversationUnread,
       clearConversationUnread,
+      setOpenConversationId,
     }),
     [
       unreadTotal,
@@ -174,6 +193,7 @@ export function ChatUnreadProvider({ children }: { children: React.ReactNode }) 
       refreshUnreadCount,
       incrementConversationUnread,
       clearConversationUnread,
+      setOpenConversationId,
     ],
   );
 

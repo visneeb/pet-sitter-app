@@ -11,77 +11,63 @@ export type ChatMessage = {
 };
 
 type UseChatParams = {
-  /** รองรับทั้ง number (จาก Conversation.id) และ string */
   conversationId: string | number | null;
   currentUserId?: string | null;
 };
 
 export function useChat({ conversationId, currentUserId }: UseChatParams) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const conversationIdStr = conversationId != null ? String(conversationId) : null;
+  const conversationIdStr =
+    conversationId != null ? String(conversationId) : null;
 
-  useEffect(() => {
-    const socket = chatService.connect();
-    if (!socket) return;
-    return () => {
-      chatService.disconnect();
-    };
-  }, []);
+  // ✅ No connect/disconnect here — ChatUnreadProvider owns the socket lifecycle
 
   useEffect(() => {
     if (!conversationIdStr) return;
 
     let cancelled = false;
 
-    chatService.connect();
-    const socket = chatService.getSocket();
-    if (!socket) return;
+    // Join this specific room (chatService.joinConversation is idempotent)
+    chatService.joinConversation(conversationIdStr);
 
-    const syncJoin = () => {
-      chatService.joinConversation(conversationIdStr);
-    };
-
+    // Fetch message history
     setMessages([]);
-    syncJoin();
-    socket.on("connect", syncJoin);
-
     chatApi
       .getConversationMessages(conversationIdStr)
       .then((data) => {
         if (cancelled) return;
-        const initialMessages = (data.messages ?? []).map((message) => ({
-          id: message.id,
-          conversationId: message.conversationId,
-          senderId: message.senderId,
-          text: message.text,
-          createdAt: message.createdAt,
+        const initialMessages = (data.messages ?? []).map((msg) => ({
+          id: msg.id,
+          conversationId: msg.conversationId,
+          senderId: msg.senderId,
+          text: msg.text,
+          createdAt: msg.createdAt,
         }));
         setMessages(initialMessages);
-        const latestMessage = initialMessages[initialMessages.length - 1];
-        if (
-          latestMessage &&
-          latestMessage.senderId !== currentUserId &&
-          conversationIdStr
-        ) {
-          chatService.markAsRead(conversationIdStr, latestMessage.id);
+
+        // Mark latest message as read if it's from someone else
+        const latest = initialMessages[initialMessages.length - 1];
+        if (latest && latest.senderId !== currentUserId) {
+          chatService.markAsRead(conversationIdStr, latest.id);
         }
       })
       .catch((error) => {
         console.error("Failed to load conversation messages:", error);
       });
 
+    // Listen for incoming messages in this room
     const handleNewMessage = (message: ChatMessage) => {
       if (String(message.conversationId) !== conversationIdStr) return;
+
       setMessages((prev) => {
-        if (prev.some((m) => m.id === message.id)) {
-          return prev;
-        }
-        if (
-          message.senderId !== currentUserId &&
-          message.conversationId === conversationIdStr
-        ) {
+        // Deduplicate
+        if (prev.some((m) => m.id === message.id)) return prev;
+
+        // Mark as read immediately since user is looking at this conversation
+        if (message.senderId !== currentUserId) {
           chatService.markAsRead(conversationIdStr, message.id);
         }
+
         return [...prev, message];
       });
     };
@@ -90,25 +76,18 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
 
     return () => {
       cancelled = true;
-      socket.off("connect", syncJoin);
       chatService.offNewMessage(handleNewMessage);
+      // ✅ Do NOT leaveConversation here — ChatUnreadProvider needs to stay
+      //    joined to receive unread counts for all conversations
     };
   }, [conversationIdStr, currentUserId]);
 
   const sendMessage = (text: string) => {
     if (!conversationIdStr) return;
-
     const trimmed = text.trim();
     if (!trimmed) return;
-
-    chatService.sendMessage({
-      conversationId: conversationIdStr,
-      text: trimmed,
-    });
+    chatService.sendMessage({ conversationId: conversationIdStr, text: trimmed });
   };
 
-  return {
-    messages,
-    sendMessage,
-  };
+  return { messages, sendMessage };
 }

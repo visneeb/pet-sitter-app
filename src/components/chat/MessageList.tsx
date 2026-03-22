@@ -6,7 +6,10 @@ type MessageListProps = {
   currentUserId: string | null;
 };
 
-export default function MessageList({ messages, currentUserId }: MessageListProps) {
+export default function MessageList({
+  messages,
+  currentUserId,
+}: MessageListProps) {
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto px-2 pb-2">
       {messages.map((message) => (
