@@ -70,7 +70,7 @@ export function RHFAvatarUpload({
 
   return (
     <>
-      {label && <div>{label}</div>}
+      {label && <span className="style-label text-black">{label}</span>}
 
       <div className="relative inline-block">
         <AvatarUpload

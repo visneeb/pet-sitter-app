@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { SitterBookingList } from "@/types/BookingType";
 import { bookingApi } from "@/services/api/bookingApi";
 
@@ -15,6 +15,7 @@ const DEFAULT_LIMIT = 8;
 
 export function useBookingList() {
   const router = useRouter();
+  const pathname = usePathname();
   // Search state
   const [searchKeyword, setSearchKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<statusFilterType>("all");
@@ -53,7 +54,12 @@ export function useBookingList() {
         params.set("page", String(currentPage));
         params.set("limit", String(bookingsPerPage));
         const queryString = params.toString();
-        router.replace(`/bookings?${queryString}`, { scroll: false });
+        // Only sync the URL on the bookings list page. The hook is also used from
+        // BookingIndicator in the petsitter layout; replacing the route there would
+        // hijack every sitter page (profile, calendar, etc.) on load.
+        if (pathname === "/bookings") {
+          router.replace(`/bookings?${queryString}`, { scroll: false });
+        }
 
         const response = await bookingApi.getAll(params);
         setBookings(response.bookings ?? []);
@@ -66,7 +72,14 @@ export function useBookingList() {
       }
     };
     fetchBookings();
-  }, [statusFilter, debouncedKeyword, currentPage, bookingsPerPage, router]);
+  }, [
+    statusFilter,
+    debouncedKeyword,
+    currentPage,
+    bookingsPerPage,
+    router,
+    pathname,
+  ]);
 
   // Handler
   const handleKeywordChange = (value: string) => {
