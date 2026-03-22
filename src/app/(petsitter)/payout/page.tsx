@@ -1,7 +1,8 @@
+import { PayoutOptionPage } from "@/views/dashboard/pet-sitter/PetoutOptionPage";
 export default function PetSitterPayout() {
   return (
     <>
-      <div className="style-headline-3">Payout Option</div>
+      <PayoutOptionPage/>
     </>
   );
 }

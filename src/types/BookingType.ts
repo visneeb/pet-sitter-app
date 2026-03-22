@@ -69,6 +69,8 @@ export type OwnerBookingHistory = Pick<
   longitude: string | null;
   pets: BookingPet[];
   review: BookingReview | null;
+  transactionId: number | null;
+  paidAt: string | null;
 };
 
 export interface SitterBookingList {

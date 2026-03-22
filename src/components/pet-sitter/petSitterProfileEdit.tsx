@@ -108,23 +108,33 @@ export default function ProfileEdit() {
     );
   }
 
+  const basicSubmitButton = (
+    <SubmitButton
+      isLoading={baseIsSubmitting || baseIsUpdating}
+      requireValid={true}
+      requireDirty={true}
+      extraDirty={isAvatarDirty}
+    >
+      Update Basic Info
+    </SubmitButton>
+  );
+
+  const sitterSubmitButton = (
+    <SubmitButton
+      isLoading={sitterIsSubmitting || sitterIsUpdating}
+      requireValid={true}
+      requireDirty={true}
+      extraDirty={imagesChanged}
+    >
+      {hasPendingUpdate ? "Waiting admin approval" : "Update Sitter Info"}
+    </SubmitButton>
+  );
+
   return (
     <>
       <FormProvider methods={baseMethods} onSubmit={onBasicSubmit}>
         <div className="flex flex-col gap-6 pb-6">
-          <ActionProfileHeader
-            title="Basic Information"
-            action={
-              <SubmitButton
-                isLoading={baseIsSubmitting || baseIsUpdating}
-                requireValid={true}
-                requireDirty={true}
-                extraDirty={isAvatarDirty}
-              >
-                Update Basic Info
-              </SubmitButton>
-            }
-          />
+          <ActionProfileHeader title="Basic Information" />
           <ProfileContainer>
             <div className="flex flex-col gap-15 px-6">
               <Section title="Basic Information">
@@ -170,6 +180,7 @@ export default function ProfileEdit() {
               </Section>
             </div>
           </ProfileContainer>
+          <div className="flex justify-end">{basicSubmitButton}</div>
         </div>
       </FormProvider>
 
@@ -195,18 +206,7 @@ export default function ProfileEdit() {
                   </span>
                 )
               }
-              action={
-                <SubmitButton
-                  isLoading={sitterIsSubmitting || sitterIsUpdating}
-                  requireValid={true}
-                  requireDirty={true}
-                  extraDirty={imagesChanged}
-                >
-                  {hasPendingUpdate
-                    ? "Waiting admin approval"
-                    : "Update Sitter Info"}
-                </SubmitButton>
-              }
+              action={null}
             />
             {adminNote && isShowRejectNote && (
               <RejectionNote
@@ -349,6 +349,8 @@ export default function ProfileEdit() {
               </Section>
             </div>
           </ProfileContainer>
+
+          <div className="flex justify-end">{sitterSubmitButton}</div>
         </div>
       </FormProvider>
 
