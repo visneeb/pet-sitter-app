@@ -91,7 +91,9 @@ export function usePetForm(props: Props) {
           ?.id,
         sex: pet.sex,
         breed: pet.breed,
-        dateOfBirth: pet.dateOfBirth ? new Date(pet.dateOfBirth) : null,
+        dateOfBirth: pet.dateOfBirth
+          ? new Date(pet.dateOfBirth + "T00:00:00+00:00")
+          : null,
         color: pet.color,
         weight: String(pet.weight),
         about: pet.about ?? undefined,

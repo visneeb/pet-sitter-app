@@ -9,6 +9,11 @@ import {
 import { SitterProfileFormValues } from "@/lib/validations/sitterProfileValidation";
 import { PetSitterDetail } from "@/services/api/sitterApi";
 
+/** Defer setValue until after React finishes the current commit (not just the stack). */
+function deferFormUpdate(fn: () => void) {
+  setTimeout(fn, 0);
+}
+
 export function useAddressFields(
   methods: UseFormReturn<SitterProfileFormValues>,
 ) {
@@ -18,6 +23,8 @@ export function useAddressFields(
 
   const isPopulating = useRef(false);
   const isExternalUpdate = useRef(false);
+  const subDistrictsRef = useRef<SubDistrict[]>([]);
+  subDistrictsRef.current = subDistricts;
 
   const setExternalUpdate = useCallback((isExternal: boolean) => {
     isExternalUpdate.current = isExternal;
@@ -40,11 +47,17 @@ export function useAddressFields(
             .getDistrictsByProvince(provinceId)
             .then(setDistricts)
             .catch(() => setDistricts([]));
+          deferFormUpdate(() => {
+            methods.setValue("districtId", 0);
+            methods.setValue("subDistrictId", 0);
+          });
         } else {
-          setDistricts([]);
+          deferFormUpdate(() => {
+            setDistricts([]);
+            methods.setValue("districtId", 0);
+            methods.setValue("subDistrictId", 0);
+          });
         }
-        methods.setValue("districtId", 0);
-        methods.setValue("subDistrictId", 0);
       }
 
       if (name === "districtId") {
@@ -55,38 +68,45 @@ export function useAddressFields(
             .getSubDistrictsByDistrict(districtId)
             .then(setSubDistricts)
             .catch(() => setSubDistricts([]));
+          deferFormUpdate(() => {
+            methods.setValue("subDistrictId", 0);
+          });
         } else {
-          setSubDistricts([]);
+          deferFormUpdate(() => {
+            setSubDistricts([]);
+            methods.setValue("subDistrictId", 0);
+          });
         }
-        methods.setValue("subDistrictId", 0);
       }
 
       if (name === "subDistrictId") {
         if (isPopulating.current || isExternalUpdate.current) return;
         const subDistrictId = value.subDistrictId as number;
-        if (subDistrictId > 0) {
-          const selected = subDistricts.find(
-            (sd) => sd.subDistrictId === subDistrictId,
-          );
-          methods.setValue(
-            "postalCode",
-            selected ? String(selected.postCode) : "",
-            {
+        deferFormUpdate(() => {
+          if (subDistrictId > 0) {
+            const selected = subDistrictsRef.current.find(
+              (sd) => sd.subDistrictId === subDistrictId,
+            );
+            methods.setValue(
+              "postalCode",
+              selected ? String(selected.postCode) : "",
+              {
+                shouldDirty: true,
+                shouldValidate: true,
+              },
+            );
+          } else {
+            methods.setValue("postalCode", "", {
               shouldDirty: true,
               shouldValidate: true,
-            },
-          );
-        } else {
-          methods.setValue("postalCode", "", {
-            shouldDirty: true,
-            shouldValidate: true,
-          });
-        }
+            });
+          }
+        });
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [methods, subDistricts]);
+  }, [methods]);
 
   const populateAddressFields = useCallback(
     async (data: PetSitterDetail) => {
