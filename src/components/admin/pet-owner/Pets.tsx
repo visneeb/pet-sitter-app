@@ -16,8 +16,6 @@ const showPetModal = (petId: number) => {
 };
 
 function Pets({ owner }: { owner: OwnerProfileResponse }) {
-  const space = 1;
-
   return owner.pets.length ? (
     <>
       <ul className="flex flex-col grid-cols-[repeat(auto-fit,240px)] justify-between gap-4 sm:grid">

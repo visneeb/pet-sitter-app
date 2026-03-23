@@ -51,11 +51,12 @@ export default function PetSitterPage() {
               <input
                 type="checkbox"
                 className="checkbox checked:border-orange-500 checked:bg-orange-400 checked:text-orange-600"
+                checked={pendingUpdateFilter}
                 onChange={(event) =>
                   handlePendingUpdateChange(event.target.checked)
                 }
               />
-              Pending update
+              Awaiting approval
             </label>
             <div className="border-t border-gray-300 mb-2" />
             <li>
