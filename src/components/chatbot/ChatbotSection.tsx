@@ -23,7 +23,7 @@ function ChatbotSection() {
         <div className="fixed z-1000 bottom-4 right-4 flex flex-col items-end gap-3 md:bottom-6 md:right-6 xl:bottom-8 xl:right-8">
           {chatbot.isOpen && <ChatbotContainer chatbot={chatbot} />}
           {chatbot.showIntro && (
-            <aside className="enter-from-bottom max-w-xs rounded-2xl rounded-br-sm bg-white px-4 py-3 shadow-[0_0_12px_-2px_rgba(0,0,0,0.3)] style-body-2 text-gray-800">
+            <aside className="enter-from-bottom max-w-xs rounded-2xl rounded-br-sm bg-white px-4 py-3 shadow-[0_0_8px_-2px_rgba(0,0,0,0.3)] style-body-2 text-gray-800">
               Try searching with{" "}
               <span className="font-semibold text-orange-600">
                 Pet Sitter Chatbot
