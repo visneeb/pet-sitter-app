@@ -109,3 +109,10 @@ export function formatTransactionDate(createdAt: string) {
   });
 }
 
+export function formatTransactionDateWithOutWeekDay(createdAt: string) {
+  return new Date(createdAt).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
