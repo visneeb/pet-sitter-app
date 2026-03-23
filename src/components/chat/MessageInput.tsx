@@ -7,10 +7,17 @@ const TEXTAREA_MAX_HEIGHT_PX = 200;
 
 type MessageInputProps = {
   onSend: (message: string) => void;
+  onTypingStart?: () => void;
+  onTypingStop?: () => void;
 };
-export default function MessageInput({ onSend }: MessageInputProps) {
+export default function MessageInput({
+  onSend,
+  onTypingStart,
+  onTypingStop,
+}: MessageInputProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isTypingRef = useRef(false);
 
   const adjustHeight = () => {
     const el = textareaRef.current;
@@ -30,17 +37,39 @@ export default function MessageInput({ onSend }: MessageInputProps) {
     adjustHeight();
   }, [message]);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const startTyping = () => {
+    if (isTypingRef.current) return;
+    isTypingRef.current = true;
+    onTypingStart?.();
+  };
+
+  const stopTyping = () => {
+    if (!isTypingRef.current) return;
+    isTypingRef.current = false;
+    onTypingStop?.();
+  };
+
+  useEffect(() => {
+    return () => {
+      stopTyping();
+    };
+  }, []);
+
+  const submitMessage = () => {
     onSend(message);
     setMessage("");
+    stopTyping();
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    submitMessage();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onSend(message);
-      setMessage("");
+      submitMessage();
     }
   };
 
@@ -60,8 +89,17 @@ export default function MessageInput({ onSend }: MessageInputProps) {
           rows={1}
           className="min-h-10 flex-1 resize-none overflow-y-hidden  style-body-2 px-4 py-2.5 outline-none placeholder:text-gray-400 focus:border-orange-400 max-h-50"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) => {
+            const nextValue = e.target.value;
+            setMessage(nextValue);
+            if (nextValue.trim().length > 0) {
+              startTyping();
+            } else {
+              stopTyping();
+            }
+          }}
           onKeyDown={handleKeyDown}
+          onBlur={stopTyping}
         />
 
         <button

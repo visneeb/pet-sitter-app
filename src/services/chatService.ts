@@ -20,6 +20,11 @@ export interface MessageReadEvent {
   readAt: string;
 }
 
+export interface TypingEvent {
+  conversationId: string;
+  userId: string;
+}
+
 type SocketAck<T = undefined> = {
   ok: boolean;
   data?: T;
@@ -120,6 +125,18 @@ class ChatService {
     this.socket.emit("send-message", payload);
   }
 
+  startTyping(conversationId: string) {
+    const socket = this.connect();
+    if (!socket || !socket.connected) return;
+    socket.emit("typing-start", { conversationId });
+  }
+
+  stopTyping(conversationId: string) {
+    const socket = this.connect();
+    if (!socket || !socket.connected) return;
+    socket.emit("typing-stop", { conversationId });
+  }
+
   markAsRead(conversationId: string, messageId: string) {
     this.pendingReadMarkers.set(conversationId, messageId);
     const socket = this.connect();
@@ -148,6 +165,26 @@ class ChatService {
   offMessageRead(callback: (payload: MessageReadEvent) => void) {
     if (!this.socket) return;
     this.socket.off("message-read", callback);
+  }
+
+  onTypingStart(callback: (payload: TypingEvent) => void) {
+    if (!this.socket) return;
+    this.socket.on("typing-start", callback);
+  }
+
+  offTypingStart(callback: (payload: TypingEvent) => void) {
+    if (!this.socket) return;
+    this.socket.off("typing-start", callback);
+  }
+
+  onTypingStop(callback: (payload: TypingEvent) => void) {
+    if (!this.socket) return;
+    this.socket.on("typing-stop", callback);
+  }
+
+  offTypingStop(callback: (payload: TypingEvent) => void) {
+    if (!this.socket) return;
+    this.socket.off("typing-stop", callback);
   }
 
   disconnect() {

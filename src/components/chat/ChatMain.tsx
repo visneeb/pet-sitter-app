@@ -15,10 +15,11 @@ type ChatMainProps = {
 export default function ChatMain({ conversation, onClose }: ChatMainProps) {
   const { user } = useAuth();
   const currentUserId = user?.id ?? null;
-  const { messages, sendMessage, isLoading } = useChat({
+  const { messages, sendMessage, isLoading, isOtherTyping, startTyping, stopTyping } =
+    useChat({
     conversationId: conversation?.id ?? null,
     currentUserId,
-  });
+    });
   return (
     <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
       <header className="flex h-24 items-center justify-between bg-gray-100 px-10 py-6">
@@ -65,6 +66,8 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
               <MessageList
                 messages={messages}
                 currentUserId={currentUserId}
+                isOtherTyping={isOtherTyping}
+                typingDisplayName={conversation.name}
               />
             )}
           </div>
@@ -80,7 +83,11 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
         )}
       </div>
 
-      <MessageInput onSend={sendMessage} />
+      <MessageInput
+        onSend={sendMessage}
+        onTypingStart={startTyping}
+        onTypingStop={stopTyping}
+      />
     </section>
   );
 }

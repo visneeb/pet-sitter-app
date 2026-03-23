@@ -17,8 +17,6 @@ export type Conversation = {
   lastMessage: string;
 };
 
-type ActivePanel = "sidebar" | "chat";
-
 type ChatPageContentProps = {
   routeConversationId: string | null;
 };
@@ -40,11 +38,8 @@ export default function ChatPageContent({
     string | null
   >(routeConversationId);
   const [isMobile, setIsMobile] = useState(false);
-  const [activePanel, setActivePanel] = useState<ActivePanel>("sidebar");
 
-  // ✅ No connect/disconnect here — ChatUnreadProvider owns the socket lifecycle
-
-  // Tell the unread context which conversation is open so it skips incrementing
+  // Tell unread context which conversation is open so it skips incrementing
   useEffect(() => {
     setOpenConversationId(routeConversationId);
     return () => {
@@ -52,7 +47,7 @@ export default function ChatPageContent({
     };
   }, [routeConversationId, setOpenConversationId]);
 
-  // Clear badge when URL changes to a conversation
+  // Sync selected conversation with route + clear unread
   useEffect(() => {
     setSelectedConversationId(routeConversationId);
     if (routeConversationId) {
@@ -70,18 +65,20 @@ export default function ChatPageContent({
     }));
   }, []);
 
-  // Auto-select first conversation when no route param
+  // Auto-select first conversation only on desktop when no route param
   useEffect(() => {
+    if (isMobile) return;
     if (routeConversationId) return;
     if (!conversations.length) return;
 
     const hasSelected = conversations.some(
       (c) => c.id === selectedConversationId,
     );
+
     if (!selectedConversationId || !hasSelected) {
       setSelectedConversationId(conversations[0].id);
     }
-  }, [routeConversationId, conversations, selectedConversationId]);
+  }, [isMobile, routeConversationId, conversations, selectedConversationId]);
 
   // Load conversations on mount
   useEffect(() => {
@@ -124,7 +121,6 @@ export default function ChatPageContent({
         const idx = prev.findIndex((c) => c.id === message.conversationId);
 
         if (idx === -1) {
-          // New conversation — reload list
           loadConversations()
             .then((next) => {
               if (cancelled) return;
@@ -134,7 +130,6 @@ export default function ChatPageContent({
           return prev;
         }
 
-        // Move to top with updated lastMessage
         const updated = [...prev];
         updated[idx] = {
           ...updated[idx],
@@ -181,13 +176,11 @@ export default function ChatPageContent({
     }
   }, [user, loading, router]);
 
-  // Responsive panel handling
+  // Responsive detection only
   useEffect(() => {
     const handleResize = () => {
       if (typeof window === "undefined") return;
-      const isNowMobile = window.innerWidth < 768;
-      setIsMobile(isNowMobile);
-      if (!isNowMobile) setActivePanel("sidebar");
+      setIsMobile(window.innerWidth < 768);
     };
 
     handleResize();
@@ -200,17 +193,18 @@ export default function ChatPageContent({
     setOpenConversationId(id);
     setSelectedConversationId(id);
     router.push(`/chat/${id}`);
-    if (isMobile) setActivePanel("chat");
   };
 
   const selectedConversation = useMemo(() => {
     if (!conversations.length) return null;
+
     if (routeConversationId) {
       const fromRoute = conversations.find(
         (c) => String(c.id) === String(routeConversationId),
       );
       if (fromRoute) return fromRoute;
     }
+
     if (selectedConversationId != null) {
       return (
         conversations.find(
@@ -218,6 +212,7 @@ export default function ChatPageContent({
         ) ?? null
       );
     }
+
     return null;
   }, [conversations, routeConversationId, selectedConversationId]);
 
@@ -230,26 +225,30 @@ export default function ChatPageContent({
   return (
     <main className="mx-auto flex min-h-0 w-full flex-1 flex-col overflow-hidden">
       <section className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden bg-white">
-        <ChatSidebar
-          conversations={conversations}
-          selectedConversationId={selectedConversationId}
-          onSelectConversation={handleSelectConversation}
-          isFullWidth={isMobile && activePanel === "sidebar"}
-        />
-
         {isMobile ? (
-          <div
-            className={`absolute inset-0 z-10 flex transform bg-white transition-transform duration-300 ease-out ${
-              activePanel === "chat" ? "translate-x-0" : "translate-x-full"
-            }`}
-          >
+          routeConversationId ? (
             <ChatMain
               conversation={selectedConversation}
-              onClose={() => setActivePanel("sidebar")}
+              onClose={() => router.push("/chat")}
             />
-          </div>
+          ) : (
+            <ChatSidebar
+              conversations={conversations}
+              selectedConversationId={selectedConversationId}
+              onSelectConversation={handleSelectConversation}
+              isFullWidth
+            />
+          )
         ) : (
-          <ChatMain conversation={selectedConversation} />
+          <>
+            <ChatSidebar
+              conversations={conversations}
+              selectedConversationId={selectedConversationId}
+              onSelectConversation={handleSelectConversation}
+              isFullWidth={false}
+            />
+            <ChatMain conversation={selectedConversation} />
+          </>
         )}
       </section>
     </main>
