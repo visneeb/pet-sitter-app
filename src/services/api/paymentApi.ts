@@ -1,4 +1,5 @@
 import axios from "axios";
+import { PaymentList } from "@/types/paymentType";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -13,6 +14,11 @@ const getAuthHeaders = () => {
     "Content-Type": "application/json",
   };
 };
+
+export interface PayoutSummary {
+  totalEarning: number;
+  transactions: PaymentList[];
+}
 
 export const paymentApi = {
   createCardIntent: async (bookingId: number, amount: number) => {
@@ -38,14 +44,6 @@ export const paymentApi = {
       `${API_URL}/api/payment/payout-summary/${petSitterId}`,
       { headers: getAuthHeaders() },
     );
-    return response.data as {
-      totalEarning: number;
-      transactions: {
-        transactionId: number;
-        paidAt: string;
-        amount: string;
-        ownerName: string;
-      }[];
-    };
+    return response.data as PayoutSummary;
   },
 };
