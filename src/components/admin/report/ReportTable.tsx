@@ -27,8 +27,8 @@ export default function ReportTable() {
     limit,
   });
   return (
-    <>
-      <header className="flex items-center justify-between mb-6">
+    <section className="flex flex-col gap-6 min-h-[calc(100vh-40px)] px-4 pt-10 pb-20 md:px-10 lg:p-0">
+      <header className="flex items-center justify-between">
         <p className="style-headline-3">Report</p>
         <Select
           className="w-60 h-[48px] style-body-2 text-gray-400 font-normal"
@@ -90,6 +90,6 @@ export default function ReportTable() {
           onPageChange={(page) => setPage(page)}
         />
       </div>
-    </>
+    </section>
   );
 }
