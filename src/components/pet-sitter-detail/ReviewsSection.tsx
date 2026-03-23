@@ -37,7 +37,7 @@ export default function ReviewsSection({
 
   const isControlled = onRatingFilterChange != null;
   const ratingFilter = isControlled
-    ? (ratingFilterProp ?? [])
+    ? ratingFilterProp ?? []
     : internalRatingFilter;
   const handleRatingChange = isControlled
     ? onRatingFilterChange!
@@ -51,61 +51,61 @@ export default function ReviewsSection({
   return (
     <section>
       <div className="px-flex flex-col gap-4 bg-gray-100 w-full px-6 py-6 rounded-tl-[120px] rounded-2xl">
-      <div className="px-6 py-6 bg-white rounded-xl rounded-tl-[99px] lg:rounded-l-full flex flex-col lg:flex-row w-full max-w-[800px] gap-10 lg:items-center ">
-        <div className="flex flex-col bg-black rounded-t-full rounded-l-full w-[146px] h-[146px] items-center justify-center shrink-0">
-          <h2 className="style-headline-2 text-white text-center">
-            {reviewCount === 0 ? "N/A" : rating}
-          </h2>
-          <p className="style-body-3 text-white">{reviewCount} Reviews</p>
+        <div className="px-6 py-6 bg-white rounded-xl rounded-tl-[99px] lg:rounded-l-full flex flex-col lg:flex-row w-full max-w-[800px] gap-10 lg:items-center ">
+          <div className="flex flex-col bg-black rounded-t-full rounded-l-full w-[146px] h-[146px] items-center justify-center shrink-0">
+            <h2 className="style-headline-2 text-white text-center">
+              {reviewCount === 0 ? "N/A" : rating.toFixed(1)}
+            </h2>
+            <p className="style-body-3 text-white">{reviewCount} Reviews</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="style-headline-3">Rating & Reviews</div>
+            <FilterRatingList
+              rating={ratingFilter}
+              onRatingChange={handleRatingChange}
+              allOptionLabel="All Reviews"
+              label=""
+              contentStyle="flex-row flex-wrap items-center gap-2"
+              listStyle="gap-x-2 gap-y-2"
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <div className="style-headline-3">Rating & Reviews</div>
-          <FilterRatingList
-            rating={ratingFilter}
-            onRatingChange={handleRatingChange}
-            allOptionLabel="All Reviews"
-            label=""
-            contentStyle="flex-row flex-wrap items-center gap-2"
-            listStyle="gap-x-2 gap-y-2"
-          />
-        </div>
-      </div>
 
-      {isLoading ? (
-        <>
-          <ReviewCardSkeleton />
-          <ReviewCardSkeleton />
-          <ReviewCardSkeleton isLast />
-        </>
-      ) : displayReviews.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 px-6 bg-gray-100 rounded-xl">
-          <p className="style-body-2 text-gray-500 text-center">
-            No Reviews for this pet sitter
-          </p>
-        </div>
-      ) : (
-        displayReviews.map((review: ReviewApi, index: number) => (
-          <ReviewCard
-            key={`${review.reviewer.name}-${index}`}
-            reviewerName={review.reviewer.name}
-            date={formatReviewDate(review.createdAt)}
-            comment={review.comment}
-            avatarUrl={review.reviewer.profileImgUrl}
-            rating={review.rating}
-            isLast={index === displayReviews.length - 1}
-          />
-        ))
-      )}
+        {isLoading ? (
+          <>
+            <ReviewCardSkeleton />
+            <ReviewCardSkeleton />
+            <ReviewCardSkeleton isLast />
+          </>
+        ) : displayReviews.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-6 bg-gray-100 rounded-xl">
+            <p className="style-body-2 text-gray-500 text-center">
+              No Reviews for this pet sitter
+            </p>
+          </div>
+        ) : (
+          displayReviews.map((review: ReviewApi, index: number) => (
+            <ReviewCard
+              key={`${review.reviewer.name}-${index}`}
+              reviewerName={review.reviewer.name}
+              date={formatReviewDate(review.createdAt)}
+              comment={review.comment}
+              avatarUrl={review.reviewer.profileImgUrl}
+              rating={review.rating}
+              isLast={index === displayReviews.length - 1}
+            />
+          ))
+        )}
       </div>
       <div className="pt-10 pb-20 flex justify-center bg-gray-50">
-      {displayReviews.length > 0 && totalPages > 1 && onPageChange && (
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={onPageChange}
-        />
-      )}
-      </div>  
+        {displayReviews.length > 0 && totalPages > 1 && onPageChange && (
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={onPageChange}
+          />
+        )}
+      </div>
     </section>
   );
 }

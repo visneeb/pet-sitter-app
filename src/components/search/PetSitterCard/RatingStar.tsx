@@ -10,7 +10,6 @@ interface RatingStarProps {
   colorFill?: string;
 }
 
-
 export default function RatingStar({
   sitter,
   containerClassName,
@@ -18,11 +17,11 @@ export default function RatingStar({
   colorStar = "#1CCD83",
   colorFill = "#1CCD83",
 }: Readonly<RatingStarProps>) {
-
   const sizeClass = starClassName ?? "w-3 h-3 sm:w-5 sm:h-5";
+
   return (
     <div className={cn("flex items-center gap-[2px] mt-2", containerClassName)}>
-      {Array.from({ length: sitter.rating }).map((_, i) => (
+      {Array.from({ length: Math.round(sitter.rating) }).map((_, i) => (
         <Star
           key={i}
           color={colorStar}
