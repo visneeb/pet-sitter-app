@@ -1,12 +1,14 @@
 import chatService from "@/services/chatService";
 import { chatApi } from "@/services/api/chatApi";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export type ChatMessage = {
   id: string;
   conversationId: string;
   senderId: string;
   text: string;
+  messageType: "text" | "image";
+  imageUrl: string | null;
   createdAt: string;
 };
 
@@ -18,10 +20,27 @@ type UseChatParams = {
 export function useChat({ conversationId, currentUserId }: UseChatParams) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isOtherTyping, setIsOtherTyping] = useState(false);
   const conversationIdStr =
     conversationId != null ? String(conversationId) : null;
   const typingTimeoutRef = useRef<number | null>(null);
+  const imageRetryRef = useRef<Record<string, number>>({});
+
+  const fetchMessages = useCallback(async () => {
+    if (!conversationIdStr) return [];
+
+    const data = await chatApi.getConversationMessages(conversationIdStr);
+    return (data.messages ?? []).map((msg) => ({
+      id: msg.id,
+      conversationId: msg.conversationId,
+      senderId: msg.senderId,
+      text: msg.text,
+      messageType: msg.messageType,
+      imageUrl: msg.imageUrl,
+      createdAt: msg.createdAt,
+    }));
+  }, [conversationIdStr]);
 
   // ✅ No connect/disconnect here — ChatUnreadProvider owns the socket lifecycle
 
@@ -29,6 +48,7 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
     if (!conversationIdStr) {
       setIsLoading(false);
       setIsOtherTyping(false);
+      imageRetryRef.current = {};
       return;
     }
 
@@ -40,21 +60,12 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
     // Fetch message history
     setMessages([]);
     setIsLoading(true);
-    chatApi
-      .getConversationMessages(conversationIdStr)
-      .then((data) => {
+    fetchMessages()
+      .then((initialMessages) => {
         if (cancelled) return;
-        const initialMessages = (data.messages ?? []).map((msg) => ({
-          id: msg.id,
-          conversationId: msg.conversationId,
-          senderId: msg.senderId,
-          text: msg.text,
-          createdAt: msg.createdAt,
-        }));
         setMessages(initialMessages);
         setIsLoading(false);
 
-        // Mark latest message as read if it's from someone else
         const latest = initialMessages[initialMessages.length - 1];
         if (latest && latest.senderId !== currentUserId) {
           chatService.markAsRead(conversationIdStr, latest.id);
@@ -126,7 +137,7 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
       // ✅ Do NOT leaveConversation here — ChatUnreadProvider needs to stay
       //    joined to receive unread counts for all conversations
     };
-  }, [conversationIdStr, currentUserId]);
+  }, [conversationIdStr, currentUserId, fetchMessages]);
 
   const sendMessage = (text: string) => {
     if (!conversationIdStr) return;
@@ -145,5 +156,47 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
     chatService.stopTyping(conversationIdStr);
   };
 
-  return { messages, sendMessage, isLoading, isOtherTyping, startTyping, stopTyping };
+  const sendImage = async (image: File) => {
+    if (!conversationIdStr) return;
+    setIsUploadingImage(true);
+    try {
+      const data = await chatApi.uploadConversationImage(conversationIdStr, image);
+      const uploadedMessage = data.message;
+
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === uploadedMessage.id)) return prev;
+        return [...prev, uploadedMessage];
+      });
+    } catch (error) {
+      console.error("Failed to upload chat image:", error);
+      throw error;
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const retryImageUrlForMessage = async (messageId: string) => {
+    const currentRetryCount = imageRetryRef.current[messageId] ?? 0;
+    if (currentRetryCount >= 1) return;
+    imageRetryRef.current[messageId] = currentRetryCount + 1;
+
+    try {
+      const refreshedMessages = await fetchMessages();
+      setMessages(refreshedMessages);
+    } catch (error) {
+      console.error("Failed to refresh chat image URLs:", error);
+    }
+  };
+
+  return {
+    messages,
+    sendMessage,
+    sendImage,
+    isLoading,
+    isUploadingImage,
+    isOtherTyping,
+    startTyping,
+    stopTyping,
+    retryImageUrlForMessage,
+  };
 }

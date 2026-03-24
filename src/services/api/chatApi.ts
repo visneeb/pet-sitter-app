@@ -20,6 +20,8 @@ export type MessageResponse = {
   conversationId: string;
   senderId: string;
   text: string;
+  messageType: "text" | "image";
+  imageUrl: string | null;
   createdAt: string;
 };
 
@@ -41,4 +43,18 @@ export const chatApi = {
     privateApi
       .get(`/chat/conversations/${conversationId}/messages`)
       .then((res) => res.data),
+
+  uploadConversationImage: (
+    conversationId: string,
+    image: File,
+  ): Promise<{ message: MessageResponse }> => {
+    const formData = new FormData();
+    formData.append("image", image);
+
+    return privateApi
+      .post(`/chat/conversations/${conversationId}/images`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => res.data);
+  },
 };

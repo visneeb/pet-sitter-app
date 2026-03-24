@@ -7,6 +7,7 @@ type MessageListProps = {
   currentUserId: string | null;
   isOtherTyping?: boolean;
   typingDisplayName?: string | null;
+  onImageLoadError?: (messageId: string) => void;
 };
 
 export default function MessageList({
@@ -14,6 +15,7 @@ export default function MessageList({
   currentUserId,
   isOtherTyping = false,
   typingDisplayName,
+  onImageLoadError,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -26,9 +28,13 @@ export default function MessageList({
     <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto px-2 pb-2">
       {messages.map((message) => (
         <MessageBubble
+          id={message.id}
           key={message.id}
           text={message.text}
+          messageType={message.messageType}
+          imageUrl={message.imageUrl}
           isMe={message.senderId === currentUserId ? "me" : "other"}
+          onImageLoadError={onImageLoadError}
         />
       ))}
       {isOtherTyping ? (

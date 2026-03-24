@@ -15,11 +15,20 @@ type ChatMainProps = {
 export default function ChatMain({ conversation, onClose }: ChatMainProps) {
   const { user } = useAuth();
   const currentUserId = user?.id ?? null;
-  const { messages, sendMessage, isLoading, isOtherTyping, startTyping, stopTyping } =
-    useChat({
+  const {
+    messages,
+    sendMessage,
+    sendImage,
+    isLoading,
+    isUploadingImage,
+    isOtherTyping,
+    startTyping,
+    stopTyping,
+    retryImageUrlForMessage,
+  } = useChat({
     conversationId: conversation?.id ?? null,
     currentUserId,
-    });
+  });
   return (
     <section className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
       <header className="flex h-24 items-center justify-between bg-gray-100 px-10 py-6">
@@ -68,6 +77,7 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
                 currentUserId={currentUserId}
                 isOtherTyping={isOtherTyping}
                 typingDisplayName={conversation.name}
+                onImageLoadError={retryImageUrlForMessage}
               />
             )}
           </div>
@@ -85,6 +95,8 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
 
       <MessageInput
         onSend={sendMessage}
+        onSendImage={sendImage}
+        isSendingImage={isUploadingImage}
         onTypingStart={startTyping}
         onTypingStop={stopTyping}
       />
