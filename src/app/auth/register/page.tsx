@@ -23,6 +23,10 @@ export default function RegisterPage() {
     { value: "owner", label: "Owner" },
     { value: "sitter", label: "Sitter" },
   ];
+  const activeRoleIndex = Math.max(
+    roles.findIndex(({ value }) => value === role),
+    0
+  );
 
   return (
     <div>
@@ -39,7 +43,15 @@ export default function RegisterPage() {
 
           {/* Role Toggle */}
           <div className="pt-4">
-            <div className="flex w-full bg-gray-100 rounded-full p-1">
+            <div className="relative grid w-full grid-cols-2 rounded-full bg-gray-100 p-1">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute bottom-1 left-1 top-1 rounded-full bg-white shadow transition-transform duration-300 ease-in-out"
+                style={{
+                  width: `calc((100% - 0.5rem) / ${roles.length})`,
+                  transform: `translateX(${activeRoleIndex * 100}%)`,
+                }}
+              />
               {roles.map(({ value, label }) => (
                 <button
                   key={value}
@@ -47,9 +59,9 @@ export default function RegisterPage() {
                   onClick={() => {
                     methods.setValue("role", value, { shouldValidate: true });
                   }}
-                  className={`flex-1 rounded-full py-2 text-sm font-medium transition ${
+                  className={`relative z-10 rounded-full py-2 text-sm font-medium transition-colors duration-500 hover:cursor-pointer ${
                     role === value
-                      ? "bg-white shadow text-orange-600"
+                      ? "text-orange-600"
                       : "text-gray-500"
                   }`}
                 >

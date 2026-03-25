@@ -17,6 +17,7 @@ const OWNER_PREFIXES = [
 ];
 
 const ADMIN_PREFIXES = ["/pet-owner", "/pet-sitter", "/report"];
+const CHAT_PREFIXES = ["/chat"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -33,7 +34,11 @@ export async function proxy(request: NextRequest) {
     (p) => pathname === p || pathname.startsWith(p + "/"),
   );
 
-  if (!isSitterRoute && !isOwnerRoute && !isAdminRoute) {
+  const isChatRoute = CHAT_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + "/"),
+  );
+
+  if (!isSitterRoute && !isOwnerRoute && !isAdminRoute && !isChatRoute) {
     return NextResponse.next();
   }
 
@@ -46,6 +51,7 @@ export async function proxy(request: NextRequest) {
   }
 
   const role = request.cookies.get("userRole")?.value;
+  const isSitterRole = role === "sitter" || role === "petsitter";
 
   if (role === "admin") {
     if (!isAdminRoute) {
@@ -58,8 +64,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/petsitter-profile", request.url));
   }
 
-  if (isSitterRoute && role !== "sitter") {
+  if (isSitterRoute && !isSitterRole) {
     return NextResponse.redirect(new URL("/user-profile", request.url));
+  }
+
+  if (isChatRoute && role !== "owner" && !isSitterRole) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (isAdminRoute) {
@@ -77,6 +87,8 @@ export const config = {
     "/petsitter-profile/:path*",
     "/booking-history/:path*",
     "/change-password/:path*",
+    "/chat",
+    "/chat/:path*",
     "/pets/:path*",
     "/user-profile/:path*",
     "/pet-owner/:path*",
