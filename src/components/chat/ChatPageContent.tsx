@@ -35,6 +35,12 @@ let conversationsCache: {
   loadedAt: 0,
 };
 
+const getMessagePreview = (message: Pick<ChatMessage, "text" | "messageType">) => {
+  if (message.messageType === "image") return "Sent an image";
+  const trimmed = message.text?.trim();
+  return trimmed || "Sent a message";
+};
+
 export default function ChatPageContent({
   routeConversationId,
 }: ChatPageContentProps) {
@@ -50,13 +56,17 @@ export default function ChatPageContent({
   >(routeConversationId);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Tell unread context which conversation is open so it skips incrementing
+  // Tell unread context which conversation is open so it skips incrementing.
+  // Split "set on change" vs "clear on unmount" to avoid transient null.
   useEffect(() => {
     setOpenConversationId(routeConversationId);
+  }, [routeConversationId, setOpenConversationId]);
+
+  useEffect(() => {
     return () => {
       setOpenConversationId(null);
     };
-  }, [routeConversationId, setOpenConversationId]);
+  }, [setOpenConversationId]);
 
   // Sync selected conversation with route + clear unread
   useEffect(() => {
@@ -72,7 +82,7 @@ export default function ChatPageContent({
       id: item.conversationId,
       name: item.name,
       avatarUrl: item.avatarUrl,
-      lastMessage: item.lastMessage,
+      lastMessage: item.lastMessage?.trim() || "Start a conversation",
     }));
   }, []);
 
@@ -166,12 +176,18 @@ export default function ChatPageContent({
         }
 
         const updated = [...prev];
+        const preview = getMessagePreview(message);
         updated[idx] = {
           ...updated[idx],
-          lastMessage: message.text || updated[idx].lastMessage,
+          lastMessage: preview,
         };
         const [moved] = updated.splice(idx, 1);
         updated.unshift(moved);
+        conversationsCache = {
+          userId: conversationsCache.userId,
+          conversations: updated,
+          loadedAt: Date.now(),
+        };
         return updated;
       });
     };
