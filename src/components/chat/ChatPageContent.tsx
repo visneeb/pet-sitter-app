@@ -316,19 +316,29 @@ export default function ChatPageContent({
     <main className="mx-auto flex min-h-0 w-full flex-1 flex-col overflow-hidden">
       <section className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden bg-white">
         {isMobile ? (
-          routeConversationId ? (
-            <ChatMain
-              conversation={selectedConversation}
-              onClose={() => router.push("/chat")}
-            />
-          ) : (
-            <ChatSidebar
-              conversations={conversations}
-              selectedConversationId={selectedConversationId}
-              onSelectConversation={handleSelectConversation}
-              isFullWidth
-            />
-          )
+          <div className="relative flex h-full min-h-0 w-full flex-1 overflow-hidden bg-black">
+            <div className="h-full w-full bg-black">
+              <ChatSidebar
+                conversations={conversations}
+                selectedConversationId={selectedConversationId}
+                onSelectConversation={handleSelectConversation}
+                isFullWidth
+              />
+            </div>
+
+            <div
+              className={`absolute inset-0 h-full w-full bg-white transform transition-transform duration-300 ease-in-out ${
+                routeConversationId ? "translate-x-0" : "translate-x-full"
+              } ${routeConversationId ? "pointer-events-auto" : "pointer-events-none"}`}
+            >
+              <ChatMain
+                conversation={routeConversationId ? selectedConversation : null}
+                onClose={
+                  routeConversationId ? () => router.push("/chat") : undefined
+                }
+              />
+            </div>
+          </div>
         ) : (
           <>
             <ChatSidebar
