@@ -31,6 +31,7 @@ export default function ConversationItem({
             src={conversation.avatarUrl}
             alt={conversation.name}
             fill
+            sizes="40px"
             className="object-cover"
           />
         ) : (

@@ -40,6 +40,7 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
                   src={conversation.avatarUrl}
                   alt={conversation.name}
                   fill
+                  sizes="48px"
                   className="object-cover"
                 />
               ) : (
