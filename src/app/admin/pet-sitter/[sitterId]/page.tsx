@@ -16,10 +16,9 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { RejectConfirmModal } from "@/components/admin/pet-sitter/reject-confirmation/RejectConfirmModal";
 import { RejectionNote } from "@/components/pet-sitter/RejectionNote";
-import { StatusConfig } from "../../../../types/booking";
 import Review from "@/components/admin/pet-sitter/Review";
 import Booking from "@/components/admin/pet-sitter/Booking";
 
@@ -35,7 +34,7 @@ const showApproveModal = () => {
   dialog.showModal();
 };
 
-export default function PetSitterLayout() {
+function PetSitterPageContent() {
   const params = useParams<{ sitterId: string }>();
   const pathname = usePathname();
   const router = useRouter();
@@ -45,8 +44,8 @@ export default function PetSitterLayout() {
     tabParam === "booking"
       ? "booking"
       : tabParam === "reviews"
-        ? "reviews"
-        : "profile";
+      ? "reviews"
+      : "profile";
 
   const setTab = useCallback(
     (next: SitterAdminTab) => {
@@ -248,5 +247,19 @@ export default function PetSitterLayout() {
         </>
       )}
     </>
+  );
+}
+
+export default function PetSitterLayout() {
+  return (
+    <Suspense
+      fallback={
+        <section className="flex items-center justify-center h-200">
+          <Loading />
+        </section>
+      }
+    >
+      <PetSitterPageContent />
+    </Suspense>
   );
 }
