@@ -6,20 +6,20 @@ import formatLocalDate from "@/utils/formatLocalDate";
 
 // Builds a FormData payload the backend expects:
 //    - field "body": stringified JSON with name/phone/email/password etc.
+//      (including removeProfileImg when removing avatar)
 //    - field "file": the image File (optional)
-//    - field "removeProfileImg": "true" if removing avatar (optional)
 export function buildFormData(
   bodyJson: object,
   file?: File | null,
   removeProfileImg?: boolean,
 ): FormData {
   const formData = new FormData();
-  formData.append("body", JSON.stringify(bodyJson));
+  const requestBody = removeProfileImg
+    ? { ...bodyJson, removeProfileImg: true }
+    : bodyJson;
+  formData.append("body", JSON.stringify(requestBody));
   if (file) {
     formData.append("image", file);
-  }
-  if (removeProfileImg) {
-    formData.append("removeProfileImg", "true");
   }
   return formData;
 }

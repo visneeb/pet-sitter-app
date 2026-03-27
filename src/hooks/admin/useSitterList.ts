@@ -1,11 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useSeed } from "@/contexts/SeedContext";
 import { adminApi } from "@/services/api/admin";
 import type { SitterItem } from "@/types/admin";
 import { SitterStatus, UserStatus } from "@/constants/status";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+type SitterListStatus = SitterStatus | Extract<UserStatus, "Banned">;
+
+const STATUS_SLUG: Record<SitterListStatus, string> = {
+  Unapproved: "unapproved",
+  "Waiting for approval": "waiting-for-approval",
+  Approved: "approved",
+  Rejected: "rejected",
+  Banned: "banned",
+};
+
+const SLUG_TO_STATUS: Record<string, SitterListStatus> = {
+  unapproved: "Unapproved",
+  "waiting-for-approval": "Waiting for approval",
+  approved: "Approved",
+  rejected: "Rejected",
+  banned: "Banned",
+};
 
 export interface UseSitterListOptions {
   limit?: number;
@@ -19,7 +38,7 @@ export interface UseSitterListResult {
   isLoading: boolean;
   error: string | null;
   searchKeyword: string;
-  pendingUpdateFilter: boolean | null;
+  pendingUpdateFilter: boolean;
   statusFilter: SitterStatus | Extract<UserStatus, "Banned"> | null;
   handleKeywordChange: (value: string) => void;
   handleStatusChange: (
@@ -37,14 +56,35 @@ export function useSitterList(
   const { seed } = useSeed();
   const limit = options?.limit ?? DEFAULT_LIMIT;
 
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [searchKeyword, setSearchKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    SitterStatus | Extract<UserStatus, "Banned"> | null
-  >(null);
-  const [pendingUpdateFilter, setPendingUpdateFilter] =
-    useState<boolean>(false);
   const [page, setPage] = useState(1);
+
+  const pendingUpdateFilter = useMemo(() => {
+    const raw = searchParams.get("awaiting_approval");
+    return raw === "true";
+  }, [searchParams]);
+
+  const statusFilter = useMemo((): SitterListStatus | null => {
+    const raw = searchParams.get("status");
+    if (raw === null || raw === "") return null;
+    const key = raw.toLowerCase().trim();
+    return SLUG_TO_STATUS[key] ?? null;
+  }, [searchParams]);
+
+  const replaceQuery = useCallback(
+    (mutate: (qs: URLSearchParams) => void) => {
+      const qs = new URLSearchParams(searchParams.toString());
+      mutate(qs);
+      const url = qs.toString() ? `${pathname}?${qs.toString()}` : pathname;
+      router.replace(url, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
   const [state, setState] = useState<
     Omit<
       UseSitterListResult,
@@ -79,7 +119,6 @@ export function useSitterList(
   }, [statusFilter, pendingUpdateFilter]);
 
   useEffect(() => {
-    console.log(4444);
     const controller = new AbortController();
 
     const fetchSitters = async () => {
@@ -135,12 +174,25 @@ export function useSitterList(
   const handleStatusChange = (
     status: SitterStatus | Extract<UserStatus, "Banned"> | null,
   ) => {
-    setStatusFilter(status);
+    replaceQuery((qs) => {
+      if (status === null) {
+        qs.delete("status");
+      } else {
+        qs.set("status", STATUS_SLUG[status]);
+      }
+    });
   };
 
   const handlePendingUpdateChange = (value: boolean) => {
-    setPendingUpdateFilter(value);
-    setStatusFilter(null);
+    replaceQuery((qs) => {
+      if (value) {
+        qs.set("awaiting_approval", "true");
+      } else {
+        qs.delete("awaiting_approval");
+      }
+
+      qs.delete("status");
+    });
   };
 
   return useMemo(

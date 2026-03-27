@@ -8,8 +8,9 @@ import { useSitterList } from "@/hooks/admin/useSitterList";
 import cn from "@/utils/cn";
 import { Filter, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Suspense } from "react";
 
-export default function PetSitterPage() {
+function PetSitterPageContent() {
   const {
     sitters,
     totalSitters,
@@ -51,11 +52,12 @@ export default function PetSitterPage() {
               <input
                 type="checkbox"
                 className="checkbox checked:border-orange-500 checked:bg-orange-400 checked:text-orange-600"
+                checked={pendingUpdateFilter}
                 onChange={(event) =>
                   handlePendingUpdateChange(event.target.checked)
                 }
               />
-              Pending update
+              Awaiting approval
             </label>
             <div className="border-t border-gray-300 mb-2" />
             <li>
@@ -201,5 +203,19 @@ export default function PetSitterPage() {
         />
       </footer>
     </section>
+  );
+}
+
+export default function PetSitterPage() {
+  return (
+    <Suspense
+      fallback={
+        <section className="flex min-h-[calc(100vh-40px)] items-center justify-center px-4 pt-10 pb-20 md:px-10 lg:p-0">
+          <p className="style-body-2 text-gray-400">Loading...</p>
+        </section>
+      }
+    >
+      <PetSitterPageContent />
+    </Suspense>
   );
 }
