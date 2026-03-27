@@ -41,6 +41,18 @@ const getMessagePreview = (message: Pick<ChatMessage, "text" | "messageType">) =
   return trimmed || "Sent a message";
 };
 
+const normalizeConversation = (item: {
+  conversationId: string;
+  name: string;
+  avatarUrl: string | null;
+  lastMessage: string;
+}): Conversation => ({
+  id: item.conversationId,
+  name: item.name,
+  avatarUrl: item.avatarUrl,
+  lastMessage: item.lastMessage?.trim() || "Start a conversation",
+});
+
 export default function ChatPageContent({
   routeConversationId,
 }: ChatPageContentProps) {
@@ -55,6 +67,17 @@ export default function ChatPageContent({
     string | null
   >(routeConversationId);
   const [isMobile, setIsMobile] = useState(false);
+
+  const updateConversationCache = useCallback(
+    (nextConversations: Conversation[], userId?: string | null) => {
+      conversationsCache = {
+        userId: userId ?? conversationsCache.userId,
+        conversations: nextConversations,
+        loadedAt: Date.now(),
+      };
+    },
+    [],
+  );
 
   // Tell unread context which conversation is open so it skips incrementing.
   // Split "set on change" vs "clear on unmount" to avoid transient null.
@@ -78,12 +101,7 @@ export default function ChatPageContent({
 
   const loadConversations = useCallback(async () => {
     const data = await chatApi.getConversations();
-    return (data.conversations ?? []).map((item) => ({
-      id: item.conversationId,
-      name: item.name,
-      avatarUrl: item.avatarUrl,
-      lastMessage: item.lastMessage?.trim() || "Start a conversation",
-    }));
+    return (data.conversations ?? []).map(normalizeConversation);
   }, []);
 
   const shouldUseCachedConversations = useCallback(() => {
@@ -127,11 +145,7 @@ export default function ChatPageContent({
     loadConversations()
       .then((next) => {
         if (cancelled) return;
-        conversationsCache = {
-          userId: user.id,
-          conversations: next,
-          loadedAt: Date.now(),
-        };
+        updateConversationCache(next, user.id);
         setConversations(next);
       })
       .catch((error) => {
@@ -148,7 +162,13 @@ export default function ChatPageContent({
     return () => {
       cancelled = true;
     };
-  }, [loading, user, loadConversations, shouldUseCachedConversations]);
+  }, [
+    loading,
+    user,
+    loadConversations,
+    shouldUseCachedConversations,
+    updateConversationCache,
+  ]);
 
   // Update sidebar lastMessage when new messages arrive
   useEffect(() => {
@@ -164,11 +184,7 @@ export default function ChatPageContent({
           loadConversations()
             .then((next) => {
               if (cancelled) return;
-              conversationsCache = {
-                userId: user.id,
-                conversations: next,
-                loadedAt: Date.now(),
-              };
+              updateConversationCache(next, user.id);
               setConversations(next);
             })
             .catch(console.error);
@@ -183,11 +199,7 @@ export default function ChatPageContent({
         };
         const [moved] = updated.splice(idx, 1);
         updated.unshift(moved);
-        conversationsCache = {
-          userId: conversationsCache.userId,
-          conversations: updated,
-          loadedAt: Date.now(),
-        };
+        updateConversationCache(updated, user.id);
         return updated;
       });
     };
@@ -198,7 +210,7 @@ export default function ChatPageContent({
       cancelled = true;
       chatService.offNewMessage(handleNewMessage);
     };
-  }, [user?.id, loadConversations]);
+  }, [user?.id, loadConversations, updateConversationCache]);
 
   // Guard invalid conversation route; refresh once before redirecting.
   useEffect(() => {
@@ -213,11 +225,7 @@ export default function ChatPageContent({
     loadConversations()
       .then((next) => {
         if (cancelled) return;
-        conversationsCache = {
-          userId: conversationsCache.userId,
-          conversations: next,
-          loadedAt: Date.now(),
-        };
+        updateConversationCache(next, user?.id ?? null);
         setConversations(next);
         const nowExists = next.some((c) => c.id === routeConversationId);
         if (!nowExists) {
@@ -242,6 +250,8 @@ export default function ChatPageContent({
     conversations,
     router,
     loadConversations,
+    updateConversationCache,
+    user?.id,
   ]);
 
   // Auth guard
