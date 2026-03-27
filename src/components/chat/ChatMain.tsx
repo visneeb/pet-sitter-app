@@ -77,6 +77,8 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
                 currentUserId={currentUserId}
                 isOtherTyping={isOtherTyping}
                 typingDisplayName={conversation.name}
+                otherAvatarUrl={conversation.avatarUrl}
+                otherDisplayName={conversation.name}
                 onImageLoadError={retryImageUrlForMessage}
               />
             )}

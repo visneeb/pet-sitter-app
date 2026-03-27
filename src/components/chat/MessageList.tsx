@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import MessageBubble from "./MessageBubble";
 import { ChatMessage } from "@/hooks/chat/useChat";
 
@@ -8,6 +8,8 @@ type MessageListProps = {
   isOtherTyping?: boolean;
   typingDisplayName?: string | null;
   onImageLoadError?: (messageId: string) => void;
+  otherAvatarUrl?: string | null;
+  otherDisplayName?: string | null;
 };
 
 export default function MessageList({
@@ -16,13 +18,18 @@ export default function MessageList({
   isOtherTyping = false,
   typingDisplayName,
   onImageLoadError,
+  otherAvatarUrl,
+  otherDisplayName,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollToBottom = useCallback(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
   useEffect(() => {
     // เลื่อนไปที่ข้อความล่าสุดทุกครั้งที่ messages เปลี่ยน
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isOtherTyping]);
+    scrollToBottom();
+  }, [messages, isOtherTyping, scrollToBottom]);
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto px-2 pb-2">
@@ -35,6 +42,9 @@ export default function MessageList({
           imageUrl={message.imageUrl}
           isMe={message.senderId === currentUserId ? "me" : "other"}
           onImageLoadError={onImageLoadError}
+          onImageLoad={scrollToBottom}
+          otherAvatarUrl={otherAvatarUrl}
+          otherDisplayName={otherDisplayName}
         />
       ))}
       {isOtherTyping ? (
