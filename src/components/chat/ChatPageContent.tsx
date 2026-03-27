@@ -23,6 +23,17 @@ type ChatPageContentProps = {
 
 const canAccessChat = (role?: string) =>
   role === "owner" || role === "petsitter" || role === "sitter";
+const CONVERSATION_CACHE_TTL_MS = 30_000;
+
+let conversationsCache: {
+  userId: string | null;
+  conversations: Conversation[] | null;
+  loadedAt: number;
+} = {
+  userId: null,
+  conversations: null,
+  loadedAt: 0,
+};
 
 export default function ChatPageContent({
   routeConversationId,
@@ -65,6 +76,13 @@ export default function ChatPageContent({
     }));
   }, []);
 
+  const shouldUseCachedConversations = useCallback(() => {
+    if (!conversationsCache.conversations) return false;
+    if (!user?.id || conversationsCache.userId !== user.id) return false;
+    const age = Date.now() - conversationsCache.loadedAt;
+    return age < CONVERSATION_CACHE_TTL_MS;
+  }, [user?.id]);
+
   // Auto-select first conversation only on desktop when no route param
   useEffect(() => {
     if (isMobile) return;
@@ -85,6 +103,13 @@ export default function ChatPageContent({
     if (loading || !user) return;
     if (!canAccessChat(user.role)) return;
 
+    if (shouldUseCachedConversations()) {
+      setConversations(conversationsCache.conversations ?? []);
+      setIsConversationsLoading(false);
+      setHasLoadedConversations(true);
+      return;
+    }
+
     let cancelled = false;
     setIsConversationsLoading(true);
     setHasLoadedConversations(false);
@@ -92,6 +117,11 @@ export default function ChatPageContent({
     loadConversations()
       .then((next) => {
         if (cancelled) return;
+        conversationsCache = {
+          userId: user.id,
+          conversations: next,
+          loadedAt: Date.now(),
+        };
         setConversations(next);
       })
       .catch((error) => {
@@ -108,7 +138,7 @@ export default function ChatPageContent({
     return () => {
       cancelled = true;
     };
-  }, [loading, user, loadConversations]);
+  }, [loading, user, loadConversations, shouldUseCachedConversations]);
 
   // Update sidebar lastMessage when new messages arrive
   useEffect(() => {
@@ -124,6 +154,11 @@ export default function ChatPageContent({
           loadConversations()
             .then((next) => {
               if (cancelled) return;
+              conversationsCache = {
+                userId: user.id,
+                conversations: next,
+                loadedAt: Date.now(),
+              };
               setConversations(next);
             })
             .catch(console.error);
@@ -149,19 +184,48 @@ export default function ChatPageContent({
     };
   }, [user?.id, loadConversations]);
 
-  // Redirect if routeConversationId doesn't exist in conversations
+  // Guard invalid conversation route; refresh once before redirecting.
   useEffect(() => {
     if (!routeConversationId) return;
     if (!hasLoadedConversations || isConversationsLoading) return;
 
     const exists = conversations.some((c) => c.id === routeConversationId);
-    if (!exists) router.replace("/chat");
+    if (exists) return;
+
+    let cancelled = false;
+    setIsConversationsLoading(true);
+    loadConversations()
+      .then((next) => {
+        if (cancelled) return;
+        conversationsCache = {
+          userId: conversationsCache.userId,
+          conversations: next,
+          loadedAt: Date.now(),
+        };
+        setConversations(next);
+        const nowExists = next.some((c) => c.id === routeConversationId);
+        if (!nowExists) {
+          router.replace("/chat");
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to refresh conversations for route:", error);
+        if (!cancelled) router.replace("/chat");
+      })
+      .finally(() => {
+        if (!cancelled) setIsConversationsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     routeConversationId,
     hasLoadedConversations,
     isConversationsLoading,
     conversations,
     router,
+    loadConversations,
   ]);
 
   // Auth guard
