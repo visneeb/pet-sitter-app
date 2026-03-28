@@ -475,7 +475,7 @@ export default function BookingPage(): React.JSX.Element {
             {isSuccessOpen && latestBooking ? (
             <div className="w-full min-w-0">
               <div
-              className="w-full min-w-0 bg-green-500 lg:rounded-2xl lg:w-158 lg:mx-auto">
+              className="w-full min-w-0 bg-white lg:rounded-2xl lg:w-158 lg:mx-auto">
                 <div className="bg-black lg:rounded-t-2xl text-white text-center flex flex-col gap-2 py-6">
                   <h2 className="lg:style-headline-2 style-headline-3">Thank You For Your Booking</h2>
                   <span className="lg:style-body-2 style-body-3 text-gray-300">We will send your booking information to Pet Sitter.</span>
