@@ -9,6 +9,7 @@ import { PlusCircleIcon } from "@/assets/icons/components";
 type Props = {
   pets: Pet[];
   sitter?: Sitter;
+  className?: string;
 
   // ✅ เปลี่ยนจาก selectedPetId เป็น array
   selectedPetIds: string[];
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export function PetGrid({
+  className,
   pets,
   sitter,
   selectedPetIds,
@@ -28,13 +30,14 @@ export function PetGrid({
   showCreateCard = true
 }: Props) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {/* 1) render pet cards ตามข้อมูล */}
       {pets.map((pet) => {
         const { accepted, reason } = isPetAcceptedBySitter(pet, sitter);
 
         return (
           <BasePetCard
+            className="!w-full !h-[240px]"
             key={pet.id}
             pet={pet}
             selected={selectedPetIds.includes(pet.id)}
