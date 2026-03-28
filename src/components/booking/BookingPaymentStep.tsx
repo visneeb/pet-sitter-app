@@ -72,9 +72,9 @@ export function BookingPaymentStep({
         isConfirmOpen ? "opacity-40" : "opacity-100"
       }`}
     >
-      <h1 className="text-lg font-semibold text-gray-900">Payment</h1>
 
-      <div className="mt-6 flex-1">
+
+      <div className="mt-6 flex-1 justify-center">
         <div className="mb-6 grid max-w-md grid-cols-2 gap-4">
           <ActionButton
             variant="secondary"

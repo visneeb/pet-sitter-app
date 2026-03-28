@@ -6,6 +6,8 @@ import { PetGrid } from "@/components/booking/PetGrid";
 import { ActionButton } from "@/components/ui/Button";
 import { Pagination } from "@/components/ui/Pagination";
 import { Pet } from "@/contexts/booking/bookingTypes";
+import { BookingStepFooterMobile } from "./BookingStepFooterMobile";
+
 
 type Props = {
   pets: Pet[];
@@ -48,11 +50,29 @@ export function BookingPetStep({
   onNext,
   onPageChange,
 }: Props) {
+  const [showFooter, setShowFooter] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fullHeight = document.body.scrollHeight;
+
+      const isBottom = scrollTop + windowHeight >= fullHeight - 10;
+
+      setShowFooter(isBottom);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   return (
     <>
       <h1 className="text-lg font-semibold text-gray-900">Choose Your Pet</h1>
 
-      <div className="mt-6 flex-1">
+      <div className="mt-6 flex-1 flex justify-center">
         {loadingPets ? (
           <div className="flex h-full items-center justify-center text-gray-500">
             Loading pets...
@@ -66,6 +86,7 @@ export function BookingPetStep({
           </div>
         ) : (
           <PetGrid
+            
             pets={pets}
             sitter={sitter as any}
             selectedPetIds={selectedPetIds}
@@ -76,8 +97,8 @@ export function BookingPetStep({
         )}
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-4 ">
-        <div className="w-[120px] hover:animate-ping">
+      <div className="mt-6 pb-24 md:flex items-center justify-between gap-3 hidden">
+        <div className="w-[120px] ">
           <ActionButton variant="secondary" onClick={onBack}>
             Back
           </ActionButton>
@@ -88,15 +109,30 @@ export function BookingPetStep({
             totalPages={totalPages}
             currentPage={currentPage}
             onPageChange={onPageChange}
-          />
+          />  
         </div>
 
-        <div className="w-[120px] flex justify-end">
+        <div className="w-[120px] ">
           <ActionButton variant="primary" disabled={!canNext} onClick={onNext}>
             Next
           </ActionButton>
         </div>
       </div>
+    <div>
+      
+    </div>
+      <div className="show">
+      {showFooter&&(
+        <BookingStepFooterMobile
+          canNext={canNext}
+          onBack={onBack}
+          onNext={onNext}
+        />
+
+      )}
+
+      </div>
     </>
   );
 }
+

@@ -4,6 +4,7 @@ import React from "react";
 
 import { ActionButton } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input/Input";
+import { BookingStepFooterMobile } from "./BookingStepFooterMobile";
 
 type Props = {
   name: string;
@@ -32,12 +33,29 @@ export function BookingInformationStep({
   onBack,
   onNext,
 }: Props) {
+    const [showFooter, setShowFooter] = React.useState(false);
+
+    React.useEffect(() => {
+      const handleScroll = () => {
+        const scrollTop = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const fullHeight = document.body.scrollHeight;
+
+        const isBottom = scrollTop + windowHeight >= fullHeight - 10;
+
+        setShowFooter(isBottom);
+      };
+
+      window.addEventListener("scroll", handleScroll);
+      handleScroll();
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
   return (
     <>
       <h1 className="text-lg font-semibold text-gray-900">Your Information</h1>
 
-      <div className="mt-6 flex-1 overflow-y-auto pr-1">
-        <div className="space-y-6">
+      <div className="mt-6 flex-1 overflow-y-auto px-10 h-[536px]">
+        <div className= "space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-800">
               Your Name<span className="text-orange-500">*</span>
@@ -89,7 +107,7 @@ export function BookingInformationStep({
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-4">
+      <div className="mt-6 md:flex items-center justify-between gap-4 px-10 hidden">
         <div className="w-[120px]">
           <ActionButton variant="secondary" onClick={onBack}>
             Back
@@ -104,6 +122,18 @@ export function BookingInformationStep({
           </ActionButton>
         </div>
       </div>
+      <div className="show">
+      {showFooter&&(
+        <BookingStepFooterMobile
+          canNext={canNext}
+          onBack={onBack}
+          onNext={onNext}
+        />
+
+      )}
+
+      </div>
+      
     </>
   );
 }
