@@ -20,11 +20,14 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
     sendMessage,
     sendImage,
     isLoading,
+    isLoadingOlder,
+    hasMoreOlder,
     isUploadingImage,
     isOtherTyping,
     startTyping,
     stopTyping,
     retryImageUrlForMessage,
+    loadOlderMessages,
   } = useChat({
     conversationId: conversation?.id ?? null,
     currentUserId,
@@ -40,6 +43,7 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
                   src={conversation.avatarUrl}
                   alt={conversation.name}
                   fill
+                  sizes="48px"
                   className="object-cover"
                 />
               ) : (
@@ -77,6 +81,11 @@ export default function ChatMain({ conversation, onClose }: ChatMainProps) {
                 currentUserId={currentUserId}
                 isOtherTyping={isOtherTyping}
                 typingDisplayName={conversation.name}
+                hasMoreOlder={hasMoreOlder}
+                isLoadingOlder={isLoadingOlder}
+                onReachTop={loadOlderMessages}
+                otherAvatarUrl={conversation.avatarUrl}
+                otherDisplayName={conversation.name}
                 onImageLoadError={retryImageUrlForMessage}
               />
             )}

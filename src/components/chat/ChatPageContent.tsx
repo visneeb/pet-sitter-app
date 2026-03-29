@@ -23,6 +23,35 @@ type ChatPageContentProps = {
 
 const canAccessChat = (role?: string) =>
   role === "owner" || role === "petsitter" || role === "sitter";
+const CONVERSATION_CACHE_TTL_MS = 30_000;
+
+let conversationsCache: {
+  userId: string | null;
+  conversations: Conversation[] | null;
+  loadedAt: number;
+} = {
+  userId: null,
+  conversations: null,
+  loadedAt: 0,
+};
+
+const getMessagePreview = (message: Pick<ChatMessage, "text" | "messageType">) => {
+  if (message.messageType === "image") return "Sent an image";
+  const trimmed = message.text?.trim();
+  return trimmed || "Sent a message";
+};
+
+const normalizeConversation = (item: {
+  conversationId: string;
+  name: string;
+  avatarUrl: string | null;
+  lastMessage: string;
+}): Conversation => ({
+  id: item.conversationId,
+  name: item.name,
+  avatarUrl: item.avatarUrl,
+  lastMessage: item.lastMessage?.trim() || "Start a conversation",
+});
 
 export default function ChatPageContent({
   routeConversationId,
@@ -39,13 +68,28 @@ export default function ChatPageContent({
   >(routeConversationId);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Tell unread context which conversation is open so it skips incrementing
+  const updateConversationCache = useCallback(
+    (nextConversations: Conversation[], userId?: string | null) => {
+      conversationsCache = {
+        userId: userId ?? conversationsCache.userId,
+        conversations: nextConversations,
+        loadedAt: Date.now(),
+      };
+    },
+    [],
+  );
+
+  // Tell unread context which conversation is open so it skips incrementing.
+  // Split "set on change" vs "clear on unmount" to avoid transient null.
   useEffect(() => {
     setOpenConversationId(routeConversationId);
+  }, [routeConversationId, setOpenConversationId]);
+
+  useEffect(() => {
     return () => {
       setOpenConversationId(null);
     };
-  }, [routeConversationId, setOpenConversationId]);
+  }, [setOpenConversationId]);
 
   // Sync selected conversation with route + clear unread
   useEffect(() => {
@@ -57,13 +101,15 @@ export default function ChatPageContent({
 
   const loadConversations = useCallback(async () => {
     const data = await chatApi.getConversations();
-    return (data.conversations ?? []).map((item) => ({
-      id: item.conversationId,
-      name: item.name,
-      avatarUrl: item.avatarUrl,
-      lastMessage: item.lastMessage,
-    }));
+    return (data.conversations ?? []).map(normalizeConversation);
   }, []);
+
+  const shouldUseCachedConversations = useCallback(() => {
+    if (!conversationsCache.conversations) return false;
+    if (!user?.id || conversationsCache.userId !== user.id) return false;
+    const age = Date.now() - conversationsCache.loadedAt;
+    return age < CONVERSATION_CACHE_TTL_MS;
+  }, [user?.id]);
 
   // Auto-select first conversation only on desktop when no route param
   useEffect(() => {
@@ -85,6 +131,13 @@ export default function ChatPageContent({
     if (loading || !user) return;
     if (!canAccessChat(user.role)) return;
 
+    if (shouldUseCachedConversations()) {
+      setConversations(conversationsCache.conversations ?? []);
+      setIsConversationsLoading(false);
+      setHasLoadedConversations(true);
+      return;
+    }
+
     let cancelled = false;
     setIsConversationsLoading(true);
     setHasLoadedConversations(false);
@@ -92,6 +145,7 @@ export default function ChatPageContent({
     loadConversations()
       .then((next) => {
         if (cancelled) return;
+        updateConversationCache(next, user.id);
         setConversations(next);
       })
       .catch((error) => {
@@ -108,7 +162,13 @@ export default function ChatPageContent({
     return () => {
       cancelled = true;
     };
-  }, [loading, user, loadConversations]);
+  }, [
+    loading,
+    user,
+    loadConversations,
+    shouldUseCachedConversations,
+    updateConversationCache,
+  ]);
 
   // Update sidebar lastMessage when new messages arrive
   useEffect(() => {
@@ -124,6 +184,7 @@ export default function ChatPageContent({
           loadConversations()
             .then((next) => {
               if (cancelled) return;
+              updateConversationCache(next, user.id);
               setConversations(next);
             })
             .catch(console.error);
@@ -131,12 +192,14 @@ export default function ChatPageContent({
         }
 
         const updated = [...prev];
+        const preview = getMessagePreview(message);
         updated[idx] = {
           ...updated[idx],
-          lastMessage: message.text || updated[idx].lastMessage,
+          lastMessage: preview,
         };
         const [moved] = updated.splice(idx, 1);
         updated.unshift(moved);
+        updateConversationCache(updated, user.id);
         return updated;
       });
     };
@@ -147,21 +210,48 @@ export default function ChatPageContent({
       cancelled = true;
       chatService.offNewMessage(handleNewMessage);
     };
-  }, [user?.id, loadConversations]);
+  }, [user?.id, loadConversations, updateConversationCache]);
 
-  // Redirect if routeConversationId doesn't exist in conversations
+  // Guard invalid conversation route; refresh once before redirecting.
   useEffect(() => {
     if (!routeConversationId) return;
     if (!hasLoadedConversations || isConversationsLoading) return;
 
     const exists = conversations.some((c) => c.id === routeConversationId);
-    if (!exists) router.replace("/chat");
+    if (exists) return;
+
+    let cancelled = false;
+    setIsConversationsLoading(true);
+    loadConversations()
+      .then((next) => {
+        if (cancelled) return;
+        updateConversationCache(next, user?.id ?? null);
+        setConversations(next);
+        const nowExists = next.some((c) => c.id === routeConversationId);
+        if (!nowExists) {
+          router.replace("/chat");
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to refresh conversations for route:", error);
+        if (!cancelled) router.replace("/chat");
+      })
+      .finally(() => {
+        if (!cancelled) setIsConversationsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     routeConversationId,
     hasLoadedConversations,
     isConversationsLoading,
     conversations,
     router,
+    loadConversations,
+    updateConversationCache,
+    user?.id,
   ]);
 
   // Auth guard
@@ -226,19 +316,29 @@ export default function ChatPageContent({
     <main className="mx-auto flex min-h-0 w-full flex-1 flex-col overflow-hidden">
       <section className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden bg-white">
         {isMobile ? (
-          routeConversationId ? (
-            <ChatMain
-              conversation={selectedConversation}
-              onClose={() => router.push("/chat")}
-            />
-          ) : (
-            <ChatSidebar
-              conversations={conversations}
-              selectedConversationId={selectedConversationId}
-              onSelectConversation={handleSelectConversation}
-              isFullWidth
-            />
-          )
+          <div className="relative flex h-full min-h-0 w-full flex-1 overflow-hidden bg-black">
+            <div className="h-full w-full bg-black">
+              <ChatSidebar
+                conversations={conversations}
+                selectedConversationId={selectedConversationId}
+                onSelectConversation={handleSelectConversation}
+                isFullWidth
+              />
+            </div>
+
+            <div
+              className={`absolute inset-0 h-full w-full bg-white transform transition-transform duration-300 ease-in-out ${
+                routeConversationId ? "translate-x-0" : "translate-x-full"
+              } ${routeConversationId ? "pointer-events-auto" : "pointer-events-none"}`}
+            >
+              <ChatMain
+                conversation={routeConversationId ? selectedConversation : null}
+                onClose={
+                  routeConversationId ? () => router.push("/chat") : undefined
+                }
+              />
+            </div>
+          </div>
         ) : (
           <>
             <ChatSidebar

@@ -16,8 +16,8 @@ export default function ChatSidebar({
 }: ChatSidebarProps) {
   return (
     <aside
-      className={`flex min-h-0 shrink-0 flex-col overflow-hidden border-r bg-black text-white ${
-        isFullWidth ? "w-full" : "w-[300px]"
+      className={`flex min-h-0 shrink-0 flex-col overflow-hidden bg-black text-white ${
+        isFullWidth ? "w-full border-r-0" : "w-[300px] border-r"
       }`}
     >
       <div className="shrink-0 border-b border-white/10 px-5 py-4">

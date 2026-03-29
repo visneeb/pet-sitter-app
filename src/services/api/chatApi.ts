@@ -25,6 +25,11 @@ export type MessageResponse = {
   createdAt: string;
 };
 
+export type MessagePageInfoResponse = {
+  hasMore: boolean;
+  nextBefore: string | null;
+};
+
 export const chatApi = {
   findOrCreateConversation: (sitterId: number): Promise<ConversationResponse> =>
     privateApi
@@ -39,9 +44,17 @@ export const chatApi = {
       .get(`/chat/conversations/${conversationId}`)
       .then((res) => res.data),
   
-  getConversationMessages: (conversationId: string): Promise<{ messages: MessageResponse[] }> =>
+  getConversationMessages: (
+    conversationId: string,
+    params?: { limit?: number; before?: string | null },
+  ): Promise<{ messages: MessageResponse[]; pageInfo: MessagePageInfoResponse }> =>
     privateApi
-      .get(`/chat/conversations/${conversationId}/messages`)
+      .get(`/chat/conversations/${conversationId}/messages`, {
+        params: {
+          limit: params?.limit,
+          before: params?.before ?? undefined,
+        },
+      })
       .then((res) => res.data),
 
   uploadConversationImage: (

@@ -17,29 +17,55 @@ type UseChatParams = {
   currentUserId?: string | null;
 };
 
+const INITIAL_MESSAGE_LIMIT = 20;
+
+const toChatMessage = (msg: {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  text: string;
+  messageType: "text" | "image";
+  imageUrl: string | null;
+  createdAt: string;
+}): ChatMessage => ({
+  id: msg.id,
+  conversationId: msg.conversationId,
+  senderId: msg.senderId,
+  text: msg.text,
+  messageType: msg.messageType,
+  imageUrl: msg.imageUrl,
+  createdAt: msg.createdAt,
+});
+
 export function useChat({ conversationId, currentUserId }: UseChatParams) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const [hasMoreOlder, setHasMoreOlder] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isOtherTyping, setIsOtherTyping] = useState(false);
+  const [beforeCursor, setBeforeCursor] = useState<string | null>(null);
   const conversationIdStr =
     conversationId != null ? String(conversationId) : null;
   const typingTimeoutRef = useRef<number | null>(null);
   const imageRetryRef = useRef<Record<string, number>>({});
 
-  const fetchMessages = useCallback(async () => {
-    if (!conversationIdStr) return [];
+  const fetchMessages = useCallback(async (params?: {
+    limit?: number;
+    before?: string | null;
+  }) => {
+    if (!conversationIdStr) {
+      return {
+        messages: [],
+        pageInfo: { hasMore: false, nextBefore: null },
+      };
+    }
 
-    const data = await chatApi.getConversationMessages(conversationIdStr);
-    return (data.messages ?? []).map((msg) => ({
-      id: msg.id,
-      conversationId: msg.conversationId,
-      senderId: msg.senderId,
-      text: msg.text,
-      messageType: msg.messageType,
-      imageUrl: msg.imageUrl,
-      createdAt: msg.createdAt,
-    }));
+    const data = await chatApi.getConversationMessages(conversationIdStr, params);
+    return {
+      messages: (data.messages ?? []).map(toChatMessage),
+      pageInfo: data.pageInfo,
+    };
   }, [conversationIdStr]);
 
   // ✅ No connect/disconnect here — ChatUnreadProvider owns the socket lifecycle
@@ -47,6 +73,9 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
   useEffect(() => {
     if (!conversationIdStr) {
       setIsLoading(false);
+      setIsLoadingOlder(false);
+      setHasMoreOlder(false);
+      setBeforeCursor(null);
       setIsOtherTyping(false);
       imageRetryRef.current = {};
       return;
@@ -60,10 +89,12 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
     // Fetch message history
     setMessages([]);
     setIsLoading(true);
-    fetchMessages()
-      .then((initialMessages) => {
+    fetchMessages({ limit: INITIAL_MESSAGE_LIMIT })
+      .then(({ messages: initialMessages, pageInfo }) => {
         if (cancelled) return;
         setMessages(initialMessages);
+        setHasMoreOlder(pageInfo?.hasMore ?? false);
+        setBeforeCursor(pageInfo?.nextBefore ?? null);
         setIsLoading(false);
 
         const latest = initialMessages[initialMessages.length - 1];
@@ -139,6 +170,41 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
     };
   }, [conversationIdStr, currentUserId, fetchMessages]);
 
+  const loadOlderMessages = useCallback(async () => {
+    if (!conversationIdStr) return;
+    if (isLoading || isLoadingOlder || !hasMoreOlder) return;
+    if (!beforeCursor) return;
+
+    setIsLoadingOlder(true);
+    try {
+      const { messages: olderMessages, pageInfo } = await fetchMessages({
+        limit: INITIAL_MESSAGE_LIMIT,
+        before: beforeCursor,
+      });
+
+      setMessages((prev) => {
+        if (!olderMessages.length) return prev;
+        const existingIds = new Set(prev.map((msg) => msg.id));
+        const dedupedOlder = olderMessages.filter((msg) => !existingIds.has(msg.id));
+        if (!dedupedOlder.length) return prev;
+        return [...dedupedOlder, ...prev];
+      });
+      setHasMoreOlder(pageInfo?.hasMore ?? false);
+      setBeforeCursor(pageInfo?.nextBefore ?? null);
+    } catch (error) {
+      console.error("Failed to load older conversation messages:", error);
+    } finally {
+      setIsLoadingOlder(false);
+    }
+  }, [
+    beforeCursor,
+    conversationIdStr,
+    fetchMessages,
+    hasMoreOlder,
+    isLoading,
+    isLoadingOlder,
+  ]);
+
   const sendMessage = (text: string) => {
     if (!conversationIdStr) return;
     const trimmed = text.trim();
@@ -175,28 +241,36 @@ export function useChat({ conversationId, currentUserId }: UseChatParams) {
     }
   };
 
-  const retryImageUrlForMessage = async (messageId: string) => {
-    const currentRetryCount = imageRetryRef.current[messageId] ?? 0;
-    if (currentRetryCount >= 1) return;
-    imageRetryRef.current[messageId] = currentRetryCount + 1;
+  const retryImageUrlForMessage = useCallback(
+    async (messageId: string) => {
+      const currentRetryCount = imageRetryRef.current[messageId] ?? 0;
+      if (currentRetryCount >= 1) return;
+      imageRetryRef.current[messageId] = currentRetryCount + 1;
 
-    try {
-      const refreshedMessages = await fetchMessages();
-      setMessages(refreshedMessages);
-    } catch (error) {
-      console.error("Failed to refresh chat image URLs:", error);
-    }
-  };
+      try {
+        const refreshed = await fetchMessages({
+          limit: Math.max(INITIAL_MESSAGE_LIMIT, messages.length || INITIAL_MESSAGE_LIMIT),
+        });
+        setMessages(refreshed.messages);
+      } catch (error) {
+        console.error("Failed to refresh chat image URLs:", error);
+      }
+    },
+    [fetchMessages, messages.length],
+  );
 
   return {
     messages,
     sendMessage,
     sendImage,
     isLoading,
+    isLoadingOlder,
+    hasMoreOlder,
     isUploadingImage,
     isOtherTyping,
     startTyping,
     stopTyping,
     retryImageUrlForMessage,
+    loadOlderMessages,
   };
 }

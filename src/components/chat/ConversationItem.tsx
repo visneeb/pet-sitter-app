@@ -31,6 +31,7 @@ export default function ConversationItem({
             src={conversation.avatarUrl}
             alt={conversation.name}
             fill
+            sizes="40px"
             className="object-cover"
           />
         ) : (
@@ -43,7 +44,7 @@ export default function ConversationItem({
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{conversation.name}</p>
         <p className="truncate text-xs text-white/60">
-          {conversation.lastMessage}
+          {conversation.lastMessage || "Start a conversation"}
         </p>
       </div>
 
