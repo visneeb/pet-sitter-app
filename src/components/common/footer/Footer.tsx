@@ -4,12 +4,15 @@ import logo from "@/assets/logo.svg";
 import Image from "next/image";
 import { useScreenContext } from "@/contexts/ScreenContext";
 import cn from "@/utils/cn";
+import Link from "next/link";
 
 export default function Footer() {
   const { isMedium } = useScreenContext();
   return (
     <footer className="bg-black w-full flex flex-col items-center justify-center pt-20 pb-20 gap-6">
+      <Link href="/">
       <Image src={logo} alt="logo" width={200} height={60} />
+      </Link>
       <p
         className={cn(
           "text-white",
