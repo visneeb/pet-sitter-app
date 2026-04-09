@@ -108,7 +108,12 @@ export function RHFDatePicker<T extends FieldValues>({
                 />
 
                 {isOpen && (
-                  <div className={cn("absolute z-10 mt-2", className)}>
+                  <div
+                    className={cn(
+                      "absolute right-0 z-10 mt-2 max-w-[calc(100vw-2rem)] md:left-0 md:right-auto",
+                      className,
+                    )}
+                  >
                     <DayPicker
                       fixedWeeks
                       showOutsideDays
@@ -122,7 +127,7 @@ export function RHFDatePicker<T extends FieldValues>({
                         setIsOpen(false);
                       }}
                       classNames={{
-                        root: "rdp-root p-3 bg-white rounded-xl shadow-[0px_0px_12px_2px_rgba(0,0,0,0.16)]",
+                        root: "rdp-root p-2 md:p-3 bg-white rounded-xl shadow-[0px_0px_12px_2px_rgba(0,0,0,0.16)]",
                         chevron: "size-4 fill-gray-400",
                         button_previous:
                           "rdp-button_previous hover:cursor-pointer",
@@ -134,8 +139,8 @@ export function RHFDatePicker<T extends FieldValues>({
                         caption_label: "hidden",
                         month_grid: "col-span-3",
                         nav: "flex justify-end gap-4.25 mb-4.25",
-                        weekday: "style-body-3 text-gray-400 size-10",
-                        day_button: "rdp-day_button size-10 rounded-full",
+                        weekday: "style-body-3 text-gray-400 size-9 md:size-10",
+                        day_button: "rdp-day_button size-9 md:size-10 rounded-full",
                         day: "style-body-3 text-gray-600",
                         today: "rdp-today bg-orange-300 rounded-full",
                         selected:

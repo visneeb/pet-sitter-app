@@ -229,7 +229,7 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
           aria-labelledby="booking-modal-title"
         >
           {/* Header */}
-          <div className="flex items-start justify-between px-10 py-6 border-b border-gray-200">
+          <div className="flex items-start justify-between px-6 py-6 border-b border-gray-200 md:px-10">
             <h3
               id="booking-modal-title"
               className="style-headline-3 text-gray-600"
@@ -253,7 +253,7 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
             onSubmit={handleSubmit}
             className="flex flex-col flex-1"
           >
-            <div className="flex flex-col gap-4 px-10 py-6 flex-1">
+            <div className="flex flex-col gap-4 px-6 py-6 flex-1 md:px-10">
               <p className="style-body-1 text-gray-600">
                 Select date and time you want to schedule the service.
               </p>
