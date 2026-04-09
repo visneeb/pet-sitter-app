@@ -54,7 +54,7 @@ export function BookingInformationStep({
     <>
       <h1 className="text-lg font-semibold text-gray-900">Your Information</h1>
 
-      <div className="mt-6 flex-1 overflow-y-auto px-10 h-[536px]">
+      <div className="mt-6 flex-1 overflow-y-auto px-4 md:px-10 h-auto md:h-[536px]">
         <div className= "space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-800">
@@ -67,7 +67,7 @@ export function BookingInformationStep({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-800">
                 Email<span className="text-orange-500">*</span>
