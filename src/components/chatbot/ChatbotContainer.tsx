@@ -36,7 +36,7 @@ function ChatbotContainer({ chatbot }: Props) {
   return (
     <div className="enter-from-bottom flex flex-col gap-2 bg-white h-[50svh] w-[calc(100vw-3rem)] max-w-lg p-2 rounded-xl shadow-[0_0_8px_-2px_rgba(0,0,0,0.3)]">
       {chatLength ? (
-        <div className="flex-1 overflow-y-scroll" ref={chatScrollRef}>
+        <div className="flex-1 overflow-y-auto" ref={chatScrollRef}>
           <ul
             className="flex flex-col gap-3 justify-end"
             aria-label="Chat messages"
@@ -48,7 +48,7 @@ function ChatbotContainer({ chatbot }: Props) {
                 return (
                   <li key={index} className="flex justify-end mb-1">
                     <div className="enter-from-bottom max-w-[80%] rounded-2xl rounded-br-sm bg-orange-600 px-3 py-2">
-                      <p className="style-label text-white wrap-break-word break-all">
+                      <p className="style-label text-white wrap-break-word">
                         {userMessage}
                       </p>
                     </div>
@@ -76,9 +76,9 @@ function ChatbotContainer({ chatbot }: Props) {
                             >
                               {`${index + 1}. ${sitter.tradeName}`}
                             </h4>
-                            <p className="style-label whitespace-pre-line">
+                            <div className="style-label whitespace-pre-line">
                               <Markdown>{sitter.description}</Markdown>
-                            </p>
+                            </div>
                           </li>
                         ))}
                       </ul>
@@ -106,14 +106,18 @@ function ChatbotContainer({ chatbot }: Props) {
       ) : (
         <div className="flex flex-col gap-4 flex-1 justify-center items-center style-body-2">
           <Paw className="size-16 text-pink-500" />
-          <p className="style-body-2 text-center text-gray-600">
+          <label
+            htmlFor="chatbot-label"
+            className="style-body-2 text-center text-gray-600"
+          >
             No messages yet. Start a conversation!
-          </p>
+          </label>
         </div>
       )}
       <div className="border-t border-gray-200" />
       <form className="flex gap-2" onSubmit={handleSubmit}>
         <Input
+          id="chatbot-label"
           parentClassName="flex-1"
           key="chat-bot-input"
           value={inputValue}

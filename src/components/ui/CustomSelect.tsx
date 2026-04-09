@@ -56,6 +56,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   return (
     <div className={cn("relative w-full", className)} ref={containerRef}>
       <button
+        id="experience"
         type="button" // Prevent form submission
         onClick={() => {
           if (!isOpen && containerRef.current) {
@@ -77,8 +78,13 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           className,
         )}
       >
-        <span className={cn("style-body-2 text-gray-600",currentValue ? "text-gray-600" : "text-gray-400")}>
-          {currentValue ||placeholder}
+        <span
+          className={cn(
+            "style-body-2 text-gray-600",
+            currentValue ? "text-gray-600" : "text-gray-400",
+          )}
+        >
+          {currentValue || placeholder}
         </span>
         <ChevronDown
           className={cn(
