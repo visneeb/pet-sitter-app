@@ -58,6 +58,7 @@ export function RHFDatePicker<T extends FieldValues>({
     <Controller
       name={name}
       control={control}
+      rules={{ required: required ? `${label ?? name} is required` : false }}
       render={({ field, fieldState: { error } }) => {
         const rawValue = field.value as unknown;
 
@@ -74,10 +75,12 @@ export function RHFDatePicker<T extends FieldValues>({
 
         return (
           <FormField name={name}>
-            <label htmlFor={label} className="style-label text-black">
-              {label}
-              {required && <span>*</span>}
-            </label>
+            {label && (
+              <label htmlFor={`${name}-input`} className="style-label text-black">
+                {label}
+                {required && <span>*</span>}
+              </label>
+            )}
 
             <FormControl>
               <div
@@ -96,7 +99,7 @@ export function RHFDatePicker<T extends FieldValues>({
               >
                 <Input
                   type="text"
-                  id={label}
+                  id={`${name}-input`}
                   value={formattedValue}
                   placeholder={placeholder}
                   onFocus={() => setIsOpen(true)}

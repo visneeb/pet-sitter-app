@@ -23,6 +23,7 @@ type RHFTimePickerProps<T extends FieldValues> = {
   stepMinutes?: number;
   minTime?: string;
   maxTime?: string;
+  disabled?: boolean;
   className?: string;
 };
 
@@ -35,6 +36,7 @@ export function RHFTimePicker<T extends FieldValues>({
   stepMinutes = 30,
   minTime,
   maxTime,
+  disabled = false,
   className,
 }: RHFTimePickerProps<T>) {
   const { control } = useFormContext<T>();
@@ -73,6 +75,13 @@ export function RHFTimePicker<T extends FieldValues>({
     if (!isOpen) setFocusedIndex(-1);
   }, [isOpen]);
 
+  useEffect(() => {
+    if (disabled) {
+      setIsOpen(false);
+      setFocusedIndex(-1);
+    }
+  }, [disabled]);
+
   const scrollToIndex = useCallback(
     (index: number) => {
       const el = document.getElementById(`time-option-${name}-${index}`);
@@ -92,6 +101,8 @@ export function RHFTimePicker<T extends FieldValues>({
     fieldValue: string | undefined,
     onChange: (v: string) => void
   ) => {
+    if (disabled) return;
+
     if (!isOpen) {
       if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -182,13 +193,16 @@ export function RHFTimePicker<T extends FieldValues>({
                   value={displayValue}
                   placeholder={placeholder}
                   readOnly
+                  disabled={disabled}
                   error={!!error}
                   onFocus={() => {
+                    if (disabled) return;
                     setIsOpen(true);
                     const idx = timeOptions.findIndex((o) => o.value === value);
                     setFocusedIndex(idx >= 0 ? idx : 0);
                   }}
                   onMouseDown={() => {
+                    if (disabled) return;
                     setIsOpen((o) => {
                       if (!o) {
                         const idx = timeOptions.findIndex((o2) => o2.value === value);
@@ -204,7 +218,7 @@ export function RHFTimePicker<T extends FieldValues>({
                   aria-autocomplete="list"
                 />
 
-                {isOpen && (
+                {isOpen && !disabled && (
                   <div
                     ref={listboxRef}
                     id={listboxId}

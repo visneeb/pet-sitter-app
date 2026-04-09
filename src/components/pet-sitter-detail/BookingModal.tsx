@@ -9,6 +9,29 @@ import { FormProvider, DatePicker, TimePicker } from "@/components/form";
 import type { Sitter } from "@/types/sitter";
 import { CloseIcon, ClockIcon, CalendarIcon } from "@/assets/icons/components";
 
+function isSameDay(left: Date, right: Date): boolean {
+  return (
+    left.getFullYear() === right.getFullYear() &&
+    left.getMonth() === right.getMonth() &&
+    left.getDate() === right.getDate()
+  );
+}
+
+function getCurrentOrNextTimeSlot(stepMinutes = 30): string {
+  const now = new Date();
+  const totalMinutes = now.getHours() * 60 + now.getMinutes();
+  const roundedMinutes =
+    totalMinutes % stepMinutes === 0
+      ? totalMinutes
+      : Math.ceil(totalMinutes / stepMinutes) * stepMinutes;
+
+  if (roundedMinutes >= 24 * 60) return "24:00";
+
+  const hours = Math.floor(roundedMinutes / 60);
+  const minutes = roundedMinutes % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
 export interface BookingFormValues {
   startDate: Date | null;
   endDate: Date | null;
@@ -83,10 +106,22 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
     control: methods.control,
     name: "startTime",
   });
+  const endTime = useWatch({
+    control: methods.control,
+    name: "endTime",
+  });
+
+  const isDateSelected = Boolean(startDate);
+
+  const startTimeMin =
+    startDate && isSameDay(startDate, new Date())
+      ? getCurrentOrNextTimeSlot(30)
+      : undefined;
 
   const endTimeMin = startTime
     ? getNextTimeSlot(startTime, 30)
     : undefined;
+  const isContinueDisabled = !startDate || !startTime || !endTime;
 
   /*
     4️⃣ sync endDate กับ startDate
@@ -96,11 +131,27 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
     methods.setValue("endDate", startDate ?? null);
   }, [startDate, methods]);
 
+  useEffect(() => {
+    if (isDateSelected) return;
+
+    methods.setValue("startTime", "");
+    methods.setValue("endTime", "");
+  }, [isDateSelected, methods]);
+
   /*
     5️⃣ ถ้า user เปลี่ยน startTime
     แล้ว endTime น้อยกว่า minTime
     ให้ reset endTime
   */
+  useEffect(() => {
+    if (!startTimeMin) return;
+
+    const currentStart = methods.getValues("startTime");
+    if (currentStart && currentStart < startTimeMin) {
+      methods.setValue("startTime", "");
+    }
+  }, [startTimeMin, methods]);
+
   useEffect(() => {
     if (!startTime || !endTimeMin) return;
 
@@ -163,7 +214,7 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
 
 
       <div
-        className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/50 transition-opacity"
+        className="fixed inset-0 z-9999 flex items-end md:items-center justify-center bg-black/50 transition-opacity"
         onClick={handleClose}
         role="presentation"
       >
@@ -211,6 +262,7 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                 <CalendarIcon size={20} className="shrink-0 text-gray-500" />
                 <DatePicker
                   name="startDate"
+                  required
                   placeholder="Pet arrival date"
                   disabled={{ before: new Date() }}
                   startMonth={new Date()}
@@ -223,18 +275,24 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
 
                 <TimePicker
                   name="startTime"
+                  required
                   placeholder="Pet arrival time"
                   className="min-w-0 flex-1"
+                  minTime={startTimeMin}
+                  stepMinutes={30}
+                  disabled={!isDateSelected}
                 />
 
                 <span className="shrink-0 text-gray-500">-</span>
 
                 <TimePicker
                   name="endTime"
+                  required
                   placeholder="Pet departure time"
                   className="min-w-0 flex-1"
                   minTime={endTimeMin}
                   stepMinutes={30}
+                  disabled={!isDateSelected}
                 />
               </div>
 
@@ -257,6 +315,7 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                     type="submit"
                     variant="primary"
                     className="flex-1"
+                    disabled={isContinueDisabled}
                   >
                     Continue
                   </ActionButton>
