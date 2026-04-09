@@ -156,7 +156,7 @@ export default function PetSitterBookingCard({
 
   return (
     <>
-      <div className="sticky top-30 flex min-h-[562px] w-full flex-col items-center gap-6 bg-white pt-10 text-center shadow-[4px_4px_24px_0_rgba(0,0,0,0.04)] lg:w-[416px] lg:rounded-2xl">
+      <div className="sticky top-25 flex min-h-[562px] w-full flex-col items-center gap-6 bg-white pt-10 text-center shadow-[4px_4px_24px_0_rgba(0,0,0,0.04)] lg:w-[416px] lg:rounded-2xl">
         <div className="flex w-full flex-col items-center gap-6 px-6">
           <div className="shrink-0 overflow-hidden rounded-full">
             {avatarUrl && !avatarError ? (

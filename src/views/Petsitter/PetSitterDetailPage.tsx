@@ -157,7 +157,7 @@ export default function PetSitterDetailPage() {
             />
           </section>
 
-          <aside className="hidden lg:block lg:shrink-0 lg:self-stretch w-full lg:w-auto">
+          <aside className="hidden lg:block lg:shrink-0 lg:self-stretch w-full lg:w-auto pb-30">
             <PetSitterBookingCard
               sitter={sitter}
               sitterId={sitterId ?? ""}
