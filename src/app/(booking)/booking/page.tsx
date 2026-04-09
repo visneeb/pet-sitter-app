@@ -25,7 +25,9 @@ import {
 import { paymentApi } from "@/services/api/paymentApi";
 import { ActionButton, NavigationButton } from "@/components/ui/Button";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE_DESKTOP = 6;
+// Mobile uses horizontal carousel (no pagination), so keep all items in a single "page".
+const PAGE_SIZE_MOBILE = 9999;
 const CONFIRM_MODAL_ID = "confirm-booking-modal";
 
 function parseOptionalTransactionId(
@@ -152,6 +154,7 @@ export default function BookingPage(): React.JSX.Element {
   const [petsError, setPetsError] = React.useState<string>("");
   const [page, setPage] = React.useState<number>(1);
   const [isConfirmOpen, setIsConfirmOpen] = React.useState<boolean>(false);
+  const [pageSize, setPageSize] = React.useState<number>(PAGE_SIZE_DESKTOP);
 
   const stripe = useStripe();
   const elements = useElements();
@@ -212,6 +215,19 @@ export default function BookingPage(): React.JSX.Element {
   }, [fetchProfile]);
 
   React.useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+
+    const apply = () => {
+      setPageSize(mq.matches ? PAGE_SIZE_DESKTOP : PAGE_SIZE_MOBILE);
+    };
+
+    apply();
+
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  React.useEffect(() => {
     if (isConfirmOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -234,19 +250,19 @@ export default function BookingPage(): React.JSX.Element {
   };
 
   const totalItems = pets.length + 1;
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
   const pagedPets = React.useMemo<Pet[]>(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    return pets.slice(start, Math.min(start + PAGE_SIZE, pets.length));
-  }, [page, pets]);
+    const start = (page - 1) * pageSize;
+    return pets.slice(start, Math.min(start + pageSize, pets.length));
+  }, [page, pageSize, pets]);
 
   const showCreateNewPet = React.useMemo<boolean>(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    const end = page * PAGE_SIZE;
+    const start = (page - 1) * pageSize;
+    const end = page * pageSize;
     const createCardIndex = pets.length;
     return createCardIndex >= start && createCardIndex < end;
-  }, [page, pets.length]);
+  }, [page, pageSize, pets.length]);
 
   React.useEffect(() => {
     if (page > totalPages) {
@@ -438,7 +454,7 @@ export default function BookingPage(): React.JSX.Element {
   const handlePetCreated = async (): Promise<void> => {
     const latestPets = await fetchPets();
     const newTotalItems = latestPets.length + 1;
-    const newTotalPages = Math.max(1, Math.ceil(newTotalItems / PAGE_SIZE));
+    const newTotalPages = Math.max(1, Math.ceil(newTotalItems / pageSize));
 
     setPage(newTotalPages);
     setOpenCreate(false);
@@ -469,43 +485,38 @@ export default function BookingPage(): React.JSX.Element {
             className={
               isSuccessOpen
                 ? ""
-                : "bg-red px-10 py-10 lg:rounded-2xl h-[1302px] lg:max-h-[720px] w-full justify-center"
+                : "lg:bg-white w-full justify-center px-4 py-6 sm:px-6 lg:px-10 lg:py-10 lg:rounded-2xl"
             }
           >
             {isSuccessOpen && latestBooking ? (
-            <div className="w-full min-w-0">
-              <div
-              className="w-full min-w-0 bg-white lg:rounded-2xl lg:w-158 lg:mx-auto">
-                <div className="bg-black lg:rounded-t-2xl text-white text-center flex flex-col gap-2 py-6">
-                  <h2 className="lg:style-headline-2 style-headline-3">Thank You For Your Booking</h2>
-                  <span className="lg:style-body-2 style-body-3 text-gray-300">We will send your booking information to Pet Sitter.</span>
+              <div className="w-full min-w-0">
+                <div className="w-full min-w-0 bg-white lg:rounded-2xl lg:w-158 lg:mx-auto">
+                  <div className="bg-black lg:rounded-t-2xl text-white text-center flex flex-col gap-2 py-6">
+                    <h2 className="lg:style-headline-2 style-headline-3">
+                      Thank You For Your Booking
+                    </h2>
+                    <span className="lg:style-body-2 style-body-3 text-gray-300">
+                      We will send your booking information to Pet Sitter.
+                    </span>
+                  </div>
+
+                  <BookingDetail
+                    booking={latestBooking}
+                    showStatus={false}
+                    showChangeButton={false}
+                    onChangeTime={() => {}}
+                  />
                 </div>
-              
-              <BookingDetail
-                booking={latestBooking}
-                showStatus={false}
-                showChangeButton={false}
-                onChangeTime={() => {}}
-              />
-              
-              </div>
-              <div className="flex gap-4 justify-center lg:p-10 pt-37">
-              <NavigationButton
-                  href="/booking-history"
-                  variant="secondary"
-                  >
 
-                  Booking History
-                </NavigationButton>
-                <NavigationButton
-                  href="/"
-                  variant="primary"
-                  >
-
-                  Back To Home
-                </NavigationButton>
+                <div className="flex flex-row gap-4 justify-center lg:p-10 pt-10">
+                  <NavigationButton href="/booking-history" variant="secondary">
+                    Booking History
+                  </NavigationButton>
+                  <NavigationButton href="/" variant="primary">
+                    Back To Home
+                  </NavigationButton>
+                </div>
               </div>
-            </div>
             ) : step === 1 ? (
               <BookingPetStep
                 pets={pagedPets}
@@ -563,7 +574,7 @@ export default function BookingPage(): React.JSX.Element {
         </div>
 
         {!isSuccessOpen && (
-          <div className="lg:w-[320px] w-full sticky top-6 self-start">
+          <div className="lg:w-[320px] w-full pb-18 md:pb-0 lg:sticky lg:top-6 self-start">
             <BookingSummary
               sitterName={sitterName}
               dateLabel={dateLabel}
