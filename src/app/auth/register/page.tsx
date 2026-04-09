@@ -31,7 +31,7 @@ export default function RegisterPage() {
   return (
     <div>
       {/* Content layer */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-10 lg:py-16">
         <div className="w-full max-w-[440px]">
           {/* Title */}
           <div className="text-center text-black">

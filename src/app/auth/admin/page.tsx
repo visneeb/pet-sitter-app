@@ -36,7 +36,7 @@ function AdminLoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6">
+    <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-10 lg:py-16">
       <div className="w-full max-w-[440px]">
         <div className="text-center text-black">
           <h1 className="style-headline-1">Welcome back!</h1>
