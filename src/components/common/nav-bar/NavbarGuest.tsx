@@ -30,7 +30,7 @@ export default function NavbarGuest() {
       <div className="flex items-center gap-[12px]">
         <div className="hidden lg:flex items-center">
           <div className="px-[24px] py-[16px] style-body-1 text-black">
-            <Link href="auth/register">Become a Pet Sitter</Link>
+            <Link href="/auth/register">Become a Pet Sitter</Link>
           </div>
           <div className="px-[24px] py-[16px] style-body-1 text-black">
             <Link href={loginHref}>Login</Link>
