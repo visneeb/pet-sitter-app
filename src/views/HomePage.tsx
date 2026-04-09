@@ -70,7 +70,7 @@ export default function HomePage() {
         <section id="Hero-Section" className="w-full">
           <HeroSection />
         </section>
-        <section id="search" className="w-full p-t">
+        <section id="search" className="w-full mt-4 md:mt-8">
           <Suspense>
             <PetSitterSearchProvider enableQuery={false}>
               <SearchBar />
@@ -80,13 +80,13 @@ export default function HomePage() {
       </div>
       <section className="flex flex-col gap-10 md:gap-32 px-4 md:px-20 pb-10 md:p-20">
         <ScrollReveal>
-          <h1 className="flex text-center justify-center style-headline-3 md:style-headline-2 px-4 ">
+          <h1 className="flex text-center justify-center text-balance style-headline-3 md:style-headline-2 px-4 ">
             "Your Pets, Our Priority: Perfect Care, Anytime, Anywhere."
           </h1>
         </ScrollReveal>
 
         <div className={servicesContainerClassName}>
-          <ScrollReveal className="w-full max-w-[504px]" delayMs={80}>
+          <ScrollReveal className="flex-5 max-w-[504px]" delayMs={80}>
             <div className="flex flex-col gap-6 md:gap-14">
               {services.map((service, index) => (
                 <ScrollReveal key={service.title} delayMs={index * 120}>
@@ -99,11 +99,11 @@ export default function HomePage() {
               ))}
             </div>
           </ScrollReveal>
-          <ScrollReveal className="hidden md:block" delayMs={140}>
+          <ScrollReveal className="hidden flex-4 lg:block" delayMs={140}>
             <Image src={PetImage} alt="Pet Image" className="object-cover" />
           </ScrollReveal>
         </div>
-        <ScrollReveal className="md:hidden block mb-10" delayMs={120}>
+        <ScrollReveal className="block place-self-center mb-1 lg:hidden" delayMs={120}>
           <Image src={PetImage} alt="Pet Image" className="object-cover" />
         </ScrollReveal>
 
