@@ -24,7 +24,7 @@ export default function PetSitterCard({
       )}
     >
       <PlacePicture sitter={sitter} priority={priority} />
-      <div className="flex flex-col justify-between flex-1 min-w-0 gap-2 max-w-[531px] max-h-[172px]">
+      <div className="flex flex-col justify-between flex-1 min-w-0 gap-2 max-h-43">
         <PetSitterInfo sitter={sitter} />
         <LocationPetSitter sitter={sitter} />
         <TagPetType sitter={sitter} />
