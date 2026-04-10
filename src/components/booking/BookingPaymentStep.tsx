@@ -90,8 +90,8 @@ export function BookingPaymentStep({
     >
 
 
-      <div className="mt-6 flex-1 justify-center px-4 md:px-0">
-        <div className="mb-6 grid w-full max-w-md grid-cols-2 gap-4">
+      <div className=" flex flex-col justify-center items-center lg:pb-60">
+        <div className="mb-6 grid w-full grid-cols-2 gap-4">
           <ActionButton
             variant="secondary"
             className={`border bg-white transition-colors ${
@@ -120,7 +120,7 @@ export function BookingPaymentStep({
         </div>
 
         {paymentMethod === "credit_card" ? (
-          <div className="grid w-full max-w-md gap-5">
+          <div className="grid w-full gap-5">
             {/* Card Name — input ปกติ */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">
@@ -161,15 +161,16 @@ export function BookingPaymentStep({
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700">CVV</label>
                 <div className="rounded-lg border border-gray-300 bg-white px-3 py-3 focus-within:border-orange-500">
+                
                   <CardCvcElement options={elementOptions} />
                 </div>
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[220px] max-w-md items-center justify-center rounded-2xl bg-white lg:bg-gray-100 px-6 text-center">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <Paw className="h-20 w-20 lg:h-25 lg:w-25 text-pink-500 animate-[pulse_1.1s_ease-in-out_infinite] drop-shadow-[0_0_12px_rgba(236,72,153,0.55)]" />
+          <div className="flex min-h-[220px] w-full items-center justify-center rounded-2xl bg-white lg:bg-gray-100 px-6 text-center">
+            <div className="flex flex-col items-center gap-4 text-center py-10">
+              <Paw className="h-20 w-20 lg:h-25 lg:w-25 text-pink-500 animate-[pulse_1.7s_ease-in-out_infinite] drop-shadow-[0_0_12px_rgba(236,72,153,0.55)]" />
               <p className="text-sm leading-7 text-gray-600">
                 If you want to pay by cash,
                 <br />
