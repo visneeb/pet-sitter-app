@@ -25,10 +25,13 @@ export default function FeatureCard({
         className="w-50 h-50 md:w-72 md:h-72 object-contain rounded-full shrink-0"
       />
       <div className="flex flex-col gap-3 items-center">
-        <p className="style-headline-3">
-          <span className={highlightColor}>{highlightedWord}</span> {restOfTitle}
+        <h3 className="style-headline-3 text-balance text-center">
+          <span className={highlightColor}>{highlightedWord}</span>
+          {" " + restOfTitle}
+        </h3>
+        <p className="style-body-1 text-center text-gray-500 text-balance">
+          {description}
         </p>
-        <p className="style-body-1 text-center text-gray-500">{description}</p>
       </div>
     </div>
   );

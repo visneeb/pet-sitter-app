@@ -18,7 +18,7 @@ export default function Navbar() {
     : NavbarUser;
 
   return (
-    <nav className="font-sans sticky top-0 z-50">
+    <nav className="font-sans sticky top-0 z-60">
       <NavbarComponent />
     </nav>
   );

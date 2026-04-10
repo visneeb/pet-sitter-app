@@ -106,17 +106,18 @@ export default function PetSitterDetailPage() {
                 <Markdown>{sitter.description}</Markdown>
               </ContentSection>
 
-              {typeof sitter.latitude === "number" &&
-              typeof sitter.longitude === "number" ? (
-                <div>
-                  <GoogleMapsDirections
-                    destination={[sitter.latitude, sitter.longitude]}
-                    requestGeolocationOnClick
-                    buttonLabel="Open google maps"
-                  />
-                </div>
-              ) : null}
               <div className="relative h-[219px] w-full overflow-hidden rounded-2xl z-20">
+                {typeof sitter.latitude === "number" &&
+                typeof sitter.longitude === "number" ? (
+                  <div className="absolute right-3 top-3 z-1000">
+                    <GoogleMapsDirections
+                      destination={[sitter.latitude, sitter.longitude]}
+                      requestGeolocationOnClick
+                      iconOnly
+                      hoverLabel="View on google maps"
+                    />
+                  </div>
+                ) : null}
                 {isMapReady && (
                   <LeafletMap
                     key="sitter-detail-map"
@@ -157,7 +158,7 @@ export default function PetSitterDetailPage() {
             />
           </section>
 
-          <aside className="hidden lg:block lg:shrink-0 lg:self-stretch w-full lg:w-auto">
+          <aside className="hidden lg:block lg:shrink-0 lg:self-stretch w-full lg:w-auto pb-30">
             <PetSitterBookingCard
               sitter={sitter}
               sitterId={sitterId ?? ""}

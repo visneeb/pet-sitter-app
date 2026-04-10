@@ -5,6 +5,7 @@ import { ActionButton, ButtonVariant } from "../ui/Button";
 import useGeolocation from "@/hooks/map/useGeolocation";
 import { MapMarkerIcon } from "@/assets/icons/components";
 import { showCustomToast } from "../ui/toast/Toast";
+import cn from "@/utils/cn";
 
 type LatLngTuple = readonly [number, number];
 
@@ -17,6 +18,8 @@ type GoogleMapsDirectionsProps = Readonly<{
    */
   requestGeolocationOnClick?: boolean;
   buttonLabel?: string;
+  hoverLabel?: string;
+  iconOnly?: boolean;
   showButton?: boolean;
   classnameProp?: string;
   variant?: ButtonVariant;
@@ -27,6 +30,8 @@ export default function GoogleMapsDirections({
   destination,
   requestGeolocationOnClick,
   buttonLabel = "Map Routing",
+  hoverLabel,
+  iconOnly = false,
   classnameProp,
   showButton = true,
   variant = "secondary",
@@ -87,13 +92,24 @@ export default function GoogleMapsDirections({
     <ActionButton
       type="button"
       variant={variant}
-      className={`flex text-orange-500 gap-0.5 hover:text-orange-400 ${classnameProp ?? ""}`}
+      className={cn(
+        "flex text-orange-500 gap-0.5 hover:text-orange-400",
+        iconOnly &&
+          "group min-w-0! w-10! h-10! p-0! overflow-hidden justify-center transition-all duration-200 hover:w-56! hover:px-3! hover:justify-start",
+        classnameProp,
+      )}
       onClick={handleClick}
       disabled={isDisabled}
       aria-label="Open directions in Google Maps"
     >
-      <MapMarkerIcon className="w-6 h-6" />
-      <p>{buttonLabel}</p>
+      <MapMarkerIcon className="h-6 w-6 shrink-0" />
+      {iconOnly ? (
+        <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:ml-2 group-hover:max-w-40 group-hover:opacity-100">
+          {hoverLabel ?? "View on google maps"}
+        </span>
+      ) : (
+        <p>{buttonLabel}</p>
+      )}
     </ActionButton>
   );
 }
