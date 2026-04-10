@@ -72,7 +72,7 @@ export function BookingPetStep({
     <>
       <h1 className="text-lg font-semibold text-gray-900">Choose Your Pet</h1>
 
-      <div className="mt-6 flex-1 flex justify-center">
+      <div className="mt-6 flex-1 flex justify-center lg:pb-14">
         {loadingPets ? (
           <div className="flex h-full items-center justify-center text-gray-500">
             Loading pets...
@@ -97,7 +97,7 @@ export function BookingPetStep({
         )}
       </div>
 
-      <div className="mt-6 pb-24 md:flex items-center justify-between gap-3 hidden">
+      <div className="md:flex items-center justify-between gap-3 hidden">
         <div className="w-[120px] ">
           <ActionButton variant="secondary" onClick={onBack}>
             Back

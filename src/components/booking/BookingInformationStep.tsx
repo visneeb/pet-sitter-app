@@ -54,7 +54,7 @@ export function BookingInformationStep({
     <>
       <h1 className="text-lg font-semibold text-gray-900">Your Information</h1>
 
-      <div className="mt-6 flex-1 overflow-y-auto px-4 md:px-10 h-auto md:h-[536px]">
+      <div className="mt-6 flex-1 overflow-y-auto h-auto md:h-[536px]">
         <div className= "space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-800">
@@ -107,7 +107,7 @@ export function BookingInformationStep({
         </div>
       </div>
 
-      <div className="mt-6 md:flex items-center justify-between gap-4 px-10 hidden">
+      <div className="md:flex items-center justify-between gap-4 hidden">
         <div className="w-[120px]">
           <ActionButton variant="secondary" onClick={onBack}>
             Back
