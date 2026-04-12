@@ -89,12 +89,12 @@ export default function ReviewModal({
       <div
         className ="max-h-[800px]"
       >
-        {/* 👇 handle bar */}
+
         <div className="flex justify-center pt-3 sm:hidden">
           <div className="h-1.5 w-12 rounded-full bg-gray-300" />
         </div>
 
-        {/* HEADER */}
+
         <div className="flex items-center justify-between border-b border-gray-200 px-10 py-6 sm:px-10 sm:py-6">
           <h2 className="style-headline-4 text-gray-600 sm:style-headline-3">
             Rating & Review
@@ -105,7 +105,7 @@ export default function ReviewModal({
           </button>
         </div>
 
-        {/* BODY (สำคัญ: flex-1) */}
+
         <div className="flex-1 flex-col overflow-y-auto px-6 py-6 sm:px-10 sm:py-6 md:px-10 md:py-10 h-full">
           {/* ⭐ rating */}
           <div className="mb-8 text-center sm:mb-10">
@@ -141,7 +141,7 @@ export default function ReviewModal({
             </div>
           </div>
 
-          {/* textarea */}
+  
           <div className="mb-6">
             <p className="mb-3 text-center style-headline-3 text-gray-900 sm:mb-4">
               Share more about your experience
@@ -156,14 +156,13 @@ export default function ReviewModal({
             />
           </div>
 
-          {/* error */}
+
           {errorMessage && (
             <p className="mb-4 text-sm text-red-500">{errorMessage}</p>
           )}
         </div>
 
-        {/* FOOTER (เพิ่มใหม่!) */}
-        <div className=" px-6 py-10 sm:px-10 sm:py-4 flex justify-between ">
+        <div className=" px-4 pb-6 sm:px-10 sm:py-4 flex justify-between gap-4 ">
           <ActionButton
             variant="secondary"
             onClick={onClose}
