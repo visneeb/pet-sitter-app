@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { reportApi } from "@/services/api/reportApi";
+import { reportApi } from "@/services/api/report";
 import type { ReportData, ReportStatus } from "@/types/reportData";
 import { useRouter } from "next/navigation";
 

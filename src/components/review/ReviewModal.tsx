@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Textarea } from "../ui/input/CustomTextarea";
 import { ActionButton } from "../ui/Button";
-import { reviewApi } from "@/services/api/reviewApi";
+import { reviewApi } from "@/services/api/review";
 import cn from "@/utils/cn";
 import { BaseModal } from "./BaseModal";
 import { CloseIcon } from "@/assets/icons/components";

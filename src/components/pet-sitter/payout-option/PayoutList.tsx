@@ -1,4 +1,4 @@
-import { PayoutSummary } from "@/services/api/paymentApi";
+import { PayoutSummary } from "@/services/api/payment";
 import { PaymentList } from "@/types/paymentType";
 import { formatTransactionDateWithOutWeekDay } from "@/utils/timeFormat";
 

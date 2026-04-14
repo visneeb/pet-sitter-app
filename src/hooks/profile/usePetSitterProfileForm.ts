@@ -13,9 +13,9 @@ import {
   PetSitterDetail,
   cancelPetSitterProfileUpdate,
   deleteRejectNote,
-} from "@/services/api/sitterApi";
-import { petApi } from "@/services/api/petApi";
-import { District, SubDistrict } from "@/services/api/addressApi";
+} from "@/services/api/sitter";
+import { petApi } from "@/services/api/pet";
+import { District, SubDistrict } from "@/services/api/address";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useAddressFields } from "./pet-sitter-profile/useAddressFields";

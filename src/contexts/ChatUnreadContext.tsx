@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { chatApi } from "@/services/api/chatApi";
+import { chatApi } from "@/services/api/chat";
 import chatService, {
   ChatMessage,
   MessageReadEvent,

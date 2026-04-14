@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { bookingApi } from "@/services/api/bookingApi";
+import { bookingApi } from "@/services/api/booking";
 
 import type { BookingDetail } from "@/types/booking";
 

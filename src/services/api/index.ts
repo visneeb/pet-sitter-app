@@ -2,16 +2,16 @@
 
 export { publicApi, privateApi, createApiInstance } from "./client";
 export * from "./auth";
-export * from "./userApi";
-export * from "./chatApi";
-export * from "./sitterApi";
-export * from "./addressApi";
+export * from "./user";
+export * from "./chat";
+export * from "./sitter";
+export * from "./address";
 export {
   getPetSitters,
   getPetSitterById,
   getPetSitterByUserId,
   getPetSitterByUserIdSimple,
   updatePetSitterProfile,
-} from "./sitterApi";
-export { petApi } from "./petApi";
-export { reviewApi } from "./reviewApi"; 
+} from "./sitter";
+export { petApi } from "./pet";
+export { reviewApi } from "./review"; 

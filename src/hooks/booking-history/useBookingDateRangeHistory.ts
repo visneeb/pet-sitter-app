@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { EventInput } from "@fullcalendar/core";
-import { bookingApi } from "@/services/api/bookingApi";
+import { bookingApi } from "@/services/api/booking";
 import type { SitterBookingRangeItem } from "@/types/BookingType";
 
 interface DateRange {

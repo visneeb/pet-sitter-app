@@ -8,7 +8,7 @@ import { ActionButton } from "@/components/ui/Button";
 import DetailLabel from "@/components/ui/detail/DetailLabel";
 import { useParams, useRouter } from "next/navigation";
 import { useBookingDetail } from "@/hooks/booking/useBookingDetail";
-import { bookingApi } from "@/services/api/bookingApi";
+import { bookingApi } from "@/services/api/booking";
 import ProfileModal from "./ProfileModal";
 import PetModal from "./PetProfileModal";
 import { BasePetCard } from "../booking/BasePetCard";

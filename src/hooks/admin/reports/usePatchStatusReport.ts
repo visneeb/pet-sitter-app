@@ -1,4 +1,4 @@
-import { reportApi } from "@/services/api/reportApi";
+import { reportApi } from "@/services/api/report";
 import { ReportStatus } from "@/types/reportData";
 import { useState } from "react";
 

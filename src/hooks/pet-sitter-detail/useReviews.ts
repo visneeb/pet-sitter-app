@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getSitterReviewsById } from "@/services/api/sitterApi";
-import type { ReviewApi } from "@/services/api/sitterApi";
+import { getSitterReviewsById } from "@/services/api/sitter";
+import type { ReviewApi } from "@/services/api/sitter";
 
 export interface UseReviewsParams {
   page?: number;

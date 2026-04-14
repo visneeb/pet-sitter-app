@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { bookingApi } from "@/services/api/bookingApi";
+import { bookingApi } from "@/services/api/booking";
 import type { OwnerBookingHistory } from "@/types/BookingType";
 
 const ITEMS_PER_PAGE = 6;

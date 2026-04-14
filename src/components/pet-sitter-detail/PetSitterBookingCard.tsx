@@ -10,7 +10,7 @@ import { ActionButton } from "@/components/ui/Button";
 import { BookingModal, type BookingFormValues } from "./BookingModal";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Sitter } from "@/types/sitter";
-import { chatApi } from "@/services/api/chatApi";
+import { chatApi } from "@/services/api/chat";
 import { useBooking } from "@/contexts/BookingContext";
 
 /* รวม date + time ให้เป็น Date object จริง */

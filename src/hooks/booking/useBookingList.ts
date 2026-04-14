@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { SitterBookingList } from "@/types/BookingType";
-import { bookingApi } from "@/services/api/bookingApi";
+import { bookingApi } from "@/services/api/booking";
 
 type statusFilterType =
   | "all"
