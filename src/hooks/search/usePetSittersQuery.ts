@@ -12,14 +12,22 @@ interface UsePetSittersQueryResult {
   error: string | null;
 }
 
+interface LocationSearchMeta {
+  radiusUsed?: number;
+  hasMore?: boolean;
+}
+
 export function usePetSittersQuery(
   filters: FilterParams,
   page: number,
   limit: number,
   seed: string,
-  options?: { enabled?: boolean },
+  options?: {
+    enabled?: boolean;
+    onLocationMeta?: (meta: LocationSearchMeta | null) => void;
+  },
 ): UsePetSittersQueryResult {
-  const { enabled = true } = options ?? {};
+  const { enabled = true, onLocationMeta } = options ?? {};
 
   const [state, setState] = useState<UsePetSittersQueryResult>({
     petSitters: [],
@@ -49,6 +57,20 @@ export function usePetSittersQuery(
 
         const raw = response.data;
         const list = Array.isArray(raw?.sitters) ? raw.sitters : [];
+        const meta = raw?.meta ?? null;
+        const radiusUsed =
+          typeof meta?.radiusUsed === "number"
+            ? meta.radiusUsed
+            : typeof meta?.radius_used === "number"
+              ? meta.radius_used
+              : undefined;
+        const hasMore =
+          typeof meta?.hasMore === "boolean"
+            ? meta.hasMore
+            : typeof meta?.has_more === "boolean"
+              ? meta.has_more
+              : undefined;
+        onLocationMeta?.(meta ? { radiusUsed, hasMore } : null);
         setState({
           petSitters: list,
           totalPages: raw.totalPages ?? 1,
@@ -58,13 +80,13 @@ export function usePetSittersQuery(
         });
       } catch (err) {
         if (!axios.isCancel(err)) {
-          // eslint-disable-next-line no-console
           console.error("Failed to fetch pet sitter data", err);
           setState((prev) => ({
             ...prev,
             isLoading: false,
             error: "Failed to fetch pet sitter data",
           }));
+          onLocationMeta?.(null);
         }
       }
     }
@@ -74,7 +96,7 @@ export function usePetSittersQuery(
     return () => {
       controller.abort();
     };
-  }, [enabled, filters, page, limit, seed]);
+  }, [enabled, filters, page, limit, seed, onLocationMeta]);
 
   return state;
 }

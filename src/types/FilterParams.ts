@@ -3,5 +3,8 @@ export interface FilterParams {
   petTypes?: string[];
   rating?: number[];
   experience?: string;
-  seed?:string;
+  seed?: string;
+  lat?: number;
+  lon?: number;
+  radius?: number;
 }

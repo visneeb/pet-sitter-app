@@ -7,6 +7,9 @@ const PARAM_KEYS = {
   experience: "exp",
   page: "page",
   seed: "seed",
+  lat: "lat",
+  lon: "lon",
+  radius: "radius",
 } as const;
 
 export function parseFiltersFromURLParams(
@@ -37,6 +40,21 @@ export function parseFiltersFromURLParams(
   const seed = params.get(PARAM_KEYS.seed);
   if (seed) {
     filters.seed = seed;
+  }
+
+  const lat = params.get(PARAM_KEYS.lat);
+  if (lat) {
+    filters.lat = Number(lat);
+  }
+
+  const lon = params.get(PARAM_KEYS.lon);
+  if (lon) {
+    filters.lon = Number(lon);
+  }
+
+  const radius = params.get(PARAM_KEYS.radius);
+  if (radius) {
+    filters.radius = Number(radius);
   }
 
   return filters;
@@ -70,6 +88,18 @@ export function buildURLSearchParamsFromFilters(
     params.set(PARAM_KEYS.seed, filters.seed);
   }
 
+  if (filters.lat != null) {
+    params.set(PARAM_KEYS.lat, String(filters.lat));
+  }
+
+  if (filters.lon != null) {
+    params.set(PARAM_KEYS.lon, String(filters.lon));
+  }
+
+  if (filters.radius != null) {
+    params.set(PARAM_KEYS.radius, String(filters.radius));
+  }
+
   return params;
 }
 
@@ -101,6 +131,15 @@ export function buildApiQueryParams(
     params.experience = filters.experience
       .replace(" Years", "")
       .replace("+", "-");
+  }
+
+  if (filters.lat != null && filters.lon != null) {
+    params.lat = String(filters.lat);
+    params.lon = String(filters.lon);
+  }
+
+  if (filters.radius != null) {
+    params.radius = String(filters.radius);
   }
 
   return params;
