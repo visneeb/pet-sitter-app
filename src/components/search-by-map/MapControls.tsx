@@ -30,12 +30,26 @@ export default function MapControls({
   handleSelectPetSitter,
 }: Readonly<MapControlsProps>) {
   const { userPosition, accuracy, loading, handleLocate, errorMessage } = useUserLocate();
-  const { petSitters } = usePetSitterSearch();
+  const { petSitters, activeCoordinates, searchMode, geolocationStatus } =
+    usePetSitterSearch();
   const [lockUserAndSitter, setLockUserAndSitter] = useState(false);
   const [routeEnabled, setRouteEnabled] = useState(false);
   const [displayDistanceKm, setDisplayDistanceKm] = useState<number | null>(
     null,
   );
+  const contextUserPosition = useMemo<[number, number] | null>(() => {
+    if (
+      searchMode !== "location" ||
+      geolocationStatus !== "ready" ||
+      !activeCoordinates
+    ) {
+      return null;
+    }
+    const coords: [number, number] = [activeCoordinates.lat, activeCoordinates.lon];
+    return isValidLatLng(coords) ? coords : null;
+  }, [activeCoordinates, geolocationStatus, searchMode]);
+  const effectiveUserPosition = userPosition ?? contextUserPosition;
+  const effectiveAccuracy = accuracy ?? 80;
   const {
     loading: routeLoading,
     error: routeError,
@@ -52,11 +66,11 @@ export default function MapControls({
   }, [selectedMarker]);
 
   const userLatLng: OsrmLatLngTuple | null = useMemo(() => {
-    if (!userPosition || !isValidLatLng(userPosition)) {
+    if (!effectiveUserPosition || !isValidLatLng(effectiveUserPosition)) {
       return null;
     }
-    return userPosition as OsrmLatLngTuple;
-  }, [userPosition]);
+    return effectiveUserPosition as OsrmLatLngTuple;
+  }, [effectiveUserPosition]);
 
   useEffect(() => {
     if (routeDistanceKm !== null) {
@@ -135,14 +149,16 @@ export default function MapControls({
         );
       })}
       {/* Marker ตำแหน่งผู้ใช้ — แสดงเมื่อมีตำแหน่งและ accuracy แล้วเท่านั้น */}
-      {userPosition && accuracy !== null && isValidLatLng(userPosition) && (
-        <UserMarker position={userPosition} accuracy={accuracy} />
+      {effectiveUserPosition && isValidLatLng(effectiveUserPosition) && (
+        <UserMarker position={effectiveUserPosition} accuracy={effectiveAccuracy} />
       )}
       {/* SmartRecenterUserAndSitter สำหรับการโฟกัสที่ตำแหน่งผู้ใช้และร้าน */}
       <SmartRecenterUserAndSitter
         enabled={lockUserAndSitter}
         userPosition={
-          userPosition && isValidLatLng(userPosition) ? userPosition : null
+          effectiveUserPosition && isValidLatLng(effectiveUserPosition)
+            ? effectiveUserPosition
+            : null
         }
         sitterPosition={
           selectedMarker?.position && isValidLatLng(selectedMarker.position)

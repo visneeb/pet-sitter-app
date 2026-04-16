@@ -6,6 +6,8 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
+  useRef,
   type ReactNode,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,6 +32,24 @@ const DEFAULT_LIMIT = 5;
 
 // ── Default values ──────────────────────────────────────────
 const DEFAULT_EXPERIENCE = "";
+const DEFAULT_LOCATION_RADIUS = 5000;
+const MAX_LOCATION_RADIUS = 100000;
+const GEOLOCATION_OPTIONS: PositionOptions = {
+  enableHighAccuracy: true,
+  timeout: 10000,
+  maximumAge: 5 * 60 * 1000,
+};
+const SEARCH_MODES = {
+  standard: "standard",
+  location: "location",
+} as const;
+
+export type SearchMode = (typeof SEARCH_MODES)[keyof typeof SEARCH_MODES];
+type GeoLocationStatus = "idle" | "loading" | "ready" | "error";
+type LocationSearchMeta = {
+  radiusUsed?: number;
+  hasMore?: boolean;
+} | null;
 
 const randomSeed = () => Math.random().toString(36).substring(2, 10);
 
@@ -63,6 +83,15 @@ interface PetSitterSearchContextType {
   petSitters: PetSitter[];
   isLoading: boolean;
   error: string | null;
+  searchMode: SearchMode;
+  geolocationStatus: GeoLocationStatus;
+  geolocationError: string | null;
+  activeCoordinates: { lat: number; lon: number } | null;
+  locationMeta: LocationSearchMeta;
+  handleSearchModeChange: (mode: SearchMode) => Promise<void>;
+  currentSearchRadius: number | null;
+  canIncreaseSearchRadius: boolean;
+  handleIncreaseSearchRadius: () => void;
 }
 
 const PetSitterSearchContext = createContext<PetSitterSearchContextType | null>(
@@ -116,6 +145,225 @@ export function PetSitterSearchProvider({
   const [seed, setSeed] = useState(() =>
     initialFilters.seed ?? randomSeed(),
   );
+  const [searchMode, setSearchMode] = useState<SearchMode>(
+    initialFilters.lat != null && initialFilters.lon != null
+      ? SEARCH_MODES.location
+      : SEARCH_MODES.standard,
+  );
+  const [geolocationStatus, setGeolocationStatus] =
+    useState<GeoLocationStatus>("idle");
+  const [geolocationError, setGeolocationError] = useState<string | null>(null);
+  const [activeCoordinates, setActiveCoordinates] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(() =>
+    initialFilters.lat != null && initialFilters.lon != null
+      ? { lat: initialFilters.lat, lon: initialFilters.lon }
+      : null,
+  );
+  const [locationMeta, setLocationMeta] = useState<LocationSearchMeta>(null);
+  const hasTriedAutoLocationRef = useRef(false);
+  const handleLocationMeta = useCallback(
+    (meta: LocationSearchMeta) => {
+      setLocationMeta(meta);
+      if (
+        searchMode !== SEARCH_MODES.location ||
+        meta?.radiusUsed == null ||
+        !Number.isFinite(meta.radiusUsed)
+      ) {
+        return;
+      }
+
+      setAppliedFilters((prev) => {
+        if (prev.radius === meta.radiusUsed) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          radius: meta.radiusUsed,
+        };
+      });
+    },
+    [searchMode],
+  );
+
+  const applyCurrentModeToFilters = useCallback(
+    (base: FilterParams): FilterParams => {
+      if (searchMode === SEARCH_MODES.location && activeCoordinates) {
+        return {
+          ...base,
+          lat: activeCoordinates.lat,
+          lon: activeCoordinates.lon,
+        };
+      }
+
+      return {
+        ...base,
+        lat: undefined,
+        lon: undefined,
+        radius: undefined,
+      };
+    },
+    [activeCoordinates, searchMode],
+  );
+
+  const getCurrentPosition = useCallback(async () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      throw new Error("Your browser does not support geolocation.");
+    }
+
+    return new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            reject(new Error("Location permission was denied."));
+            return;
+          }
+          reject(new Error("Unable to get your location right now."));
+        },
+        GEOLOCATION_OPTIONS,
+      );
+    });
+  }, []);
+
+  const handleSearchModeChange = useCallback(
+    async (mode: SearchMode) => {
+      if (mode === searchMode) {
+        return;
+      }
+
+      if (mode === SEARCH_MODES.standard) {
+        setSearchMode(SEARCH_MODES.standard);
+        setGeolocationStatus("idle");
+        setGeolocationError(null);
+        const newSeed = randomSeed();
+        const nextFilters: FilterParams = {
+          ...appliedFilters,
+          seed: newSeed,
+          lat: undefined,
+          lon: undefined,
+          radius: undefined,
+        };
+        setCurrentPage(DEFAULT_PAGE);
+        setSeed(newSeed);
+        pushFiltersToCurrentUrl(nextFilters);
+        setAppliedFilters(nextFilters);
+        return;
+      }
+
+      setGeolocationStatus("loading");
+      setGeolocationError(null);
+
+      try {
+        const position = await getCurrentPosition();
+        const coords = {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        };
+
+        setActiveCoordinates(coords);
+        setSearchMode(SEARCH_MODES.location);
+        setGeolocationStatus("ready");
+        const newSeed = randomSeed();
+        const nextFilters: FilterParams = {
+          ...appliedFilters,
+          seed: newSeed,
+          lat: coords.lat,
+          lon: coords.lon,
+        };
+        setCurrentPage(DEFAULT_PAGE);
+        setSeed(newSeed);
+        pushFiltersToCurrentUrl(nextFilters);
+        setAppliedFilters(nextFilters);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unable to enable location mode.";
+        setSearchMode(SEARCH_MODES.standard);
+        setGeolocationStatus("error");
+        setGeolocationError(message);
+        const newSeed = randomSeed();
+        const nextFilters: FilterParams = {
+          ...appliedFilters,
+          seed: newSeed,
+          lat: undefined,
+          lon: undefined,
+          radius: undefined,
+        };
+        setCurrentPage(DEFAULT_PAGE);
+        setSeed(newSeed);
+        pushFiltersToCurrentUrl(nextFilters);
+        setAppliedFilters(nextFilters);
+      }
+    },
+    [
+      searchMode,
+      appliedFilters,
+      getCurrentPosition,
+      pushFiltersToCurrentUrl,
+    ],
+  );
+
+  const currentSearchRadius = useMemo(() => {
+    if (searchMode !== SEARCH_MODES.location) {
+      return null;
+    }
+
+    if (appliedFilters.radius != null) {
+      return appliedFilters.radius;
+    }
+
+    if (locationMeta?.radiusUsed != null) {
+      return locationMeta.radiusUsed;
+    }
+
+    return null;
+  }, [appliedFilters.radius, locationMeta?.radiusUsed, searchMode]);
+
+  const canIncreaseSearchRadius = useMemo(() => {
+    if (searchMode !== SEARCH_MODES.location || !activeCoordinates) {
+      return false;
+    }
+
+    const effectiveRadius = currentSearchRadius ?? DEFAULT_LOCATION_RADIUS;
+    return effectiveRadius < MAX_LOCATION_RADIUS;
+  }, [activeCoordinates, currentSearchRadius, searchMode]);
+
+  const handleIncreaseSearchRadius = useCallback(() => {
+    if (searchMode !== SEARCH_MODES.location || !activeCoordinates) {
+      return;
+    }
+
+    const effectiveRadius = currentSearchRadius ?? DEFAULT_LOCATION_RADIUS;
+    const nextRadius = Math.min(effectiveRadius * 2, MAX_LOCATION_RADIUS);
+
+    if (nextRadius <= effectiveRadius) {
+      return;
+    }
+
+    const newSeed = randomSeed();
+    const nextFilters: FilterParams = {
+      ...appliedFilters,
+      seed: newSeed,
+      lat: activeCoordinates.lat,
+      lon: activeCoordinates.lon,
+      radius: nextRadius,
+    };
+
+    setCurrentPage(DEFAULT_PAGE);
+    setSeed(newSeed);
+    pushFiltersToCurrentUrl(nextFilters);
+    setAppliedFilters(nextFilters);
+  }, [
+    activeCoordinates,
+    appliedFilters,
+    currentSearchRadius,
+    pushFiltersToCurrentUrl,
+    searchMode,
+  ]);
 
   const {
     petSitters,
@@ -125,6 +373,7 @@ export function PetSitterSearchProvider({
     error,
   } = usePetSittersQuery(appliedFilters, currentPage, DEFAULT_LIMIT, seed, {
     enabled: enableQuery,
+    onLocationMeta: handleLocationMeta,
   });
 
   // ── Filter handlers ───────────────────────────────────────
@@ -156,6 +405,7 @@ export function PetSitterSearchProvider({
         experience: filters.experience ?? DEFAULT_EXPERIENCE,
         seed: newSeed,
       };
+      const modeAwareFilters = applyCurrentModeToFilters(nextFilters);
 
       // Keep local UI state in sync with the applied filters
       setSearchText(nextFilters.searchText ?? "");
@@ -165,10 +415,10 @@ export function PetSitterSearchProvider({
 
       setCurrentPage(DEFAULT_PAGE);
       setSeed(newSeed);
-      pushFiltersToCurrentUrl(nextFilters);
-      setAppliedFilters(nextFilters);
+      pushFiltersToCurrentUrl(modeAwareFilters);
+      setAppliedFilters(modeAwareFilters);
     },
-    [pushFiltersToCurrentUrl],
+    [applyCurrentModeToFilters, pushFiltersToCurrentUrl],
   );
 
   const handleSearch = useCallback(() => {
@@ -180,15 +430,17 @@ export function PetSitterSearchProvider({
       experience,
       seed: newSeed,
     };
+    const modeAwareFilters = applyCurrentModeToFilters(filters);
     setCurrentPage(DEFAULT_PAGE);
     setSeed(newSeed);
-    pushFiltersToCurrentUrl(filters);
-    setAppliedFilters(filters);
+    pushFiltersToCurrentUrl(modeAwareFilters);
+    setAppliedFilters(modeAwareFilters);
   }, [
     searchText,
     petTypes,
     rating,
     experience,
+    applyCurrentModeToFilters,
     pushFiltersToCurrentUrl,
   ]);
 
@@ -201,15 +453,17 @@ export function PetSitterSearchProvider({
       experience,
       seed: newSeed,
     };
+    const modeAwareFilters = applyCurrentModeToFilters(filters);
     setCurrentPage(DEFAULT_PAGE);
     setSeed(newSeed);
-    pushFiltersToSearchPage(filters);
-    setAppliedFilters(filters);
+    pushFiltersToSearchPage(modeAwareFilters);
+    setAppliedFilters(modeAwareFilters);
   }, [
     searchText,
     petTypes,
     rating,
     experience,
+    applyCurrentModeToFilters,
     pushFiltersToSearchPage,
   ]);
 
@@ -222,10 +476,54 @@ export function PetSitterSearchProvider({
     const newSeed = randomSeed();
     setSeed(newSeed);
 
-    const emptyFilters: FilterParams = { seed: newSeed };
+    const emptyFilters: FilterParams = applyCurrentModeToFilters({
+      seed: newSeed,
+    });
     pushFiltersToCurrentUrl(emptyFilters);
     setAppliedFilters(emptyFilters);
-  }, [pushFiltersToCurrentUrl]);
+  }, [applyCurrentModeToFilters, pushFiltersToCurrentUrl]);
+
+  // Try enabling location mode by default once on mount.
+  // If permission is blocked or unavailable, keep standard mode silently.
+  useEffect(() => {
+    if (hasTriedAutoLocationRef.current) {
+      return;
+    }
+    hasTriedAutoLocationRef.current = true;
+
+    if (
+      initialFilters.lat != null &&
+      initialFilters.lon != null &&
+      searchMode === SEARCH_MODES.location
+    ) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void handleSearchModeChange(SEARCH_MODES.location);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [handleSearchModeChange, initialFilters.lat, initialFilters.lon, searchMode]);
+
+  // Keep radius in URL after backend chooses/expands it on page 1,
+  // so page 2+ can reuse the same radius for stable pagination.
+  useEffect(() => {
+    if (searchMode !== SEARCH_MODES.location || appliedFilters.radius == null) {
+      return;
+    }
+
+    const radiusInUrl = Number(
+      new URLSearchParams(searchParams?.toString() ?? "").get("radius"),
+    );
+    if (Number.isFinite(radiusInUrl) && radiusInUrl === appliedFilters.radius) {
+      return;
+    }
+
+    pushFiltersToCurrentUrl(appliedFilters);
+  }, [appliedFilters, pushFiltersToCurrentUrl, searchMode, searchParams]);
 
   // ── Pagination handler ────────────────────────────────────
   const handlePageChange = useCallback(
@@ -267,6 +565,15 @@ export function PetSitterSearchProvider({
       petSitters,
       isLoading,
       error,
+      searchMode,
+      geolocationStatus,
+      geolocationError,
+      activeCoordinates,
+      locationMeta,
+      handleSearchModeChange,
+      currentSearchRadius,
+      canIncreaseSearchRadius,
+      handleIncreaseSearchRadius,
     }),
     [
       searchText,
@@ -288,6 +595,15 @@ export function PetSitterSearchProvider({
       petSitters,
       isLoading,
       error,
+      searchMode,
+      geolocationStatus,
+      geolocationError,
+      activeCoordinates,
+      locationMeta,
+      handleSearchModeChange,
+      currentSearchRadius,
+      canIncreaseSearchRadius,
+      handleIncreaseSearchRadius,
     ],
   );
 

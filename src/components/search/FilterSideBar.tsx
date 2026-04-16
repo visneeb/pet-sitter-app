@@ -87,7 +87,7 @@ export default function FilterSideBar() {
     <aside
       className={cn(
         "h-fit flex flex-col gap-8 w-[375px] px-4 py-4",
-        "lg:sticky lg:top-30 lg:w-[392px] lg:bg-white lg:rounded-2xl lg:px-6 lg:py-6 lg:shadow-[4px_4px_24px_0_rgba(0,0,0,0.04)]",
+        "lg:z-20 lg:w-[392px] lg:bg-white lg:rounded-2xl lg:px-6 lg:py-6 lg:shadow-[4px_4px_24px_0_rgba(0,0,0,0.04)]",
       )}
       aria-labelledby={headingId}
     >

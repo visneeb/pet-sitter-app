@@ -3,6 +3,7 @@
 import HeaderSearchViewMode from "@/components/search/HeaderSearchViewMode";
 import FilterSideBar from "@/components/search/FilterSideBar";
 import MainViewSearch from "@/components/search/MainViewSearch";
+import SearchModePanel from "@/components/search/SearchModePanel";
 import { usePetSitterSearch } from "@/contexts/PetSitterSearchContext";
 import { Pagination } from "@/components/ui/Pagination";
 import { useSearchParams } from "next/navigation";
@@ -19,10 +20,22 @@ const LAYOUT = {
 } as const;
 
 export default function SearchPageContent() {
-  const { currentPage, totalPages, handlePageChange } = usePetSitterSearch();
+  const {
+    currentPage,
+    totalPages,
+    handlePageChange,
+    searchMode,
+    handleSearchModeChange,
+    geolocationStatus,
+    geolocationError,
+    currentSearchRadius,
+    canIncreaseSearchRadius,
+    handleIncreaseSearchRadius,
+  } = usePetSitterSearch();
   const searchParams = useSearchParams();
   // Read directly from URL. Default to 'list' if not found.
   const viewMode = searchParams?.get("view") || "list";
+
   return (
     <>
       {/* ── Content Container ── */}
@@ -35,13 +48,27 @@ export default function SearchPageContent() {
 
         <div
           id="main-content"
-          className={`order-1 lg:order-2 flex flex-col  items-center lg:flex-row  lg:items-start justify-center ${LAYOUT.desktopSidePadding} ${LAYOUT.sidebarGap}`}
+          className={`order-1 lg:order-2 flex flex-col items-center lg:flex-row lg:items-stretch justify-center ${LAYOUT.desktopSidePadding} ${LAYOUT.sidebarGap}`}
         >
-          <FilterSideBar />
+          <div
+            className="flex flex-col items-center justify-center lg:justify-start gap-3 lg:min-h-0 lg:h-fit lg:self-start lg:sticky lg:top-30"
+          >
+            <FilterSideBar />
+            <SearchModePanel
+              searchMode={searchMode}
+              geolocationStatus={geolocationStatus}
+              geolocationError={geolocationError}
+              currentSearchRadius={currentSearchRadius}
+              canIncreaseSearchRadius={canIncreaseSearchRadius}
+              onChangeMode={handleSearchModeChange}
+              onIncreaseRadius={handleIncreaseSearchRadius}
+            />
+          </div>
+
           <div className="block lg:hidden mt-10 mb-6">
             <HeaderSearchViewMode />
           </div>
-          <div className="order-3 lg:order-2 w-full flex justify-center items-center">
+          <div className="order-3 lg:order-2 w-full flex justify-center items-start">
             <MainViewSearch />
           </div>
         </div>
