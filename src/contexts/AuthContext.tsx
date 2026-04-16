@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { userApi } from "@/services/api/userApi";
+import { userApi } from "@/services/api/user";
 import { authApi } from "@/services/api/auth";
 
 type User = {

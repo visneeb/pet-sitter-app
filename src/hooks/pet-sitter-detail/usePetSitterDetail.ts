@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getPublicPetSitterById } from "@/services/api/sitterApi";
+import { getPublicPetSitterById } from "@/services/api/sitter";
 import { toSitter } from "@/utils/sitter";
 import type { Sitter } from "@/types/sitter";
 

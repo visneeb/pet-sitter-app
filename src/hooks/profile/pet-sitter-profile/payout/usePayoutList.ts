@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { paymentApi, PayoutSummary } from "@/services/api/paymentApi";
+import { paymentApi, PayoutSummary } from "@/services/api/payment";
 import { getCurrentSitter } from "@/services/api";
 
 interface UsePayoutListReturn {

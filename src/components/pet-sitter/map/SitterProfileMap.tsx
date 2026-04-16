@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { UseFormReturn } from "react-hook-form";
 import { SitterProfileFormValues } from "@/lib/validations/sitterProfileValidation";
-import { Province, District, SubDistrict } from "@/services/api/addressApi";
+import { Province, District, SubDistrict } from "@/services/api/address";
 
 const LeafletMap = dynamic(() => import("@/components/Map/LeafletMap"), {
   ssr: false,

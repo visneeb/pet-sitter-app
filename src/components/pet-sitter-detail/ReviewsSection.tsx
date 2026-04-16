@@ -6,7 +6,7 @@ import ReviewCardSkeleton from "./ReviewCardSkeleton";
 import { Pagination } from "@/components/ui/Pagination";
 import { formatReviewDate } from "@/utils/dateFormat";
 import FilterRatingList from "@/components/search/FilterSideBar/FilterRatingList";
-import { ReviewApi } from "@/services/api/sitterApi";
+import { ReviewApi } from "@/services/api/sitter";
 
 interface ReviewsSectionProps {
   rating: number;

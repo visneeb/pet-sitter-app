@@ -8,7 +8,7 @@ import { petApi } from "@/services/api";
 import { showCustomToast } from "@/components/ui/toast/Toast";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { PetDetail } from "@/services/api/petApi";
+import { PetDetail } from "@/services/api/pet";
 
 interface Props {
   mode: "create" | "edit";

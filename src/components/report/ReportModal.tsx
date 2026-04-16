@@ -5,7 +5,7 @@ import { BaseModal } from "../review/BaseModal";
 import { Input } from "@/components/ui/input/Input";
 import { Textarea } from "@/components/ui/input/CustomTextarea";
 import { ActionButton } from "@/components/ui/Button";
-import { reportApi } from "@/services/api/reportApi";
+import { reportApi } from "@/services/api/report";
 import cn from "@/utils/cn";
 import { CloseIcon } from "@/assets/icons/components";
 

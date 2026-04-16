@@ -6,7 +6,7 @@ import ChatSidebar from "@/components/chat/ChatSidebar";
 import ChatMain from "@/components/chat/ChatMain";
 import { useAuth } from "@/contexts/AuthContext";
 import ChatPageSkeleton from "@/components/chat/ChatPageSkeleton";
-import { chatApi } from "@/services/api/chatApi";
+import { chatApi } from "@/services/api/chat";
 import chatService, { ChatMessage } from "@/services/chatService";
 import { useChatUnread } from "@/contexts/ChatUnreadContext";
 

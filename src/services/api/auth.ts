@@ -1,6 +1,6 @@
 import { publicApi, privateApi } from "./client";
 import { RegisterFormValues, Role, LoginFormValues } from "@/types/authType";
-import { userApi } from "@/services/api/userApi";
+import { userApi } from "@/services/api/user";
 
 export type RegisterPayload = RegisterFormValues & { role: Role };
 export type RegisterResponse = { message?: string };

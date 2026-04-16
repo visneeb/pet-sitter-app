@@ -1,4 +1,4 @@
-import { reportApi } from "@/services/api/reportApi";
+import { reportApi } from "@/services/api/report";
 import { useEffect, useState } from "react";
 import { ReportData } from "@/types/reportData";
 

@@ -5,9 +5,9 @@ import {
   Province,
   District,
   SubDistrict,
-} from "@/services/api/addressApi";
+} from "@/services/api/address";
 import { SitterProfileFormValues } from "@/lib/validations/sitterProfileValidation";
-import { PetSitterDetail } from "@/services/api/sitterApi";
+import { PetSitterDetail } from "@/services/api/sitter";
 
 /** Defer setValue until after React finishes the current commit (not just the stack). */
 function deferFormUpdate(fn: () => void) {

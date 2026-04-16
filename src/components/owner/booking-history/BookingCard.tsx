@@ -11,7 +11,7 @@ import {
   BookingFormValues,
   type ModalAction,
 } from "@/components/pet-sitter-detail/BookingModal";
-import { bookingApi } from "@/services/api/bookingApi";
+import { bookingApi } from "@/services/api/booking";
 
 interface BookingCardProps {
   booking: OwnerBookingHistory;

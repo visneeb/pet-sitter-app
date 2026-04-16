@@ -1,5 +1,5 @@
 import chatService from "@/services/chatService";
-import { chatApi } from "@/services/api/chatApi";
+import { chatApi } from "@/services/api/chat";
 import { useState, useEffect, useRef, useCallback } from "react";
 
 export type ChatMessage = {

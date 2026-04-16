@@ -1,10 +1,17 @@
 import axios from "axios";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const normalizeApiBaseUrl = (url: string) => {
+  const trimmedUrl = url.replace(/\/+$/, "");
+  return trimmedUrl.endsWith("/api") ? trimmedUrl : `${trimmedUrl}/api`;
+};
+
+export const API_BASE_URL = normalizeApiBaseUrl(
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000",
+);
 
 export const createApiInstance = (withAuth: boolean) => {
   const instance = axios.create({
-    baseURL,
+    baseURL: API_BASE_URL,
   });
 
   // Private - attach JWT token from localStorage

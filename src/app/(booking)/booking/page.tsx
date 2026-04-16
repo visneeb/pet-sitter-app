@@ -6,21 +6,21 @@ import { ProgressBar } from "@/components/booking/progressbar";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { CreatePetModal } from "@/components/booking/CreatePetModal";
 import { useBooking } from "@/contexts/BookingContext";
-import { petApi } from "@/services/api/petApi";
+import { petApi } from "@/services/api/pet";
 import { Pet } from "@/contexts/booking/bookingTypes";
 import { userApi } from "@/services/api";
 import { BookingPetStep } from "@/components/booking/BookingPetStep";
 import { BookingInformationStep } from "@/components/booking/BookingInformationStep";
 import { BookingPaymentStep } from "@/components/booking/BookingPaymentStep";
 import Modal from "@/components/ui/Modal";
-import { bookingApi } from "@/services/api/bookingApi";
+import { bookingApi } from "@/services/api/booking";
 import { calcBookingTotal } from "@/domain/booking/pricing";
 import {
   useStripe,
   useElements,
   CardNumberElement,
 } from "@stripe/react-stripe-js";
-import { paymentApi } from "@/services/api/paymentApi";
+import { paymentApi } from "@/services/api/payment";
 
 const PAGE_SIZE = 6;
 const CONFIRM_MODAL_ID = "confirm-booking-modal";

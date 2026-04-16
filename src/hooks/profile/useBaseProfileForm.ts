@@ -8,7 +8,7 @@ import {
 } from "@/lib/validations/profileValidation";
 import { createResolver } from "@/lib/form/createResolver";
 import { ProfileService } from "@/services/profileService";
-import { userApi } from "@/services/api/userApi";
+import { userApi } from "@/services/api/user";
 import { showCustomToast } from "@/components/ui/toast/Toast";
 import { useRouter } from "next/navigation";
 

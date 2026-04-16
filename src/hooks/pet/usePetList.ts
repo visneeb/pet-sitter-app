@@ -1,4 +1,4 @@
-import { petApi, PetDetail } from "@/services/api/petApi";
+import { petApi, PetDetail } from "@/services/api/pet";
 import { useState, useEffect, useCallback } from "react";
 
 export function usePetList() {

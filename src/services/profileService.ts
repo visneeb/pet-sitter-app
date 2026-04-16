@@ -1,4 +1,4 @@
-import { userApi } from "./api/userApi";
+import { userApi } from "./api/user";
 import { ProfileFormValues } from "@/lib/validations/profileValidation";
 import { ImageFile } from "@/types/imageUploadType";
 import { validateImage } from "@/lib/validations/useImageValidation";

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { userApi } from "@/services/api/userApi";
+import { userApi } from "@/services/api/user";
 import { buildFormData } from "@/lib/utils/formData";
 
 // Temporary local function in case of module resolution issues
