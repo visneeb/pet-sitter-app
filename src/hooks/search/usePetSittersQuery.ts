@@ -51,7 +51,7 @@ export function usePetSittersQuery(
         const params = buildApiQueryParams(filters, page, limit, seed);
 
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/pet-sitter`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/pet-sitter`,
           { params, signal: controller.signal },
         );
 
