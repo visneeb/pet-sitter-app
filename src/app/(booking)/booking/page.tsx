@@ -22,7 +22,7 @@ import {
   useElements,
   CardNumberElement,
 } from "@stripe/react-stripe-js";
-import { paymentApi } from "@/services/api/paymentApi";
+import { paymentApi } from "@/services/api/payment";
 import { ActionButton, NavigationButton } from "@/components/ui/Button";
 
 const PAGE_SIZE_DESKTOP = 6;
