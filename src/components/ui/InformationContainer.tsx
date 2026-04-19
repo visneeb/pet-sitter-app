@@ -10,8 +10,8 @@ function InformationContainer({
   className?: string;
 }) {
   return (
-    <section className="flex w-full min-w-0 flex-col gap-1">
-      <span className="style-headline-4 text-gray-300">{title}</span>
+    <section aria-label={title} className="flex w-full min-w-0 flex-col gap-1">
+      <h4 className="style-headline-4 text-gray-300">{title}</h4>
       <span
         className={cn(
           "flex flex-col gap-1 style-input w-full min-w-0 text-black wrap-break-word whitespace-pre-wrap",
