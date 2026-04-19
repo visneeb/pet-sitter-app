@@ -152,7 +152,7 @@ function PetSitterPageContent() {
             </div>
           )}
         </header>
-        {adminNote && <RejectionNote adminNote={adminNote} />}
+        {adminNote && <RejectionNote role="admin" adminNote={adminNote} />}
         <div className="w-full min-w-0">
           <section className="tabs tabs-lift tabs-xl w-full min-w-0 gap-x-2 md:gap-x-4">
             <input

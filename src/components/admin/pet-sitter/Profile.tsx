@@ -1,7 +1,10 @@
 import { ActionButton } from "@/components/ui/Button";
 import InformationContainer from "@/components/ui/InformationContainer";
 import petTypeColorTag from "@/constants/petTag";
-import { SitterProfileResponse } from "@/types/admin";
+import type {
+  SitterPendingUpdateResponse,
+  SitterProfileResponse,
+} from "@/types/admin";
 import cn from "@/utils/cn";
 import { idNumberWithHyphen, phoneWithSpace } from "@/utils/user";
 import { format } from "date-fns";
@@ -46,10 +49,7 @@ function Profile({
   sitterPending,
 }: {
   sitter: SitterProfileResponse;
-  sitterPending: Omit<
-    SitterProfileResponse,
-    "sitter" | "hasPendingUpdate" | "status"
-  > | null;
+  sitterPending: SitterPendingUpdateResponse | null;
 }) {
   const [isSeeUpdate, setIsSeeUpdate] = useState<boolean>(true);
 
@@ -114,12 +114,24 @@ function Profile({
           <div className="flex justify-between items-start lg:flex-col lg:justify-start lg:gap-8">
             {sitter.sitter.profileImgUrl ? (
               <div className="avatar">
-                <div className="size-30 rounded-full md:size-60">
-                  <img
-                    src={sitter.sitter.profileImgUrl}
-                    alt={sitter.sitter.name}
-                  />
-                </div>
+                {isSeeUpdate &&
+                sitterPending &&
+                sitterPending.sitter.profileImgUrl !==
+                  sitter.sitter.profileImgUrl ? (
+                  <div className="size-30 rounded-full ring ring-orange-500 md:size-60">
+                    <img
+                      src={sitterPending.sitter.profileImgUrl}
+                      alt={sitterPending.sitter.name}
+                    />
+                  </div>
+                ) : (
+                  <div className="size-30 rounded-full md:size-60">
+                    <img
+                      src={sitter.sitter.profileImgUrl}
+                      alt={sitter.sitter.name}
+                    />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="avatar avatar-placeholder">
@@ -139,8 +151,19 @@ function Profile({
           </div>
           <div className="flex min-w-0 flex-col gap-8 rounded-lg lg:gap-10 xl:flex-1 xl:p-6 xl:bg-gray-100">
             <InformationContainer
-              title="Pet Owner Name"
-              detail={sitter.sitter.name}
+              title="Pet Sitter Name"
+              detail={
+                <>
+                  <span>{sitter.sitter.name}</span>
+                  {isSeeUpdate &&
+                    sitterPending &&
+                    sitterPending.sitter.name !== sitter.sitter.name && (
+                      <span className="text-orange-500">
+                        {sitterPending.sitter.name}
+                      </span>
+                    )}
+                </>
+              }
             />
             <InformationContainer title="Email" detail={sitter.sitter.email} />
             <InformationContainer
@@ -166,22 +189,64 @@ function Profile({
             />
             <InformationContainer
               title="Phone"
-              detail={phoneWithSpace(sitter.sitter.phone)}
+              detail={
+                <>
+                  <span>{phoneWithSpace(sitter.sitter.phone)}</span>
+                  {isSeeUpdate &&
+                    sitterPending &&
+                    sitterPending.sitter.phone !== sitter.sitter.phone && (
+                      <span className="text-orange-500">
+                        {phoneWithSpace(sitterPending.sitter.phone)}
+                      </span>
+                    )}
+                </>
+              }
             />
             <InformationContainer
               title="ID Number"
               detail={
-                sitter.sitter.idNumber
-                  ? idNumberWithHyphen(sitter.sitter.idNumber)
-                  : "Unknown"
+                <>
+                  <span>
+                    {sitter.sitter.idNumber
+                      ? idNumberWithHyphen(sitter.sitter.idNumber)
+                      : "Unknown"}
+                  </span>
+                  {isSeeUpdate &&
+                    sitterPending &&
+                    sitterPending.sitter.idNumber !==
+                      sitter.sitter.idNumber && (
+                      <span className="text-orange-500">
+                        {sitterPending.sitter.idNumber
+                          ? idNumberWithHyphen(sitterPending.sitter.idNumber)
+                          : "Unknown"}
+                      </span>
+                    )}
+                </>
               }
             />
             <InformationContainer
               title="Date of Birth"
               detail={
-                sitter.sitter.dateOfBirth
-                  ? format(sitter.sitter.dateOfBirth, "d MMM yyyy")
-                  : "Unknown"
+                <>
+                  <span>
+                    {sitter.sitter.dateOfBirth
+                      ? format(sitter.sitter.dateOfBirth, "d MMM yyyy")
+                      : "Unknown"}
+                  </span>
+                  {isSeeUpdate &&
+                    sitterPending &&
+                    sitterPending.sitter.dateOfBirth !==
+                      sitter.sitter.dateOfBirth && (
+                      <span className="text-orange-500">
+                        {sitterPending.sitter.dateOfBirth
+                          ? format(
+                              sitterPending.sitter.dateOfBirth,
+                              "d MMM yyyy",
+                            )
+                          : "Unknown"}
+                      </span>
+                    )}
+                </>
               }
             />
             <InformationContainer
@@ -316,7 +381,7 @@ function Profile({
           detail={
             <>
               {sitter.imgUrls.length ? (
-                <ul className="grid grid-cols-[repeat(auto-fit,240px)] justify-between gap-4">
+                <ul className="grid grid-cols-[repeat(auto-fit,246px)] justify-between gap-4">
                   {sitter.imgUrls.map((image, index) => (
                     <li key={index}>
                       <img
@@ -333,9 +398,9 @@ function Profile({
                 sitterPending &&
                 hasImageupdate &&
                 (sitterPending.imgUrls.length ? (
-                  <ul className="grid grid-cols-[repeat(auto-fit,240px)] justify-between gap-4">
+                  <ul className="grid grid-cols-[repeat(auto-fit,246px)] justify-between gap-4 mt-4">
                     {sitterPending.imgUrls.map((image, index) => (
-                      <li key={index} className="border border-orange-500">
+                      <li key={index} className="ring ring-orange-500">
                         <img
                           src={image}
                           className="aspect-246/185 min-w-[246px] h-[185px] object-cover"

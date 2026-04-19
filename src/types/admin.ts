@@ -98,6 +98,16 @@ export interface SitterProfileResponse {
   adminNote?: string | null;
 }
 
+export type SitterPendingUpdateResponse = Omit<
+  SitterProfileResponse,
+  "sitter" | "hasPendingUpdate" | "status"
+> & {
+  sitter: Pick<
+    SitterProfileResponse["sitter"],
+    "name" | "phone" | "profileImgUrl" | "idNumber" | "dateOfBirth"
+  >;
+};
+
 export interface GetSitterReviewParams {
   page?: number;
   limit?: number;
