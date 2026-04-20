@@ -4,13 +4,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AppProviders from "@/components/providers/AppProviders";
-import { Toaster } from "sonner";
 import { BookingProvider } from "@/contexts/BookingContext";
-
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Pet Sitter",
   description: "Perfect pet sitter with us",
+  icons: {
+    icon: [{ url: "/browser-logo.svg", type: "image/svg+xml" }],
+    shortcut: [{ url: "/browser-logo.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/browser-logo.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({
@@ -22,9 +26,7 @@ export default function RootLayout({
     <html lang="en" data-theme="light">
       <body className={`antialiased`}>
         <AppProviders>
-          <BookingProvider>
-          {children}
-          </BookingProvider>
+          <BookingProvider>{children}</BookingProvider>
           <Toaster />
         </AppProviders>
       </body>

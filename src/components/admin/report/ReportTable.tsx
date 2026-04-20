@@ -2,34 +2,27 @@
 import { Pagination } from "@/components/ui/Pagination";
 import { Select } from "@/components/ui/input/Select";
 import useReport from "@/hooks/admin/reports/useReport";
-import { useState } from "react";
 import ReportListTile from "./ReportList";
 import { REPORT_STATUS, ReportStatus } from "@/types/reportData";
 import { useRouter } from "next/navigation";
 
-const LIMIT_ITEMS = 10;
-const DEFAULT_PAGE = 1;
-
 export default function ReportTable() {
   const router = useRouter();
-  const [page, setPage] = useState(DEFAULT_PAGE);
-  const [limit] = useState(LIMIT_ITEMS);
   const {
     reports,
     totalPages,
     currentPage,
     totalReports,
-    loading,
+    loading: isLoading,
+    error,
     statusFilter,
     handleStatusChange,
-  } = useReport({
-    page,
-    limit,
-  });
+    setPage,
+  } = useReport();
   return (
     <section className="flex flex-col gap-6 min-h-[calc(100vh-40px)] px-4 pt-10 pb-20 md:px-10 lg:p-0">
       <header className="flex items-center justify-between">
-        <p className="style-headline-3">Report</p>
+        <p className="style-headline-3 text-gray-600">Report</p>
         <Select
           className="w-60 h-[48px] style-body-2 text-gray-400 font-normal"
           placeholder="All status"
@@ -45,7 +38,7 @@ export default function ReportTable() {
       </header>
 
       <article className="min-w-full">
-        <header className="flex items-center py-3 bg-black rounded-t-2xl">
+        <header className="flex py-3 bg-black rounded-t-2xl">
           <p className="flex-1 px-4 style-body-3 text-white md:w-[calc(200/1120*100%)]">
             User
           </p>
@@ -62,34 +55,48 @@ export default function ReportTable() {
             Status
           </p>
         </header>
-        {loading ? (
-          <div className="flex items-center justify-center h-full rounded-b-2xl ">
-            <span className="loading loading-spinner loading-xl text-gray-600" />
-          </div>
-        ) : (
-          reports.map((report, index: number) => (
+        <ul>
+          {reports.map((report, index, array) => (
             <ReportListTile
-              key={report.reportId.toString()}
+              key={report.reportId}
               data={report}
-              isLast={index + 1 === reports.length}
+              isLast={index + 1 === array.length}
               onClick={() => {
                 router.push(`/admin/reports/${report.reportId}`);
               }}
             />
-          ))
+          ))}
+        </ul>
+
+        {!isLoading && reports.length === 0 && (
+          <p className="py-8 text-center style-body-2 text-gray-400">
+            No reports found.
+          </p>
         )}
       </article>
 
-      <div className="flex flex-col items-center justify-center py-8 pb-16">
-        <p className="style-body-2 text-gray-400">
-          Total reports: {totalReports}
-        </p>
+      <footer className="flex flex-col gap-2">
+        {error && (
+          <p className="style-body-2 text-red text-center">
+            Failed to load report list:{" "}
+            {error instanceof Error ? error.message : String(error)}
+          </p>
+        )}
+        {isLoading && (
+          <p className="style-body-2 text-gray-400 text-center">Loading...</p>
+        )}
+        {!isLoading && totalReports > 0 && (
+          <p className="style-body-2 text-gray-400 text-center">
+            Total reports: {totalReports}
+          </p>
+        )}
         <Pagination
+          className="pt-0 pb-16"
           totalPages={totalPages}
           currentPage={currentPage}
           onPageChange={(page) => setPage(page)}
         />
-      </div>
+      </footer>
     </section>
   );
 }

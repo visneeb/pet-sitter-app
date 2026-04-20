@@ -10,6 +10,7 @@ import type {
   SitterListResponse,
   SitterReviewListResponse,
   SitterProfileResponse,
+  SitterPendingUpdateResponse,
 } from "@/types/admin";
 import type { BookingDetail } from "@/types/booking";
 
@@ -49,15 +50,14 @@ export const adminApi = {
   getSitterPendingUpdateById: (
     sitterId: string,
     signal?: AbortSignal,
-  ): Promise<
-    Omit<SitterProfileResponse, "sitter" | "hasPendingUpdate" | "status">
-  > =>
+  ): Promise<SitterPendingUpdateResponse> =>
     privateApi
-      .get<
-        Omit<SitterProfileResponse, "sitter" | "hasPendingUpdate" | "status">
-      >(`/admin/pet-sitter/pending-update/${sitterId}`, {
-        signal,
-      })
+      .get<SitterPendingUpdateResponse>(
+        `/admin/pet-sitter/pending-update/${sitterId}`,
+        {
+          signal,
+        },
+      )
       .then((res) => res.data),
 
   getSitterBooking: (

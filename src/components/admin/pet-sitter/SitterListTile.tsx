@@ -26,8 +26,8 @@ function SitterListTile(props: SitterListTileProps) {
   return (
     <li
       className={cn(
-        "flex items-center w-full h-23",
-        hasPendingUpdate ? "bg-gray-200" : "bg-white hover:bg-gray-100",
+        "flex items-center w-full h-23 cursor-pointer",
+        hasPendingUpdate ? "bg-orange-100 hover:bg-orange-200" : "bg-white hover:bg-gray-100",
         props.isLast ? "rounded-b-2xl" : "border-b border-gray-200",
       )}
       onClick={props.onClick}

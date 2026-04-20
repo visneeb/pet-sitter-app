@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useSeed } from "@/contexts/SeedContext";
 import { adminApi } from "@/services/api/admin";
@@ -62,7 +62,6 @@ export function useSitterList(
 
   const [searchKeyword, setSearchKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
-  const [page, setPage] = useState(1);
 
   const pendingUpdateFilter = useMemo(() => {
     const raw = searchParams.get("awaiting_approval");
@@ -85,6 +84,25 @@ export function useSitterList(
     },
     [pathname, router, searchParams],
   );
+
+  const page = useMemo(() => {
+    const raw = searchParams.get("page");
+    const n = raw ? parseInt(raw, 10) : 1;
+    return Number.isFinite(n) && n >= 1 ? n : 1;
+  }, [searchParams]);
+
+  const setPage = useCallback(
+    (next: number) => {
+      replaceQuery((qs) => {
+        if (next <= 1) {
+          qs.delete("page");
+        } else {
+          qs.set("page", String(next));
+        }
+      });
+    },
+    [replaceQuery],
+  );
   const [state, setState] = useState<
     Omit<
       UseSitterListResult,
@@ -105,18 +123,25 @@ export function useSitterList(
     error: null,
   });
 
+  const prevDebouncedKeywordRef = useRef<string | null>(null);
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      setDebouncedKeyword(searchKeyword.trim());
-      setPage(1);
+      const next = searchKeyword.trim();
+      setDebouncedKeyword((prevDebounced) => {
+        const shouldResetPage =
+          prevDebouncedKeywordRef.current !== null && prevDebounced !== next;
+        if (shouldResetPage) {
+          replaceQuery((qs) => {
+            qs.delete("page");
+          });
+        }
+        prevDebouncedKeywordRef.current = next;
+        return next;
+      });
     }, 800);
 
     return () => window.clearTimeout(timeoutId);
-  }, [searchKeyword]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [statusFilter, pendingUpdateFilter]);
+  }, [searchKeyword, replaceQuery]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -180,6 +205,7 @@ export function useSitterList(
       } else {
         qs.set("status", STATUS_SLUG[status]);
       }
+      qs.delete("page");
     });
   };
 
@@ -192,6 +218,7 @@ export function useSitterList(
       }
 
       qs.delete("status");
+      qs.delete("page");
     });
   };
 
@@ -206,6 +233,6 @@ export function useSitterList(
       handlePendingUpdateChange,
       setPage,
     }),
-    [searchKeyword, state, statusFilter, pendingUpdateFilter],
+    [searchKeyword, state, statusFilter, pendingUpdateFilter, setPage],
   );
 }

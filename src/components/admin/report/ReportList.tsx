@@ -27,20 +27,20 @@ function ReportListTile(props: ReportListTileProps) {
     month: "short",
     year: "numeric",
   }).format(date);
-  
+
   const timePart = new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   }).format(date);
-  
+
   const formatted = `${datePart} at ${timePart}`;
 
   return (
     <li
       key={reportId.toString()}
       className={cn(
-        "flex items-center w-full h-23 bg-white",
+        "flex items-center w-full h-23 bg-white cursor-pointer hover:bg-gray-100",
         props.isLast ? "rounded-b-2xl" : "border-b border-gray-200",
       )}
       onClick={props.onClick}

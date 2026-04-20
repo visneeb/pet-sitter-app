@@ -4,15 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { adminApi } from "@/services/api/admin";
-import type { SitterProfileResponse } from "@/types/admin";
+import type {
+  SitterPendingUpdateResponse,
+  SitterProfileResponse,
+} from "@/types/admin";
 import { showCustomToast } from "@/components/ui/toast/Toast";
 
 export interface UseSitterProfileResult {
   sitterProfile: SitterProfileResponse | null;
-  sitterPendingProfile: Omit<
-    SitterProfileResponse,
-    "sitter" | "hasPendingUpdate" | "status"
-  > | null;
+  sitterPendingProfile: SitterPendingUpdateResponse | null;
   isLoading: boolean;
   isModalLoading: boolean;
   error: string | null;

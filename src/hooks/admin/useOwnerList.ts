@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useSeed } from "@/contexts/SeedContext";
 import { adminApi } from "@/services/api/admin";
@@ -39,7 +39,6 @@ export function useOwnerList(
   const searchParams = useSearchParams();
   const [searchKeyword, setSearchKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
-  const [page, setPage] = useState(1);
   const [state, setState] = useState<
     Omit<
       UseOwnerListResult,
@@ -67,34 +66,70 @@ export function useOwnerList(
     return null;
   }, [searchParams]);
 
-  const applyStatusToUrl = useCallback(
-    (next: UserStatus | null) => {
+  const replaceQuery = useCallback(
+    (mutate: (qs: URLSearchParams) => void) => {
       const qs = new URLSearchParams(searchParams.toString());
-      if (next === "Normal") {
-        qs.set("status", "normal");
-      } else if (next === "Banned") {
-        qs.set("status", "banned");
-      } else {
-        qs.delete("status");
-      }
+      mutate(qs);
       const url = qs.toString() ? `${pathname}?${qs.toString()}` : pathname;
       router.replace(url, { scroll: false });
     },
     [pathname, router, searchParams],
   );
 
+  const page = useMemo(() => {
+    const raw = searchParams.get("page");
+    const n = raw ? parseInt(raw, 10) : 1;
+    return Number.isFinite(n) && n >= 1 ? n : 1;
+  }, [searchParams]);
+
+  const setPage = useCallback(
+    (next: number) => {
+      replaceQuery((qs) => {
+        if (next <= 1) {
+          qs.delete("page");
+        } else {
+          qs.set("page", String(next));
+        }
+      });
+    },
+    [replaceQuery],
+  );
+
+  const applyStatusToUrl = useCallback(
+    (next: UserStatus | null) => {
+      replaceQuery((qs) => {
+        if (next === "Normal") {
+          qs.set("status", "normal");
+        } else if (next === "Banned") {
+          qs.set("status", "banned");
+        } else {
+          qs.delete("status");
+        }
+        qs.delete("page");
+      });
+    },
+    [replaceQuery],
+  );
+
+  const prevDebouncedKeywordRef = useRef<string | null>(null);
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      setDebouncedKeyword(searchKeyword.trim());
-      setPage(1);
+      const next = searchKeyword.trim();
+      setDebouncedKeyword((prevDebounced) => {
+        const shouldResetPage =
+          prevDebouncedKeywordRef.current !== null && prevDebounced !== next;
+        if (shouldResetPage) {
+          replaceQuery((qs) => {
+            qs.delete("page");
+          });
+        }
+        prevDebouncedKeywordRef.current = next;
+        return next;
+      });
     }, 800);
 
     return () => window.clearTimeout(timeoutId);
-  }, [searchKeyword]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [statusFilter]);
+  }, [searchKeyword, replaceQuery]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -161,6 +196,6 @@ export function useOwnerList(
       handleStatusChange,
       setPage,
     }),
-    [searchKeyword, state, statusFilter],
+    [searchKeyword, state, statusFilter, setPage],
   );
 }

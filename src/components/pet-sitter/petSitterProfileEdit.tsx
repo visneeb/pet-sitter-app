@@ -210,6 +210,7 @@ export default function ProfileEdit() {
             />
             {adminNote && isShowRejectNote && (
               <RejectionNote
+                role="sitter"
                 adminNote={adminNote}
                 handleHideReview={hideRejectNote}
               />

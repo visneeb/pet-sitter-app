@@ -1,7 +1,6 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect } from "react";
 import { useBookingDetail } from "@/hooks/admin/useBookingDetail";
 import Loading from "@/components/common/loading/loading";
 import InformationContainer from "@/components/ui/InformationContainer";
@@ -9,17 +8,13 @@ import { format } from "date-fns";
 import { BasePetCard } from "@/components/booking/BasePetCard";
 
 function BookingModal({ bookingId }: { bookingId: number | null }) {
-  const { booking, isLoading, error } = useBookingDetail(bookingId);
-
-  useEffect(() => {
-    if (error) {
-      console.error("Failed to fetch booking detail:", error);
-    }
-  }, [error]);
+  const { booking, isLoading } = useBookingDetail(bookingId);
 
   return (
     <dialog id="booking-detail" className="modal">
-      {booking ? (
+      {isLoading ? (
+        <Loading />
+      ) : booking ? (
         <div className="modal-box w-[calc(100%-2rem)] max-w-200 bg-white rounded-2xl p-0 overflow-y-visible">
           <div className="flex justify-between items-center px-6 py-4 border-b border-gray-300 md:px-10 md:py-6">
             <h3 className="style-headline-3 text-black">
@@ -41,6 +36,7 @@ function BookingModal({ bookingId }: { bookingId: number | null }) {
               title="Pet Detail"
               detail={booking.pets.map((pet, index) => (
                 <BasePetCard
+                  key={index}
                   variant="action"
                   className="shrink-0 hover:border-gray-200 hover:cursor-auto"
                   pet={{
@@ -51,7 +47,7 @@ function BookingModal({ bookingId }: { bookingId: number | null }) {
                   }}
                 />
               ))}
-              className="flex-row flex-nowrap gap-3 overflow-x-auto pb-2"
+              className="flex-row flex-nowrap gap-3 overflow-x-auto pb-2 w-[calc(100vw-5rem)] max-w-180"
             />
             <InformationContainer title="Duration" detail={booking.duration} />
             <InformationContainer
