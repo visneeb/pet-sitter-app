@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { X } from "lucide-react";
-
+import { CloseIcon } from "@/assets/icons/components";
 import { Form } from "@/components/form";
 import { usePetForm } from "@/hooks/usePetForm";
 import PetFields from "@/components/owner/pet/petFields";
@@ -93,7 +92,7 @@ export function CreatePetModal({ open, onClose, onCreated }: Props) {
               onClick={handleClose}
               aria-label="Close"
             >
-              <X className="h-5 w-5" />
+              <CloseIcon className="h-5 w-5" />
             </button>
           </div>
 

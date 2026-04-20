@@ -15,21 +15,130 @@ import { BookingPaymentStep } from "@/components/booking/BookingPaymentStep";
 import Modal from "@/components/ui/Modal";
 import { bookingApi } from "@/services/api/booking";
 import { calcBookingTotal } from "@/domain/booking/pricing";
+import { BookingDetail } from "@/components/booking-detail/BookingDetail";
+import type { OwnerBookingHistory } from "@/types/BookingType";
 import {
   useStripe,
   useElements,
   CardNumberElement,
 } from "@stripe/react-stripe-js";
 import { paymentApi } from "@/services/api/payment";
+import { ActionButton, NavigationButton } from "@/components/ui/Button";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE_DESKTOP = 6;
+// Mobile uses horizontal carousel (no pagination), so keep all items in a single "page".
+const PAGE_SIZE_MOBILE = 9999;
 const CONFIRM_MODAL_ID = "confirm-booking-modal";
 
-export default function BookingPage() {
-  const [loadingProfile, setLoadingProfile] = React.useState(true);
-  const [profileError, setProfileError] = React.useState("");
-  const [isSuccessOpen, setIsSuccessOpen] = React.useState(false);
-  const [latestBooking, setLatestBooking] = React.useState<any | null>(null);
+function parseOptionalTransactionId(
+  transactionId?: string | number,
+  transactionNo?: string | number,
+): number | null {
+  const raw = transactionId ?? transactionNo;
+  if (raw == null || raw === "") return null;
+  const n = typeof raw === "number" ? raw : Number(String(raw).trim());
+  return Number.isFinite(n) ? n : null;
+}
+
+type CreatedBookingResponse = {
+  bookingId?: number | string;
+  id?: number | string;
+  transactionId?: string | number;
+  transactionNo?: string | number;
+  status?: OwnerBookingHistory["status"];
+  createdAt?: string;
+  tradeName?: string | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+};
+
+function toOwnerBookingHistory(params: {
+  created: CreatedBookingResponse;
+  selectedSitterId?: string;
+  selectedSitterName?: string;
+  startTime: string;
+  endTime: string;
+  totalPrice: number;
+  pets: Pet[];
+  selectedPetIds: string[];
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  note: string | null;
+}): OwnerBookingHistory {
+  const {
+    created,
+    selectedSitterId,
+    selectedSitterName,
+    startTime,
+    endTime,
+    totalPrice,
+    pets,
+    selectedPetIds,
+    contactName,
+    contactEmail,
+    contactPhone,
+    note,
+  } = params;
+
+  const selectedPets = pets.filter((pet) => selectedPetIds.includes(pet.id));
+  const bookingId = Number(created.bookingId ?? created.id ?? 0);
+
+  return {
+    bookingId,
+    transactionId: parseOptionalTransactionId(
+      created.transactionId,
+      created.transactionNo,
+    ),
+    status: created.status ?? "Waiting for confirm",
+    createdAt: created.createdAt ?? new Date().toISOString(),
+
+    contactName,
+    contactEmail,
+    contactPhone,
+    note,
+    completedAt: null,
+
+    petSitterId: Number(selectedSitterId ?? 0),
+    tradeName: created.tradeName ?? selectedSitterName ?? null,
+    sitterName: selectedSitterName ?? null,
+    sitterImgUrl: undefined,
+    sitterPhone: null,
+    latitude:
+      created.latitude != null ? String(created.latitude) : null,
+    longitude:
+      created.longitude != null ? String(created.longitude) : null,
+
+    startTime,
+    endTime,
+    totalPrice: String(totalPrice),
+
+    pets: selectedPets.map((pet, index) => ({
+      bookingPetId: index + 1,
+      bookingId,
+      petId: Number(pet.id),
+      petTypeId: 0,
+      petName: pet.name,
+      sex: "Unknown" as const,
+      breed: "",
+      dateOfBirth: "",
+      color: "",
+      weight: "",
+      about: null,
+    })),
+
+    review: null,
+    paidAt: null,
+  };
+}
+
+export default function BookingPage(): React.JSX.Element {
+  const [loadingProfile, setLoadingProfile] = React.useState<boolean>(true);
+  const [profileError, setProfileError] = React.useState<string>("");
+  const [isSuccessOpen, setIsSuccessOpen] = React.useState<boolean>(false);
+  const [latestBooking, setLatestBooking] =
+    React.useState<OwnerBookingHistory | null>(null);
+
   const { state, setPets, togglePet, updateInfo, setIsBooked } = useBooking();
 
   const [step, setStep] = React.useState<1 | 2 | 3>(1);
@@ -39,21 +148,18 @@ export default function BookingPage() {
   const [cardName, setCardName] = React.useState("");
   const [submittingPayment, setSubmittingPayment] = React.useState(false);
 
-  const [openCreate, setOpenCreate] = React.useState(false);
-
+  const [openCreate, setOpenCreate] = React.useState<boolean>(false);
   const [pets, setPetsList] = React.useState<Pet[]>([]);
-
-  const [loadingPets, setLoadingPets] = React.useState(true);
-  const [petsError, setPetsError] = React.useState("");
-
-  const [page, setPage] = React.useState(1);
-
-  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+  const [loadingPets, setLoadingPets] = React.useState<boolean>(true);
+  const [petsError, setPetsError] = React.useState<string>("");
+  const [page, setPage] = React.useState<number>(1);
+  const [isConfirmOpen, setIsConfirmOpen] = React.useState<boolean>(false);
+  const [pageSize, setPageSize] = React.useState<number>(PAGE_SIZE_DESKTOP);
 
   const stripe = useStripe();
   const elements = useElements();
 
-  const fetchPets = React.useCallback(async () => {
+  const fetchPets = React.useCallback(async (): Promise<Pet[]> => {
     try {
       setLoadingPets(true);
       setPetsError("");
@@ -78,7 +184,7 @@ export default function BookingPage() {
     }
   }, []);
 
-  const fetchProfile = React.useCallback(async () => {
+  const fetchProfile = React.useCallback(async (): Promise<void> => {
     try {
       setLoadingProfile(true);
       setProfileError("");
@@ -98,14 +204,28 @@ export default function BookingPage() {
     } finally {
       setLoadingProfile(false);
     }
-  }, [updateInfo]);
+  }, [state.info.name, state.info.email, state.info.phone, updateInfo]);
 
   React.useEffect(() => {
-    fetchPets();
+    void fetchPets();
   }, [fetchPets]);
+
   React.useEffect(() => {
-    fetchProfile();
+    void fetchProfile();
   }, [fetchProfile]);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+
+    const apply = () => {
+      setPageSize(mq.matches ? PAGE_SIZE_DESKTOP : PAGE_SIZE_MOBILE);
+    };
+
+    apply();
+
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   React.useEffect(() => {
     if (isConfirmOpen) {
@@ -119,29 +239,35 @@ export default function BookingPage() {
     };
   }, [isConfirmOpen]);
 
-  const handleTogglePet = (petId: string) => {
+  React.useEffect(() => {
+    if (isSuccessOpen) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isSuccessOpen]);
+
+  const handleTogglePet = (petId: string): void => {
     togglePet(petId);
   };
 
   const totalItems = pets.length + 1;
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
-  const pagedPets = React.useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    const end = page * PAGE_SIZE;
-    return pets.slice(start, Math.min(end, pets.length));
-  }, [page, pets]);
+  const pagedPets = React.useMemo<Pet[]>(() => {
+    const start = (page - 1) * pageSize;
+    return pets.slice(start, Math.min(start + pageSize, pets.length));
+  }, [page, pageSize, pets]);
 
-  const showCreateNewPet = React.useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    const end = page * PAGE_SIZE;
-
+  const showCreateNewPet = React.useMemo<boolean>(() => {
+    const start = (page - 1) * pageSize;
+    const end = page * pageSize;
     const createCardIndex = pets.length;
     return createCardIndex >= start && createCardIndex < end;
-  }, [page, pets.length]);
+  }, [page, pageSize, pets.length]);
 
   React.useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
   }, [page, totalPages]);
 
   const selectedPetIds = state.selectedPetIds;
@@ -150,17 +276,18 @@ export default function BookingPage() {
     .filter((p) => selectedPetIds.includes(p.id))
     .map((p) => p.name);
 
-  const sitterName = state.selectedSitterName ?? "Happy House!";
+  const sitterName = state.selectedSitterName ?? "";
 
-  const startDateTime = state.info.startDateTime
+  const startDateTime: Date | null = state.info.startDateTime
     ? new Date(state.info.startDateTime)
     : null;
 
-  const endDateTime = state.info.endDateTime
+  const endDateTime: Date | null = state.info.endDateTime
     ? new Date(state.info.endDateTime)
     : null;
 
   const hours = state.info.durationHours ?? 0;
+
   const dateLabel = startDateTime
     ? startDateTime.toLocaleDateString("en-GB", {
         day: "numeric",
@@ -181,73 +308,120 @@ export default function BookingPage() {
       : "-";
 
   const canGoStep2 = selectedPetIds.length > 0;
+
   const canFinishStep2 = Boolean(
     state.info.name?.trim() &&
-    state.info.email?.trim() &&
-    state.info.phone?.trim(),
+      state.info.email?.trim() &&
+      state.info.phone?.trim()
   );
+
   const startTime = state.info.startDateTime;
   const endTime = state.info.endDateTime;
 
-  const handleNextFromPets = () => {
+  const handleNextFromPets = (): void => {
     if (!canGoStep2) return;
     setPets(selectedPetIds);
     setStep(2);
   };
 
-  const handleBackFromPets = () => {
+  const handleBackFromPets = (): void => {
     window.history.back();
   };
 
-  const handleBackToPets = () => {
+  const handleBackToPets = (): void => {
     setStep(1);
   };
 
-  const handleNextFromInformation = () => {
+  const handleNextFromInformation = (): void => {
     if (!canFinishStep2) return;
     setStep(3);
   };
 
-  const handleBackToInformation = () => {
+  const handleBackToInformation = (): void => {
     setStep(2);
   };
 
-  const handleSubmitPayment = async () => {
+  const handleSubmitPayment = async (): Promise<void> => {
     try {
       setSubmittingPayment(true);
 
       const totalPrice = calcBookingTotal(hours, selectedPetIds.length);
-      if (!startTime || !endTime) throw new Error("Missing booking time.");
+
+      if (!startTime || !endTime) {
+        throw new Error("Missing booking time.");
+      }
+
+      const startIso = new Date(startTime).toISOString();
+      const endIso = new Date(endTime).toISOString();
 
       const payload = {
         pet_sitter_id: Number(state.selectedSitterId),
-        contact_name: state.info.name,
-        contact_email: state.info.email,
-        contact_phone: state.info.phone,
-        note: state.info.message,
-        start_time: new Date(startTime).toISOString(),
-        end_time: new Date(endTime).toISOString(),
+        contact_name: state.info.name ?? "",
+        contact_email: state.info.email ?? "",
+        contact_phone: state.info.phone ?? "",
+        note: state.info.message ?? "",
+        start_time: startIso,
+        end_time: endIso,
         total_price: totalPrice,
         pet_ids: selectedPetIds.map(Number),
       };
 
-      const response = await bookingApi.create(payload);
-      const bookingId = response.bookingId;
+      const created: CreatedBookingResponse = await bookingApi.create(payload);
+      const createdId = Number(created.bookingId ?? created.id);
+
+      if (!createdId) {
+        throw new Error("Booking created, but booking id is missing.");
+      }
+
+      let createdBooking: OwnerBookingHistory | null = null;
+
+      try {
+        const history: OwnerBookingHistory[] =
+          await bookingApi.getOwnerBookingHistory();
+
+        createdBooking =
+          history.find((item) => item.bookingId === createdId) ?? null;
+      } catch (historyError) {
+        console.error("get owner booking history error:", historyError);
+      }
+
+      const fallbackBooking = toOwnerBookingHistory({
+        created,
+        selectedSitterId: state.selectedSitterId,
+        selectedSitterName: state.selectedSitterName,
+        startTime: startIso,
+        endTime: endIso,
+        totalPrice,
+        pets,
+        selectedPetIds,
+        contactName: state.info.name ?? "",
+        contactEmail: state.info.email ?? "",
+        contactPhone: state.info.phone ?? "",
+        note: state.info.message?.trim() ? state.info.message : null,
+      });
+
+      const bookingForDetail = createdBooking ?? fallbackBooking;
+
+      setLatestBooking(bookingForDetail);
+
+      const bookingId = createdId;
 
       if (paymentMethod === "cash") {
         await paymentApi.createCashTransaction(bookingId);
         setIsConfirmOpen(false);
-        setLatestBooking(response);
+        setLatestBooking(bookingForDetail);
         setIsSuccessOpen(true);
         setIsBooked(true);
         return;
       }
 
-      if (!stripe || !elements) throw new Error("Stripe not loaded");
+      if (!stripe || !elements) {
+        throw new Error("Stripe not loaded");
+      }
 
       const { clientSecret } = await paymentApi.createCardIntent(
         bookingId,
-        totalPrice,
+        totalPrice
       );
 
       const { error: confirmError } = await stripe.confirmCardPayment(
@@ -257,7 +431,7 @@ export default function BookingPage() {
             card: elements.getElement(CardNumberElement)!,
             billing_details: { name: cardName },
           },
-        },
+        }
       );
 
       if (confirmError) {
@@ -266,7 +440,7 @@ export default function BookingPage() {
       }
 
       setIsConfirmOpen(false);
-      setLatestBooking(response);
+      setLatestBooking(bookingForDetail);
       setIsSuccessOpen(true);
       setIsBooked(true);
     } catch (error) {
@@ -276,18 +450,19 @@ export default function BookingPage() {
       setSubmittingPayment(false);
     }
   };
-  const handlePetCreated = async () => {
+
+  const handlePetCreated = async (): Promise<void> => {
     const latestPets = await fetchPets();
     const newTotalItems = latestPets.length + 1;
-    const newTotalPages = Math.max(1, Math.ceil(newTotalItems / PAGE_SIZE));
+    const newTotalPages = Math.max(1, Math.ceil(newTotalItems / pageSize));
 
     setPage(newTotalPages);
     setOpenCreate(false);
   };
 
-  const handleOpenConfirmModal = () => {
+  const handleOpenConfirmModal = (): void => {
     const dialog = document.getElementById(
-      CONFIRM_MODAL_ID,
+      CONFIRM_MODAL_ID
     ) as HTMLDialogElement | null;
 
     if (!dialog) return;
@@ -297,12 +472,52 @@ export default function BookingPage() {
   };
 
   return (
-    <div className="w-full flex flex-row">
-      <div className=" w-full px-10 flex flex-row gap-6 py-6 justify-center">
-        <div className="w-2/3 max-w-[848px] flex flex-col gap-2">
-          <ProgressBar currentStep={step} />
-          <div className="bg-black px-6 py-6 rounded-2xl">
-            {step === 1 ? (
+    <div className="w-full min-w-0">
+      <div className="w-full min-w-0 flex flex-col lg:flex-row gap-6 lg:py-6 py-0 justify-center items-stretch lg:items-center">
+        <div className="w-full min-w-0 max-w-none shrink-0 lg:max-w-212 flex flex-col lg:gap-2 items-stretch lg:items-center">
+          {!isSuccessOpen && (
+            <div className="flex justify-center w-full">
+              <ProgressBar currentStep={step} />
+            </div>
+          )}
+
+          <div
+            className={
+              isSuccessOpen
+                ? ""
+                : "lg:bg-white w-full justify-center px-4 py-6 sm:px-6 lg:px-10 lg:py-10 lg:rounded-2xl"
+            }
+          >
+            {isSuccessOpen && latestBooking ? (
+              <div className="w-full min-w-0">
+                <div className="w-full min-w-0 bg-white lg:rounded-2xl lg:w-158 lg:mx-auto">
+                  <div className="bg-black lg:rounded-t-2xl text-white text-center flex flex-col gap-2 py-6">
+                    <h2 className="lg:style-headline-2 style-headline-3">
+                      Thank You For Your Booking
+                    </h2>
+                    <span className="lg:style-body-2 style-body-3 text-gray-300">
+                      We will send your booking information to Pet Sitter.
+                    </span>
+                  </div>
+
+                  <BookingDetail
+                    booking={latestBooking}
+                    showStatus={false}
+                    showChangeButton={false}
+                    onChangeTime={() => {}}
+                  />
+                </div>
+
+                <div className="flex flex-row gap-4 justify-center lg:p-10 pt-10">
+                  <NavigationButton href="/booking-history" variant="secondary">
+                    Booking History
+                  </NavigationButton>
+                  <NavigationButton href="/" variant="primary">
+                    Back To Home
+                  </NavigationButton>
+                </div>
+              </div>
+            ) : step === 1 ? (
               <BookingPetStep
                 pets={pagedPets}
                 sitter={{
@@ -333,10 +548,12 @@ export default function BookingPage() {
                 email={state.info.email ?? ""}
                 phone={state.info.phone ?? ""}
                 message={state.info.message ?? ""}
-                onChangeName={(v) => updateInfo({ name: v })}
-                onChangeEmail={(v) => updateInfo({ email: v })}
-                onChangePhone={(v) => updateInfo({ phone: v })}
-                onChangeMessage={(v) => updateInfo({ message: v })}
+                onChangeName={(value: string) => updateInfo({ name: value })}
+                onChangeEmail={(value: string) => updateInfo({ email: value })}
+                onChangePhone={(value: string) => updateInfo({ phone: value })}
+                onChangeMessage={(value: string) =>
+                  updateInfo({ message: value })
+                }
                 canNext={canFinishStep2}
                 onBack={handleBackToPets}
                 onNext={handleNextFromInformation}
@@ -356,41 +573,42 @@ export default function BookingPage() {
           </div>
         </div>
 
-        <div className="w-[320px] sticky top-6 self-start">
-          <BookingSummary
-            sitterName={sitterName}
-            dateLabel={dateLabel}
-            timeLabel={timeLabel}
-            hours={hours}
-            petNames={selectedPetNames}
-          />
-        </div>
-        {/* {isSuccessOpen && latestBooking && (
-          <BookingDetailModal
-            booking={latestBooking}
-            onClose={() => setIsSuccessOpen(false)}
-          />
-        )} */}
+        {!isSuccessOpen && (
+          <div className="lg:w-[320px] w-full pb-18 md:pb-0 lg:sticky lg:top-6 self-start">
+            <BookingSummary
+              sitterName={sitterName}
+              dateLabel={dateLabel}
+              timeLabel={timeLabel}
+              hours={hours}
+              petNames={selectedPetNames}
+            />
+          </div>
+        )}
       </div>
 
-      <CreatePetModal
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        onCreated={handlePetCreated}
-      />
-      <Modal
-        id={CONFIRM_MODAL_ID}
-        title="Confirm booking"
-        massage="Are you sure you want to confirm this booking?"
-        confirmText="Confirm"
-        cancelText="Cancel"
-        disabled={submittingPayment}
-        onOpenChange={setIsConfirmOpen}
-        onCancel={async () => {
-          setIsConfirmOpen(false);
-        }}
-        onConfirm={handleSubmitPayment}
-      />
+      {!isSuccessOpen && (
+        <>
+          <CreatePetModal
+            open={openCreate}
+            onClose={() => setOpenCreate(false)}
+            onCreated={handlePetCreated}
+          />
+
+          <Modal
+            id={CONFIRM_MODAL_ID}
+            title="Confirm booking"
+            massage="Are you sure you want to confirm this booking?"
+            confirmText="Confirm"
+            cancelText="Cancel"
+            disabled={submittingPayment}
+            onOpenChange={setIsConfirmOpen}
+            onCancel={async () => {
+              setIsConfirmOpen(false);
+            }}
+            onConfirm={handleSubmitPayment}
+          />
+        </>
+      )}
     </div>
   );
 }

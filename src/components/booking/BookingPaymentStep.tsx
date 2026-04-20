@@ -10,6 +10,7 @@ import { WalletIcon, CreditCardIcon } from "@/assets/icons/components";
 import { Paw } from "@/decorations/Paw";
 import { ActionButton } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input/Input";
+import { BookingStepFooterMobile } from "./BookingStepFooterMobile";
 import {
   validatePaymentForm,
   hasPaymentErrors,
@@ -54,6 +55,21 @@ export function BookingPaymentStep({
   const [errors, setErrors] = React.useState({
     cardName: "",
   });
+  const [showFooter, setShowFooter] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fullHeight = document.body.scrollHeight;
+      const isBottom = scrollTop + windowHeight >= fullHeight - 10;
+      setShowFooter(isBottom);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleClickSubmit = () => {
     if (paymentMethod === "credit_card" && !cardName.trim()) {
@@ -72,10 +88,10 @@ export function BookingPaymentStep({
         isConfirmOpen ? "opacity-40" : "opacity-100"
       }`}
     >
-      <h1 className="text-lg font-semibold text-gray-900">Payment</h1>
 
-      <div className="mt-6 flex-1">
-        <div className="mb-6 grid max-w-md grid-cols-2 gap-4">
+
+      <div className=" flex flex-col justify-center items-center lg:pb-60">
+        <div className="mb-6 grid w-full grid-cols-2 gap-4">
           <ActionButton
             variant="secondary"
             className={`border bg-white transition-colors ${
@@ -104,7 +120,7 @@ export function BookingPaymentStep({
         </div>
 
         {paymentMethod === "credit_card" ? (
-          <div className="grid max-w-md gap-5">
+          <div className="grid w-full gap-5">
             {/* Card Name — input ปกติ */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">
@@ -132,7 +148,7 @@ export function BookingPaymentStep({
             </div>
 
             {/* Expiry + CVC — Stripe Elements */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700">
                   Expiry Date
@@ -145,15 +161,16 @@ export function BookingPaymentStep({
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700">CVV</label>
                 <div className="rounded-lg border border-gray-300 bg-white px-3 py-3 focus-within:border-orange-500">
+                
                   <CardCvcElement options={elementOptions} />
                 </div>
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[220px] max-w-md items-center justify-center rounded-2xl bg-[#f7f7fb] px-6 text-center">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <Paw className="h-30 w-30 animate-spin text-pink-500" />
+          <div className="flex min-h-[220px] w-full items-center justify-center rounded-2xl bg-white lg:bg-gray-100 px-6 text-center">
+            <div className="flex flex-col items-center gap-4 text-center py-10">
+              <Paw className="h-20 w-20 lg:h-25 lg:w-25 text-pink-500 animate-[pulse_1.7s_ease-in-out_infinite] drop-shadow-[0_0_12px_rgba(236,72,153,0.55)]" />
               <p className="text-sm leading-7 text-gray-600">
                 If you want to pay by cash,
                 <br />
@@ -166,7 +183,7 @@ export function BookingPaymentStep({
         )}
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-4">
+      <div className="mt-6 hidden md:flex items-center justify-between gap-4">
         <div className="w-[120px]">
           <ActionButton variant="secondary" onClick={onBack}>
             Back
@@ -185,6 +202,15 @@ export function BookingPaymentStep({
           </ActionButton>
         </div>
       </div>
+
+      {showFooter && (
+        <BookingStepFooterMobile
+          canNext={canSubmit && !loading}
+          onBack={onBack}
+          onNext={handleClickSubmit}
+          nextLabel={loading ? "Processing..." : "Confirm"}
+        />
+      )}
     </div>
   );
 }
