@@ -12,14 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Sitter } from "@/types/sitter";
 import { chatApi } from "@/services/api/chat";
 import { useBooking } from "@/contexts/BookingContext";
-
-/* รวม date + time ให้เป็น Date object จริง */
-function combineDateAndTime(date: Date, time: string): Date {
-  const [hours, minutes] = time.split(":").map(Number);
-  const result = new Date(date);
-  result.setHours(hours, minutes, 0, 0);
-  return result;
-}
+import { combineCalendarDateAndBangkokTime } from "@/utils/bangkokWallTime";
 
 /* คำนวณจำนวนชั่วโมงจากเวลาเริ่มและเวลาจบ */
 function calculateDurationHours(start: Date, end: Date): number {
@@ -109,8 +102,9 @@ export default function PetSitterBookingCard({
 
     try {
       setIsStartingChat(true);
-      const conversation =
-        await chatApi.findOrCreateConversation(sitterIdNumber);
+      const conversation = await chatApi.findOrCreateConversation(
+        sitterIdNumber,
+      );
       router.push(`/chat/${conversation.conversationId}`);
     } catch (error) {
       console.error("Failed to open chat conversation:", error);
@@ -123,8 +117,14 @@ export default function PetSitterBookingCard({
   const handleBookingConfirm = (data: BookingFormValues) => {
     if (!sitterId || !data.startDate || !data.endDate) return;
 
-    const startDateTime = combineDateAndTime(data.startDate, data.startTime);
-    const endDateTime = combineDateAndTime(data.endDate, data.endTime);
+    const startDateTime = combineCalendarDateAndBangkokTime(
+      data.startDate,
+      data.startTime,
+    );
+    const endDateTime = combineCalendarDateAndBangkokTime(
+      data.endDate,
+      data.endTime,
+    );
     const durationHours = calculateDurationHours(startDateTime, endDateTime);
 
     if (durationHours <= 0) return;

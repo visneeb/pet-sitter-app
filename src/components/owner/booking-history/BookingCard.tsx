@@ -12,6 +12,7 @@ import {
   type ModalAction,
 } from "@/components/pet-sitter-detail/BookingModal";
 import { bookingApi } from "@/services/api/booking";
+import { combineCalendarDateAndBangkokTime } from "@/utils/bangkokWallTime";
 
 interface BookingCardProps {
   booking: OwnerBookingHistory;
@@ -62,13 +63,14 @@ export function BookingCard({ booking, onRefresh }: BookingCardProps) {
   const handleConfirm = useCallback(
     async (data: BookingFormValues) => {
       try {
-        const startDateTime = new Date(data.startDate!);
-        const [startHour, startMin] = data.startTime.split(":").map(Number);
-        startDateTime.setHours(startHour, startMin, 0, 0);
-
-        const endDateTime = new Date(data.endDate ?? data.startDate!);
-        const [endHour, endMin] = data.endTime.split(":").map(Number);
-        endDateTime.setHours(endHour, endMin, 0, 0);
+        const startDateTime = combineCalendarDateAndBangkokTime(
+          data.startDate!,
+          data.startTime,
+        );
+        const endDateTime = combineCalendarDateAndBangkokTime(
+          data.endDate ?? data.startDate!,
+          data.endTime,
+        );
 
         await bookingApi.updateBookingTime(
           booking.bookingId,
@@ -89,15 +91,17 @@ export function BookingCard({ booking, onRefresh }: BookingCardProps) {
   const confirm: ModalAction[] = [
     { label: "Confirm", type: "submit", variant: "primary" },
   ];
-  const handleReviewSuccess = async () => {
-    await onRefresh?.();
+  const handleReviewSuccess = () => {
+    onRefresh?.();
   };
 
   return (
     <>
       <div
         ref={cardRef}
-        className={`${statusBorderMap[booking.status]} border bg-white rounded-2xl cursor-pointer`}
+        className={`${
+          statusBorderMap[booking.status]
+        } border bg-white rounded-2xl cursor-pointer`}
       >
         <div className="md:p-6 p-4">
           <div className="md:pb-9 pb-4">

@@ -4,33 +4,15 @@ import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { createPortal } from "react-dom";
 import { getNextTimeSlot } from "@/utils/timeFormat";
+import {
+  getCurrentOrNextBangkokTimeSlot,
+  isPickerLocalYmdBeforeBangkokToday,
+  isPickerLocalYmdSameBangkokToday,
+} from "@/utils/bangkokWallTime";
 import { ActionButton } from "@/components/ui/Button";
 import { FormProvider, DatePicker, TimePicker } from "@/components/form";
 import type { Sitter } from "@/types/sitter";
 import { CloseIcon, ClockIcon, CalendarIcon } from "@/assets/icons/components";
-
-function isSameDay(left: Date, right: Date): boolean {
-  return (
-    left.getFullYear() === right.getFullYear() &&
-    left.getMonth() === right.getMonth() &&
-    left.getDate() === right.getDate()
-  );
-}
-
-function getCurrentOrNextTimeSlot(stepMinutes = 30): string {
-  const now = new Date();
-  const totalMinutes = now.getHours() * 60 + now.getMinutes();
-  const roundedMinutes =
-    totalMinutes % stepMinutes === 0
-      ? totalMinutes
-      : Math.ceil(totalMinutes / stepMinutes) * stepMinutes;
-
-  if (roundedMinutes >= 24 * 60) return "24:00";
-
-  const hours = Math.floor(roundedMinutes / 60);
-  const minutes = roundedMinutes % 60;
-  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-}
 
 export interface BookingFormValues {
   startDate: Date | null;
@@ -66,8 +48,7 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
   const handleClose = () => {
     if (isClosing) return;
 
-    const isMobile =
-      typeof window !== "undefined" && window.innerWidth < 768;
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
     if (isMobile) {
       setIsClosing(true);
@@ -114,13 +95,11 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
   const isDateSelected = Boolean(startDate);
 
   const startTimeMin =
-    startDate && isSameDay(startDate, new Date())
-      ? getCurrentOrNextTimeSlot(30)
+    startDate && isPickerLocalYmdSameBangkokToday(startDate, new Date())
+      ? getCurrentOrNextBangkokTimeSlot(new Date(), 30)
       : undefined;
 
-  const endTimeMin = startTime
-    ? getNextTimeSlot(startTime, 30)
-    : undefined;
+  const endTimeMin = startTime ? getNextTimeSlot(startTime, 30) : undefined;
   const isContinueDisabled = !startDate || !startTime || !endTime;
 
   /*
@@ -212,7 +191,6 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
         }
       `}</style>
 
-
       <div
         className="fixed inset-0 z-9999 flex items-end md:items-center justify-center bg-black/50 transition-opacity"
         onClick={handleClose}
@@ -264,7 +242,9 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                   name="startDate"
                   required
                   placeholder="Pet arrival date"
-                  disabled={{ before: new Date() }}
+                  disabled={(date) =>
+                    isPickerLocalYmdBeforeBangkokToday(date, new Date())
+                  }
                   startMonth={new Date()}
                   endMonth={oneYearFromNow}
                 />
