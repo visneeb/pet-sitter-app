@@ -1,4 +1,5 @@
 export type TimeOption = { value: string; label: string };
+const BOOKING_TIME_ZONE = "Asia/Bangkok";
 
 /**
  * Generate time options in 12-hour format with given step in minutes.
@@ -75,20 +76,19 @@ export function parse12hTo24h(display: string): string {
 export function formatDateRange(startTime: string, endTime: string) {
   const start = new Date(startTime);
   const end = new Date(endTime);
-  const bookingTimeZone = "Asia/Bangkok";
 
   const date = start.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-    timeZone: bookingTimeZone,
+    timeZone: BOOKING_TIME_ZONE,
   });
 
   const timeOptions: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-    timeZone: bookingTimeZone,
+    timeZone: BOOKING_TIME_ZONE,
   };
 
   const startHour = start.toLocaleTimeString("en-US", timeOptions);
@@ -111,6 +111,7 @@ export function formatTransactionDate(createdAt: string) {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: BOOKING_TIME_ZONE,
   });
 }
 
@@ -119,5 +120,6 @@ export function formatTransactionDateWithOutWeekDay(createdAt: string) {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: BOOKING_TIME_ZONE,
   });
 }
