@@ -226,6 +226,7 @@ export default function PetSitterBookingCard({
       {isBooking && (
         <BookingModal
           sitter={sitter}
+          sitterId={sitterId ?? ""}
           onClose={() => setIsBooking(false)}
           onConfirm={handleBookingConfirm}
         />

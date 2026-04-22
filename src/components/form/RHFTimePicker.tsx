@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Controller, FieldValues, Path, useFormContext } from "react-hook-form";
 import {
   format24hTo12h,
@@ -23,6 +29,7 @@ type RHFTimePickerProps<T extends FieldValues> = {
   stepMinutes?: number;
   minTime?: string;
   maxTime?: string;
+  options?: string[];
   disabled?: boolean;
   className?: string;
 };
@@ -36,6 +43,7 @@ export function RHFTimePicker<T extends FieldValues>({
   stepMinutes = 30,
   minTime,
   maxTime,
+  options,
   disabled = false,
   className,
 }: RHFTimePickerProps<T>) {
@@ -48,14 +56,18 @@ export function RHFTimePicker<T extends FieldValues>({
   const optionId = (i: number) => `time-option-${name}-${i}`;
 
   const timeOptions = useMemo(() => {
-    const options = generateTimeOptions(stepMinutes);
-    if (!minTime && !maxTime) return options;
-    return options.filter((opt) => {
+    const generatedOptions = options
+      ? options.map((value) => ({ value, label: format24hTo12h(value) }))
+      : generateTimeOptions(stepMinutes);
+
+    if (!minTime && !maxTime) return generatedOptions;
+
+    return generatedOptions.filter((opt) => {
       if (minTime && opt.value < minTime) return false;
       if (maxTime && opt.value > maxTime) return false;
       return true;
     });
-  }, [stepMinutes, minTime, maxTime]);
+  }, [options, stepMinutes, minTime, maxTime]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -87,7 +99,7 @@ export function RHFTimePicker<T extends FieldValues>({
       const el = document.getElementById(`time-option-${name}-${index}`);
       el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     },
-    [name]
+    [name],
   );
 
   useEffect(() => {
@@ -99,7 +111,7 @@ export function RHFTimePicker<T extends FieldValues>({
   const handleKeyDown = (
     e: React.KeyboardEvent,
     fieldValue: string | undefined,
-    onChange: (v: string) => void
+    onChange: (v: string) => void,
   ) => {
     if (disabled) return;
 
@@ -116,15 +128,11 @@ export function RHFTimePicker<T extends FieldValues>({
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setFocusedIndex((i) =>
-          i < timeOptions.length - 1 ? i + 1 : 0
-        );
+        setFocusedIndex((i) => (i < timeOptions.length - 1 ? i + 1 : 0));
         break;
       case "ArrowUp":
         e.preventDefault();
-        setFocusedIndex((i) =>
-          i > 0 ? i - 1 : timeOptions.length - 1
-        );
+        setFocusedIndex((i) => (i > 0 ? i - 1 : timeOptions.length - 1));
         break;
       case "Enter":
       case " ":
@@ -152,10 +160,7 @@ export function RHFTimePicker<T extends FieldValues>({
     }
   };
 
-  const handleSelect = (
-    opt: TimeOption,
-    onChange: (v: string) => void
-  ) => {
+  const handleSelect = (opt: TimeOption, onChange: (v: string) => void) => {
     onChange(opt.value);
     setIsOpen(false);
     setFocusedIndex(-1);
@@ -205,7 +210,9 @@ export function RHFTimePicker<T extends FieldValues>({
                     if (disabled) return;
                     setIsOpen((o) => {
                       if (!o) {
-                        const idx = timeOptions.findIndex((o2) => o2.value === value);
+                        const idx = timeOptions.findIndex(
+                          (o2) => o2.value === value,
+                        );
                         setFocusedIndex(idx >= 0 ? idx : 0);
                       }
                       return !o;
@@ -242,7 +249,7 @@ export function RHFTimePicker<T extends FieldValues>({
                           className={cn(
                             "w-full text-left px-3 py-2 style-body-2 text-black border-b border-gray-100 last:border-b-0 rounded transition-colors",
                             "hover:bg-gray-100 focus:outline-none focus:bg-gray-100",
-                            (isSelected || isFocused) && "bg-gray-100"
+                            (isSelected || isFocused) && "bg-gray-100",
                           )}
                           onMouseEnter={() => setFocusedIndex(i)}
                           onClick={() => handleSelect(opt, field.onChange)}

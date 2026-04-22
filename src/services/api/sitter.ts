@@ -181,6 +181,38 @@ export async function getPetSitterByUserIdSimple(
   return getPetSitterByUserId(userId);
 }
 
+export interface AvailableHoursParams {
+  date: string;
+}
+
+export interface AvailableHoursResponse {
+  availableSlots: string[];
+}
+
+export async function getAvailableHoursBySitterId(
+  sitterId: string,
+  params: AvailableHoursParams,
+): Promise<{ data?: AvailableHoursResponse; error?: string }> {
+  try {
+    const query = new URLSearchParams();
+    query.set("date", params.date);
+
+    const res = await publicApi.get<AvailableHoursResponse>(
+      `/pet-sitter/bookings/available-hours/${sitterId}?${query.toString()}`,
+    );
+
+    return { data: res.data };
+  } catch (err: any) {
+    return {
+      error:
+        err.response?.data?.error ??
+        err.response?.data?.message ??
+        err.message ??
+        "Failed to fetch available booking hours",
+    };
+  }
+}
+
 // ─── Sitter Reviews ─────────────────────────────────────────────────────────
 
 export interface ReviewApi {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { createPortal } from "react-dom";
 import { getNextTimeSlot } from "@/utils/timeFormat";
@@ -11,6 +11,7 @@ import {
 } from "@/utils/bangkokWallTime";
 import { ActionButton } from "@/components/ui/Button";
 import { FormProvider, DatePicker, TimePicker } from "@/components/form";
+import { getAvailableHoursBySitterId } from "@/services/api/sitter";
 import type { Sitter } from "@/types/sitter";
 import { CloseIcon, ClockIcon, CalendarIcon } from "@/assets/icons/components";
 
@@ -31,14 +32,56 @@ export interface ModalAction {
 
 interface Props {
   sitter: Pick<Sitter, "tradeName">;
+  sitterId: string;
   onClose: () => void;
   onConfirm?: (data: BookingFormValues) => void | Promise<void>;
   actions?: ModalAction[];
 }
 
-export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
+function formatDateToYmd(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getContiguousEndTimes(
+  start: string,
+  availableSlots: string[],
+  stepMinutes = 30,
+): string[] {
+  const startMinutes =
+    Number(start.slice(0, 2)) * 60 + Number(start.slice(3, 5));
+  const available = new Set(availableSlots);
+  const contiguous: string[] = [];
+
+  for (
+    let next = startMinutes + stepMinutes;
+    next < 24 * 60;
+    next += stepMinutes
+  ) {
+    const hh = String(Math.floor(next / 60)).padStart(2, "0");
+    const mm = String(next % 60).padStart(2, "0");
+    const slot = `${hh}:${mm}`;
+
+    if (!available.has(slot)) break;
+    contiguous.push(slot);
+  }
+
+  return contiguous;
+}
+
+export function BookingModal({
+  sitter,
+  sitterId,
+  onClose,
+  onConfirm,
+  actions,
+}: Props) {
   const [mounted, setMounted] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -101,6 +144,18 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
 
   const endTimeMin = startTime ? getNextTimeSlot(startTime, 30) : undefined;
   const isContinueDisabled = !startDate || !startTime || !endTime;
+  const startTimeOptions = availableSlots;
+  const showNoAvailableSlotsMessage =
+    isDateSelected && !isLoadingSlots && availableSlots.length === 0;
+  const endTimeOptions = useMemo(
+    () => (startTime ? getContiguousEndTimes(startTime, availableSlots) : []),
+    [startTime, availableSlots],
+  );
+  const showNoDepartureTimeMessage =
+    isDateSelected &&
+    !isLoadingSlots &&
+    Boolean(startTime) &&
+    endTimeOptions.length === 0;
 
   /*
     4️⃣ sync endDate กับ startDate
@@ -113,9 +168,29 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
   useEffect(() => {
     if (isDateSelected) return;
 
+    setAvailableSlots([]);
     methods.setValue("startTime", "");
     methods.setValue("endTime", "");
   }, [isDateSelected, methods]);
+
+  useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      if (!startDate || !sitterId) return;
+
+      setIsLoadingSlots(true);
+
+      const result = await getAvailableHoursBySitterId(sitterId, {
+        date: formatDateToYmd(startDate),
+      });
+
+      setAvailableSlots(result.data?.availableSlots ?? []);
+      methods.setValue("startTime", "");
+      methods.setValue("endTime", "");
+      setIsLoadingSlots(false);
+    };
+
+    fetchAvailableSlots();
+  }, [startDate, sitterId, methods]);
 
   /*
     5️⃣ ถ้า user เปลี่ยน startTime
@@ -136,10 +211,22 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
 
     const currentEnd = methods.getValues("endTime");
 
-    if (currentEnd && currentEnd < endTimeMin) {
+    if (
+      currentEnd &&
+      (currentEnd < endTimeMin || !endTimeOptions.includes(currentEnd))
+    ) {
       methods.setValue("endTime", "");
     }
-  }, [startTime, endTimeMin, methods]);
+  }, [startTime, endTimeMin, endTimeOptions, methods]);
+
+  useEffect(() => {
+    if (!startTime) return;
+
+    if (!startTimeOptions.includes(startTime)) {
+      methods.setValue("startTime", "");
+      methods.setValue("endTime", "");
+    }
+  }, [startTime, startTimeOptions, methods]);
 
   /*
     6️⃣ submit form
@@ -258,9 +345,14 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                   required
                   placeholder="Pet arrival time"
                   className="min-w-0 flex-1"
+                  options={startTimeOptions}
                   minTime={startTimeMin}
                   stepMinutes={30}
-                  disabled={!isDateSelected}
+                  disabled={
+                    !isDateSelected ||
+                    isLoadingSlots ||
+                    showNoAvailableSlotsMessage
+                  }
                 />
 
                 <span className="shrink-0 text-gray-500">-</span>
@@ -270,11 +362,29 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                   required
                   placeholder="Pet departure time"
                   className="min-w-0 flex-1"
+                  options={endTimeOptions}
                   minTime={endTimeMin}
                   stepMinutes={30}
-                  disabled={!isDateSelected}
+                  disabled={
+                    !isDateSelected ||
+                    isLoadingSlots ||
+                    !startTime ||
+                    showNoDepartureTimeMessage
+                  }
                 />
               </div>
+
+              {showNoDepartureTimeMessage && (
+                <p className="style-body-3 text-red-500">
+                  No departure time available for the selected arrival time.
+                </p>
+              )}
+
+              {showNoAvailableSlotsMessage && (
+                <p className="style-body-3 text-red-500">
+                  No available slots on this date.
+                </p>
+              )}
 
               {/* Actions */}
               <div className="flex justify-around gap-4 pt-2 mt-auto">
