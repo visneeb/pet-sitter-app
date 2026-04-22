@@ -33,6 +33,9 @@ export interface ModalAction {
 interface Props {
   sitter: Pick<Sitter, "tradeName">;
   sitterId: string;
+  exceptedBookingId?: number;
+  fixedDurationMinutes?: number;
+  initialStartDate?: Date | null;
   onClose: () => void;
   onConfirm?: (data: BookingFormValues) => void | Promise<void>;
   actions?: ModalAction[];
@@ -71,9 +74,29 @@ function getContiguousEndTimes(
   return contiguous;
 }
 
+function addMinutesToTime(
+  time: string,
+  minutesToAdd: number,
+): string | undefined {
+  const [hourText, minuteText] = time.split(":");
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return undefined;
+
+  const totalMinutes = hour * 60 + minute + minutesToAdd;
+  if (totalMinutes < 0 || totalMinutes >= 24 * 60) return undefined;
+
+  const hh = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+  const mm = String(totalMinutes % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
 export function BookingModal({
   sitter,
   sitterId,
+  exceptedBookingId,
+  fixedDurationMinutes,
+  initialStartDate,
   onClose,
   onConfirm,
   actions,
@@ -106,8 +129,8 @@ export function BookingModal({
 
   const methods = useForm<BookingFormValues>({
     defaultValues: {
-      startDate: null,
-      endDate: null,
+      startDate: initialStartDate ?? null,
+      endDate: initialStartDate ?? null,
       startTime: "",
       endTime: "",
     },
@@ -144,18 +167,38 @@ export function BookingModal({
 
   const endTimeMin = startTime ? getNextTimeSlot(startTime, 30) : undefined;
   const isContinueDisabled = !startDate || !startTime || !endTime;
+  const isFixedDurationMode =
+    typeof fixedDurationMinutes === "number" && fixedDurationMinutes > 0;
   const startTimeOptions = availableSlots;
   const showNoAvailableSlotsMessage =
     isDateSelected && !isLoadingSlots && availableSlots.length === 0;
-  const endTimeOptions = useMemo(
+  const contiguousEndTimeOptions = useMemo(
     () => (startTime ? getContiguousEndTimes(startTime, availableSlots) : []),
     [startTime, availableSlots],
   );
+  const fixedEndTime = useMemo(() => {
+    if (!startTime || !isFixedDurationMode) return undefined;
+    return addMinutesToTime(startTime, fixedDurationMinutes);
+  }, [startTime, isFixedDurationMode, fixedDurationMinutes]);
+  const isFixedEndTimeAvailable =
+    Boolean(fixedEndTime) && contiguousEndTimeOptions.includes(fixedEndTime!);
+  const endTimeOptions = isFixedDurationMode
+    ? fixedEndTime && isFixedEndTimeAvailable
+      ? [fixedEndTime]
+      : []
+    : contiguousEndTimeOptions;
   const showNoDepartureTimeMessage =
     isDateSelected &&
     !isLoadingSlots &&
     Boolean(startTime) &&
-    endTimeOptions.length === 0;
+    endTimeOptions.length === 0 &&
+    !isFixedDurationMode;
+  const showFixedDurationUnavailableMessage =
+    isDateSelected &&
+    !isLoadingSlots &&
+    Boolean(startTime) &&
+    isFixedDurationMode &&
+    !isFixedEndTimeAvailable;
 
   /*
     4️⃣ sync endDate กับ startDate
@@ -181,6 +224,7 @@ export function BookingModal({
 
       const result = await getAvailableHoursBySitterId(sitterId, {
         date: formatDateToYmd(startDate),
+        exceptedBookingId,
       });
 
       setAvailableSlots(result.data?.availableSlots ?? []);
@@ -190,7 +234,7 @@ export function BookingModal({
     };
 
     fetchAvailableSlots();
-  }, [startDate, sitterId, methods]);
+  }, [startDate, sitterId, exceptedBookingId, methods]);
 
   /*
     5️⃣ ถ้า user เปลี่ยน startTime
@@ -218,6 +262,27 @@ export function BookingModal({
       methods.setValue("endTime", "");
     }
   }, [startTime, endTimeMin, endTimeOptions, methods]);
+
+  useEffect(() => {
+    if (!isFixedDurationMode) return;
+    if (!startTime) {
+      methods.setValue("endTime", "");
+      return;
+    }
+
+    if (fixedEndTime && isFixedEndTimeAvailable) {
+      methods.setValue("endTime", fixedEndTime);
+      return;
+    }
+
+    methods.setValue("endTime", "");
+  }, [
+    isFixedDurationMode,
+    startTime,
+    fixedEndTime,
+    isFixedEndTimeAvailable,
+    methods,
+  ]);
 
   useEffect(() => {
     if (!startTime) return;
@@ -369,10 +434,17 @@ export function BookingModal({
                     !isDateSelected ||
                     isLoadingSlots ||
                     !startTime ||
-                    showNoDepartureTimeMessage
+                    showNoDepartureTimeMessage ||
+                    isFixedDurationMode
                   }
                 />
               </div>
+
+              {showFixedDurationUnavailableMessage && (
+                <p className="style-body-3 text-red-500">
+                  Selected arrival time does not match the fixed duration.
+                </p>
+              )}
 
               {showNoDepartureTimeMessage && (
                 <p className="style-body-3 text-red-500">
@@ -396,6 +468,9 @@ export function BookingModal({
                       variant={action.variant ?? "primary"}
                       className="flex-1"
                       onClick={action.onClick}
+                      disabled={
+                        action.type === "submit" ? isContinueDisabled : false
+                      }
                     >
                       {action.label}
                     </ActionButton>

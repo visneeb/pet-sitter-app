@@ -183,6 +183,7 @@ export async function getPetSitterByUserIdSimple(
 
 export interface AvailableHoursParams {
   date: string;
+  exceptedBookingId?: number;
 }
 
 export interface AvailableHoursResponse {
@@ -196,6 +197,9 @@ export async function getAvailableHoursBySitterId(
   try {
     const query = new URLSearchParams();
     query.set("date", params.date);
+    if (params.exceptedBookingId !== undefined) {
+      query.set("exceptedBookingId", String(params.exceptedBookingId));
+    }
 
     const res = await publicApi.get<AvailableHoursResponse>(
       `/pet-sitter/bookings/available-hours/${sitterId}?${query.toString()}`,

@@ -12,7 +12,10 @@ import {
   type ModalAction,
 } from "@/components/pet-sitter-detail/BookingModal";
 import { bookingApi } from "@/services/api/booking";
-import { combineCalendarDateAndBangkokTime } from "@/utils/bangkokWallTime";
+import {
+  combineCalendarDateAndBangkokTime,
+  getBangkokDateParts,
+} from "@/utils/bangkokWallTime";
 
 interface BookingCardProps {
   booking: OwnerBookingHistory;
@@ -94,6 +97,21 @@ export function BookingCard({ booking, onRefresh }: BookingCardProps) {
   const handleReviewSuccess = () => {
     onRefresh?.();
   };
+  const fixedDurationMinutes = Math.max(
+    30,
+    Math.floor(
+      (new Date(currentEndTime).getTime() -
+        new Date(currentStartTime).getTime()) /
+        (1000 * 60),
+    ),
+  );
+  const bookingStartInstant = new Date(currentStartTime);
+  const bookingDateInBangkok = getBangkokDateParts(bookingStartInstant);
+  const initialStartDate = new Date(
+    bookingDateInBangkok.y,
+    bookingDateInBangkok.m - 1,
+    bookingDateInBangkok.d,
+  );
 
   return (
     <>
@@ -154,6 +172,10 @@ export function BookingCard({ booking, onRefresh }: BookingCardProps) {
       {isChangeTimeOpen && (
         <BookingModal
           sitter={{ tradeName: booking.tradeName }}
+          sitterId={String(booking.petSitterId)}
+          exceptedBookingId={booking.bookingId}
+          fixedDurationMinutes={fixedDurationMinutes}
+          initialStartDate={initialStartDate}
           onClose={() => setIsChangeTimeOpen(false)}
           onConfirm={handleConfirm}
           actions={confirm}
