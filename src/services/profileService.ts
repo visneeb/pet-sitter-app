@@ -1,4 +1,5 @@
 import { userApi } from "./api/user";
+import { authApi } from "./api/auth";
 import { ProfileFormValues } from "@/lib/validations/profileValidation";
 import { ImageFile } from "@/types/imageUploadType";
 import { validateImage } from "@/lib/validations/useImageValidation";
@@ -72,23 +73,33 @@ export class ProfileService {
     if (!password?.trim())
       throw new Error("Password is required to update email");
 
+    // 1. Update profile fields (name, phone, avatar, etc.)
     const formData = buildFormData(
       {
         name: data.name.trim(),
         phone: data.phone.trim(),
-        email: data.email.trim(),
         idNumber: data.idNumber,
         dateOfBirth: data.dateOfBirth
           ? formatLocalDate(data.dateOfBirth)
           : null,
-        password: password.trim(),
       },
       file,
     );
 
-    return await userApi.updateProfile(formData, userRole);
-  }
+    await userApi.updateProfile(formData, userRole);
 
+    // 2. Change email via dedicated endpoint
+    const result = await authApi.updateEmail(
+      data.email.trim(),
+      password.trim(),
+    );
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    return { message: "Profile and email updated successfully" };
+  }
   // Remove avatar
   static async removeAvatar(
     data: Pick<

@@ -52,11 +52,11 @@ function addDays(date: Date, days: number): Date {
 }
 
 function getStyle(status: string) {
-  if (status === "Waiting for confirm") {
+  if (status === "waiting_confirm") {
     return "event-pink hover:opacity-75";
-  } else if (["Waiting for service", "In service"].includes(status)) {
+  } else if (["waiting_service", "in_service"].includes(status)) {
     return "event-orange hover:opacity-75";
-  } else if (status === "Success") {
+  } else if (status === "completed") {
     return "event-green hover:opacity-75";
   }
 

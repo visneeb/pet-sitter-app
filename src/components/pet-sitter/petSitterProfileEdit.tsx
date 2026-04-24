@@ -13,7 +13,6 @@ import {
 } from "@/components/form/index";
 import { useBaseProfileForm } from "@/hooks/profile/useBaseProfileForm";
 import { usePetSitterForm } from "@/hooks/profile/usePetSitterProfileForm";
-import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
 import { ActionProfileHeader } from "@/components/profile/ProfileHeader";
 import { ActionButton } from "../ui/Button";
 import Section from "@/components/form/FormSection";
@@ -21,6 +20,7 @@ import ProfileContainer from "@/components/profile/ProfileContainer";
 import cn from "@/utils/cn";
 import SitterProfileMap from "./map/SitterProfileMap";
 import { RejectionNote } from "./RejectionNote";
+import ChangeEmailForm from "@/components/change-email/ChangeEmailForm";
 
 export default function ProfileEdit() {
   const {
@@ -30,10 +30,6 @@ export default function ProfileEdit() {
     isLoadingProfile,
     profileError,
     handleAvatarChange,
-    showPasswordModal,
-    pendingData,
-    onEmailConfirmed,
-    onModalClose,
     isAvatarDirty,
     onSubmit: onBasicSubmit,
   } = useBaseProfileForm("sitter");
@@ -115,7 +111,7 @@ export default function ProfileEdit() {
       requireDirty={true}
       extraDirty={isAvatarDirty}
     >
-      Update Basic Info
+      {hasPendingUpdate ? "Waiting admin approval" : "Update Basic Info"}
     </SubmitButton>
   );
 
@@ -131,7 +127,8 @@ export default function ProfileEdit() {
   );
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* Basic Info */}
       <FormProvider methods={baseMethods} onSubmit={onBasicSubmit}>
         <div className="flex flex-col gap-6 pb-6">
           <ActionProfileHeader title="Basic Information" />
@@ -151,13 +148,6 @@ export default function ProfileEdit() {
                     required
                   />
                   <Input
-                    name="email"
-                    label="Email"
-                    type="email"
-                    placeholder="Enter your email"
-                    required
-                  />
-                  <Input
                     name="phone"
                     label="Phone"
                     type="tel"
@@ -168,6 +158,7 @@ export default function ProfileEdit() {
                     name="idNumber"
                     label="ID Number"
                     placeholder="Enter your ID Number"
+                    required
                   />
                   <DatePicker
                     name="dateOfBirth"
@@ -178,12 +169,22 @@ export default function ProfileEdit() {
                   />
                 </div>
               </Section>
+              <div className="flex justify-end">{basicSubmitButton}</div>
             </div>
           </ProfileContainer>
-          <div className="flex justify-end">{basicSubmitButton}</div>
         </div>
       </FormProvider>
 
+      {/* Change Email — outside all FormProviders to avoid nested <form> */}
+      <ProfileContainer>
+        <div className="flex flex-col gap-15 px-6">
+          <Section title="Change Email">
+            <ChangeEmailForm />
+          </Section>
+        </div>
+      </ProfileContainer>
+
+      {/* Sitter Info */}
       <FormProvider
         methods={sitterMethods}
         onSubmit={onSitterSubmit}
@@ -355,14 +356,6 @@ export default function ProfileEdit() {
         </div>
       </FormProvider>
 
-      {showPasswordModal && pendingData && (
-        <ConfirmPasswordModal
-          newEmail={pendingData.email}
-          onSuccess={onEmailConfirmed}
-          onClose={onModalClose}
-        />
-      )}
-
       {hasPendingUpdate && (
         <div className="flex justify-end mb-20">
           <ActionButton
@@ -374,6 +367,6 @@ export default function ProfileEdit() {
           </ActionButton>
         </div>
       )}
-    </>
+    </div>
   );
 }

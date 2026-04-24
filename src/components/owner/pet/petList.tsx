@@ -37,7 +37,7 @@ export function PetList() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col grid-cols-[repeat(auto-fit,240px)] justify-between gap-4 sm:grid">
+      <div className="flex flex-col grid-cols-[repeat(auto-fit,240px)]  gap-4 sm:grid">
         {pagedPets.map((pet) => (
           <BasePetCard
             key={pet.id}

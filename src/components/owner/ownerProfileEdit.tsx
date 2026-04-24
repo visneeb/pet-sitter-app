@@ -8,8 +8,8 @@ import {
   DatePicker,
 } from "@/components/form/index";
 import { useOwnerProfileForm } from "@/hooks/profile/useOwnerProfileForm";
-import { ConfirmPasswordModal } from "@/components/profile/ConfirmPasswordModal";
 import { ActionButton } from "@/components/ui/Button";
+import ChangeEmailForm from "@/components/change-email/ChangeEmailForm";
 
 export default function ProfileEdit() {
   const {
@@ -20,10 +20,6 @@ export default function ProfileEdit() {
     isLoadingProfile,
     profileError,
     handleAvatarChange,
-    showPasswordModal,
-    pendingData,
-    onEmailConfirmed,
-    onModalClose,
     isAvatarDirty,
   } = useOwnerProfileForm();
 
@@ -86,13 +82,6 @@ export default function ProfileEdit() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               <Input
-                name="email"
-                label="Email"
-                type="email"
-                placeholder="Enter your email"
-                required
-              />
-              <Input
                 name="phone"
                 label="Phone"
                 type="tel"
@@ -103,6 +92,7 @@ export default function ProfileEdit() {
                 name="idNumber"
                 label="ID Number"
                 placeholder="Enter your ID Number"
+                required
               />
               <DatePicker
                 name="dateOfBirth"
@@ -128,13 +118,7 @@ export default function ProfileEdit() {
         </div>
       </FormProvider>
 
-      {showPasswordModal && pendingData && (
-        <ConfirmPasswordModal
-          newEmail={pendingData.email}
-          onSuccess={onEmailConfirmed}
-          onClose={onModalClose}
-        />
-      )}
+      <ChangeEmailForm />
     </>
   );
 }

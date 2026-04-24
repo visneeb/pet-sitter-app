@@ -14,7 +14,7 @@ const STATUS_OPTIONS = [
   { value: "waiting_confirm", label: "Waiting for confirm" },
   { value: "waiting_service", label: "Waiting for service" },
   { value: "in_service", label: "In service" },
-  { value: "success", label: "Success" },
+  { value: "completed", label: "Success" },
   { value: "canceled", label: "Canceled" },
 ];
 export function BookingList() {

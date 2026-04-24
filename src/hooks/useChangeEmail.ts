@@ -2,25 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { userApi } from "@/services/api/user";
-import { buildFormData } from "@/lib/utils/formData";
-
-// Temporary local function in case of module resolution issues
-function localBuildFormData(
-  bodyJson: object,
-  file?: File | null,
-  removeProfileImg?: boolean,
-): FormData {
-  const formData = new FormData();
-  formData.append("body", JSON.stringify(bodyJson));
-  if (file) {
-    formData.append("image", file);
-  }
-  if (removeProfileImg) {
-    formData.append("removeProfileImg", "true");
-  }
-  return formData;
-}
+import { authApi } from "@/services/api/auth";
 
 type ConfirmPasswordValues = {
   password: string;
@@ -55,56 +37,44 @@ export function useChangeEmail({ newEmail, onSuccess, onClose }: Options) {
     }
 
     try {
-      // Get current user data from backend API
-      const currentUser = await userApi.getCurrentUser();
+      // FIX: Use PATCH /api/auth/change-email which works for all roles
+      const result = await authApi.updateEmail(newEmail, data.password);
 
-      if (!currentUser) {
-        setError("password", {
-          type: "server",
-          message: "No active session",
-        });
+      if (result.error) {
+        // Handle password mismatch or other API errors
+        const errorMessage = result.error.toLowerCase();
+        if (
+          errorMessage.includes("password") ||
+          errorMessage.includes("incorrect") ||
+          errorMessage.includes("invalid") ||
+          errorMessage.includes("unauthorized")
+        ) {
+          setError("password", {
+            type: "server",
+            message: "Password does not match",
+          });
+        } else {
+          setError("password", {
+            type: "server",
+            message: result.error,
+          });
+        }
         return;
       }
 
-      // Update email using backend API
-      const formData = localBuildFormData({
-        name: currentUser.name,
-        phone: currentUser.phone,
-        email: newEmail,
-        password: data.password,
-      });
-
-      const result = await userApi.updateProfile(formData);
-
       methods.reset();
-      setTimeout(() => {
-        setIsSuccess(true);
-        onSuccess?.(data.password);
-      }, 0);
+      setIsSuccess(true);
+      onSuccess?.(data.password);
     } catch (error: any) {
       console.error("Email update error:", error);
-      console.error("Error response:", error.response?.data);
-
-      const errorMessage = error.response?.data?.error || error.message || "";
-
-      // Handle specific password mismatch error
-      if (
-        error.response?.status === 401 ||
-        errorMessage.toLowerCase().includes("password") ||
-        errorMessage.toLowerCase().includes("incorrect") ||
-        (errorMessage.toLowerCase().includes("invalid") &&
-          !errorMessage.toLowerCase().includes("email"))
-      ) {
-        setError("password", {
-          type: "server",
-          message: "Password does not match",
-        });
-      } else {
-        setError("password", {
-          type: "server",
-          message: errorMessage,
-        });
-      }
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to update email";
+      setError("password", {
+        type: "server",
+        message: errorMessage,
+      });
     }
   };
 

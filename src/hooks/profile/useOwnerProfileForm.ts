@@ -18,24 +18,30 @@ type OmittedBaseKeys =
   | "setPendingAvatarFile"
   | "setRemoveAvatar";
 
-export interface OwnerProfileFormReturn
-  extends Omit<BaseProfileFormReturn, OmittedBaseKeys> {}
+export interface OwnerProfileFormReturn extends Omit<
+  BaseProfileFormReturn,
+  OmittedBaseKeys | "onSubmit"
+> {
+  onSubmit: () => void;
+}
 
 export function useOwnerProfileForm(): OwnerProfileFormReturn {
   const {
-    originalEmail: _oe,
-    setOriginalEmail: _soe,
     pendingAvatarFile: _paf,
     removeAvatar: _ra,
     setIsUpdating: _siu,
     setResetData: _srd,
-    setPendingData: _spd,
-    setShowPasswordModal: _sspm,
     setIsAvatarDirty: _siad,
     setPendingAvatarFile: _spaf,
     setRemoveAvatar: _sra,
+    onSubmit,
+    methods,
     ...publicBase
   } = useBaseProfileForm("owner");
 
-  return publicBase;
+  return {
+    ...publicBase,
+    methods,
+    onSubmit: () => methods.handleSubmit(onSubmit)(),
+  };
 }

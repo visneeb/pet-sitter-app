@@ -85,8 +85,13 @@ export interface SitterBookingList {
 }
 
 export interface SitterBookingListResponse {
-  totalBookings: number;
+  /** API field per `/api/pet-sitter/bookings` */
+  total?: number;
+  /** Legacy/alternate field name */
+  totalBookings?: number;
   totalPages: number;
+  currentPage?: number;
+  limit?: number;
   bookings: SitterBookingList[];
 }
 

@@ -26,7 +26,7 @@ const useBookingStatus = (status: BookingStatus, endTime: string) => {
       nextStatus: "Success",
       isDisabled: !isBookingTimeEnded,
     },
-    "Success": {
+    Success: {
       label: "Success",
       badgeClass: "text-green-500",
       buttonLabel: null,
@@ -34,7 +34,7 @@ const useBookingStatus = (status: BookingStatus, endTime: string) => {
       nextStatus: null,
       isDisabled: true,
     },
-    "Canceled": {
+    Canceled: {
       label: "Canceled",
       badgeClass: "text-red-500",
       buttonLabel: null,

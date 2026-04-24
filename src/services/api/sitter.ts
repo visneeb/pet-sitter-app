@@ -275,32 +275,47 @@ export interface ExistingImage {
 }
 
 export interface UpdatePetSitterProfileBody {
-  experience: number;
-  tradeName: string;
-  petTypeIds: number[];
-  introduction?: string;
-  services?: string;
-  description?: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  provinceId: number;
-  districtId: number;
-  subDistrictId: number;
-  existingImages: ExistingImage[];
+  // User fields
+  name?: string;
+  phone?: string;
+  idNumber?: string | null;
+  dateOfBirth?: string | null;
+  removeProfileImg?: boolean;
+
+  // Sitter fields
+  experience?: number | null;
+  tradeName?: string | null;
+  petTypeIds?: number[] | null;
+  introduction?: string | null;
+  services?: string | null;
+  description?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  provinceId?: number | null;
+  districtId?: number | null;
+  subDistrictId?: number | null;
+  existingImages?: ExistingImage[];
 }
 
 export async function updatePetSitterProfile(
   body: UpdatePetSitterProfileBody,
   images?: File[],
+  profileImage?: File,
 ): Promise<{ message?: string; error?: string }> {
   try {
-    if (images && images.length > 10) {
+    const totalImages = (images?.length || 0) + (profileImage ? 1 : 0);
+    if (totalImages > 10) {
       return { error: "Maximum 10 images allowed" };
     }
 
     const formData = new FormData();
     formData.append("body", JSON.stringify(body));
+
+    if (profileImage) {
+      formData.append("profileImage", profileImage);
+    }
+
     images?.forEach((img) => formData.append("images", img));
 
     const res = await privateApi.put<{ message: string }>(

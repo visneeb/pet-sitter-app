@@ -75,6 +75,15 @@ export const createApiInstance = (withAuth: boolean) => {
         }
       }
 
+      // Enhanced logging for debugging
+      console.error(`🚨 API Error (${status}):`, {
+        status,
+        data,
+        errorMessage,
+        url: error.config?.url,
+        method: error.config?.method,
+      });
+
       error.message = errorMessage;
       return Promise.reject(error);
     },
