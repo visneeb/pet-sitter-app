@@ -1,36 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { createPortal } from "react-dom";
 import { getNextTimeSlot } from "@/utils/timeFormat";
+import {
+  getCurrentOrNextBangkokTimeSlot,
+  isPickerLocalYmdBeforeBangkokToday,
+  isPickerLocalYmdSameBangkokToday,
+} from "@/utils/bangkokWallTime";
 import { ActionButton } from "@/components/ui/Button";
 import { FormProvider, DatePicker, TimePicker } from "@/components/form";
+import { getAvailableHoursBySitterId } from "@/services/api/sitter";
 import type { Sitter } from "@/types/sitter";
 import { CloseIcon, ClockIcon, CalendarIcon } from "@/assets/icons/components";
-
-function isSameDay(left: Date, right: Date): boolean {
-  return (
-    left.getFullYear() === right.getFullYear() &&
-    left.getMonth() === right.getMonth() &&
-    left.getDate() === right.getDate()
-  );
-}
-
-function getCurrentOrNextTimeSlot(stepMinutes = 30): string {
-  const now = new Date();
-  const totalMinutes = now.getHours() * 60 + now.getMinutes();
-  const roundedMinutes =
-    totalMinutes % stepMinutes === 0
-      ? totalMinutes
-      : Math.ceil(totalMinutes / stepMinutes) * stepMinutes;
-
-  if (roundedMinutes >= 24 * 60) return "24:00";
-
-  const hours = Math.floor(roundedMinutes / 60);
-  const minutes = roundedMinutes % 60;
-  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-}
 
 export interface BookingFormValues {
   startDate: Date | null;
@@ -49,14 +32,79 @@ export interface ModalAction {
 
 interface Props {
   sitter: Pick<Sitter, "tradeName">;
+  sitterId: string;
+  exceptedBookingId?: number;
+  fixedDurationMinutes?: number;
+  initialStartDate?: Date | null;
   onClose: () => void;
   onConfirm?: (data: BookingFormValues) => void | Promise<void>;
   actions?: ModalAction[];
 }
 
-export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
+function formatDateToYmd(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getContiguousEndTimes(
+  start: string,
+  availableSlots: string[],
+  stepMinutes = 30,
+): string[] {
+  const startMinutes =
+    Number(start.slice(0, 2)) * 60 + Number(start.slice(3, 5));
+  const available = new Set(availableSlots);
+  const contiguous: string[] = [];
+
+  for (
+    let next = startMinutes + stepMinutes;
+    next < 24 * 60;
+    next += stepMinutes
+  ) {
+    const hh = String(Math.floor(next / 60)).padStart(2, "0");
+    const mm = String(next % 60).padStart(2, "0");
+    const slot = `${hh}:${mm}`;
+
+    if (!available.has(slot)) break;
+    contiguous.push(slot);
+  }
+
+  return contiguous;
+}
+
+function addMinutesToTime(
+  time: string,
+  minutesToAdd: number,
+): string | undefined {
+  const [hourText, minuteText] = time.split(":");
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return undefined;
+
+  const totalMinutes = hour * 60 + minute + minutesToAdd;
+  if (totalMinutes < 0 || totalMinutes >= 24 * 60) return undefined;
+
+  const hh = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+  const mm = String(totalMinutes % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+export function BookingModal({
+  sitter,
+  sitterId,
+  exceptedBookingId,
+  fixedDurationMinutes,
+  initialStartDate,
+  onClose,
+  onConfirm,
+  actions,
+}: Props) {
   const [mounted, setMounted] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -66,8 +114,7 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
   const handleClose = () => {
     if (isClosing) return;
 
-    const isMobile =
-      typeof window !== "undefined" && window.innerWidth < 768;
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
     if (isMobile) {
       setIsClosing(true);
@@ -82,8 +129,8 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
 
   const methods = useForm<BookingFormValues>({
     defaultValues: {
-      startDate: null,
-      endDate: null,
+      startDate: initialStartDate ?? null,
+      endDate: initialStartDate ?? null,
       startTime: "",
       endTime: "",
     },
@@ -114,14 +161,44 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
   const isDateSelected = Boolean(startDate);
 
   const startTimeMin =
-    startDate && isSameDay(startDate, new Date())
-      ? getCurrentOrNextTimeSlot(30)
+    startDate && isPickerLocalYmdSameBangkokToday(startDate, new Date())
+      ? getCurrentOrNextBangkokTimeSlot(new Date(), 30)
       : undefined;
 
-  const endTimeMin = startTime
-    ? getNextTimeSlot(startTime, 30)
-    : undefined;
+  const endTimeMin = startTime ? getNextTimeSlot(startTime, 30) : undefined;
   const isContinueDisabled = !startDate || !startTime || !endTime;
+  const isFixedDurationMode =
+    typeof fixedDurationMinutes === "number" && fixedDurationMinutes > 0;
+  const startTimeOptions = availableSlots;
+  const showNoAvailableSlotsMessage =
+    isDateSelected && !isLoadingSlots && availableSlots.length === 0;
+  const contiguousEndTimeOptions = useMemo(
+    () => (startTime ? getContiguousEndTimes(startTime, availableSlots) : []),
+    [startTime, availableSlots],
+  );
+  const fixedEndTime = useMemo(() => {
+    if (!startTime || !isFixedDurationMode) return undefined;
+    return addMinutesToTime(startTime, fixedDurationMinutes);
+  }, [startTime, isFixedDurationMode, fixedDurationMinutes]);
+  const isFixedEndTimeAvailable =
+    Boolean(fixedEndTime) && contiguousEndTimeOptions.includes(fixedEndTime!);
+  const endTimeOptions = isFixedDurationMode
+    ? fixedEndTime && isFixedEndTimeAvailable
+      ? [fixedEndTime]
+      : []
+    : contiguousEndTimeOptions;
+  const showNoDepartureTimeMessage =
+    isDateSelected &&
+    !isLoadingSlots &&
+    Boolean(startTime) &&
+    endTimeOptions.length === 0 &&
+    !isFixedDurationMode;
+  const showFixedDurationUnavailableMessage =
+    isDateSelected &&
+    !isLoadingSlots &&
+    Boolean(startTime) &&
+    isFixedDurationMode &&
+    !isFixedEndTimeAvailable;
 
   /*
     4️⃣ sync endDate กับ startDate
@@ -134,9 +211,30 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
   useEffect(() => {
     if (isDateSelected) return;
 
+    setAvailableSlots([]);
     methods.setValue("startTime", "");
     methods.setValue("endTime", "");
   }, [isDateSelected, methods]);
+
+  useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      if (!startDate || !sitterId) return;
+
+      setIsLoadingSlots(true);
+
+      const result = await getAvailableHoursBySitterId(sitterId, {
+        date: formatDateToYmd(startDate),
+        exceptedBookingId,
+      });
+
+      setAvailableSlots(result.data?.availableSlots ?? []);
+      methods.setValue("startTime", "");
+      methods.setValue("endTime", "");
+      setIsLoadingSlots(false);
+    };
+
+    fetchAvailableSlots();
+  }, [startDate, sitterId, exceptedBookingId, methods]);
 
   /*
     5️⃣ ถ้า user เปลี่ยน startTime
@@ -157,10 +255,43 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
 
     const currentEnd = methods.getValues("endTime");
 
-    if (currentEnd && currentEnd < endTimeMin) {
+    if (
+      currentEnd &&
+      (currentEnd < endTimeMin || !endTimeOptions.includes(currentEnd))
+    ) {
       methods.setValue("endTime", "");
     }
-  }, [startTime, endTimeMin, methods]);
+  }, [startTime, endTimeMin, endTimeOptions, methods]);
+
+  useEffect(() => {
+    if (!isFixedDurationMode) return;
+    if (!startTime) {
+      methods.setValue("endTime", "");
+      return;
+    }
+
+    if (fixedEndTime && isFixedEndTimeAvailable) {
+      methods.setValue("endTime", fixedEndTime);
+      return;
+    }
+
+    methods.setValue("endTime", "");
+  }, [
+    isFixedDurationMode,
+    startTime,
+    fixedEndTime,
+    isFixedEndTimeAvailable,
+    methods,
+  ]);
+
+  useEffect(() => {
+    if (!startTime) return;
+
+    if (!startTimeOptions.includes(startTime)) {
+      methods.setValue("startTime", "");
+      methods.setValue("endTime", "");
+    }
+  }, [startTime, startTimeOptions, methods]);
 
   /*
     6️⃣ submit form
@@ -211,7 +342,6 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
           }
         }
       `}</style>
-
 
       <div
         className="fixed inset-0 z-9999 flex items-end md:items-center justify-center bg-black/50 transition-opacity"
@@ -264,7 +394,9 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                   name="startDate"
                   required
                   placeholder="Pet arrival date"
-                  disabled={{ before: new Date() }}
+                  disabled={(date) =>
+                    isPickerLocalYmdBeforeBangkokToday(date, new Date())
+                  }
                   startMonth={new Date()}
                   endMonth={oneYearFromNow}
                 />
@@ -278,9 +410,14 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                   required
                   placeholder="Pet arrival time"
                   className="min-w-0 flex-1"
+                  options={startTimeOptions}
                   minTime={startTimeMin}
                   stepMinutes={30}
-                  disabled={!isDateSelected}
+                  disabled={
+                    !isDateSelected ||
+                    isLoadingSlots ||
+                    showNoAvailableSlotsMessage
+                  }
                 />
 
                 <span className="shrink-0 text-gray-500">-</span>
@@ -290,11 +427,36 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                   required
                   placeholder="Pet departure time"
                   className="min-w-0 flex-1"
+                  options={endTimeOptions}
                   minTime={endTimeMin}
                   stepMinutes={30}
-                  disabled={!isDateSelected}
+                  disabled={
+                    !isDateSelected ||
+                    isLoadingSlots ||
+                    !startTime ||
+                    showNoDepartureTimeMessage ||
+                    isFixedDurationMode
+                  }
                 />
               </div>
+
+              {showFixedDurationUnavailableMessage && (
+                <p className="style-body-3 text-red-500">
+                  Selected arrival time does not match the fixed duration.
+                </p>
+              )}
+
+              {showNoDepartureTimeMessage && (
+                <p className="style-body-3 text-red-500">
+                  No departure time available for the selected arrival time.
+                </p>
+              )}
+
+              {showNoAvailableSlotsMessage && (
+                <p className="style-body-3 text-red-500">
+                  No available slots on this date.
+                </p>
+              )}
 
               {/* Actions */}
               <div className="flex justify-around gap-4 pt-2 mt-auto">
@@ -306,6 +468,9 @@ export function BookingModal({ sitter, onClose, onConfirm, actions }: Props) {
                       variant={action.variant ?? "primary"}
                       className="flex-1"
                       onClick={action.onClick}
+                      disabled={
+                        action.type === "submit" ? isContinueDisabled : false
+                      }
                     >
                       {action.label}
                     </ActionButton>

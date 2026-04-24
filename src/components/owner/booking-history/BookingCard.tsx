@@ -12,6 +12,10 @@ import {
   type ModalAction,
 } from "@/components/pet-sitter-detail/BookingModal";
 import { bookingApi } from "@/services/api/booking";
+import {
+  combineCalendarDateAndBangkokTime,
+  getBangkokDateParts,
+} from "@/utils/bangkokWallTime";
 
 interface BookingCardProps {
   booking: OwnerBookingHistory;
@@ -62,13 +66,14 @@ export function BookingCard({ booking, onRefresh }: BookingCardProps) {
   const handleConfirm = useCallback(
     async (data: BookingFormValues) => {
       try {
-        const startDateTime = new Date(data.startDate!);
-        const [startHour, startMin] = data.startTime.split(":").map(Number);
-        startDateTime.setHours(startHour, startMin, 0, 0);
-
-        const endDateTime = new Date(data.endDate ?? data.startDate!);
-        const [endHour, endMin] = data.endTime.split(":").map(Number);
-        endDateTime.setHours(endHour, endMin, 0, 0);
+        const startDateTime = combineCalendarDateAndBangkokTime(
+          data.startDate!,
+          data.startTime,
+        );
+        const endDateTime = combineCalendarDateAndBangkokTime(
+          data.endDate ?? data.startDate!,
+          data.endTime,
+        );
 
         await bookingApi.updateBookingTime(
           booking.bookingId,
@@ -89,15 +94,32 @@ export function BookingCard({ booking, onRefresh }: BookingCardProps) {
   const confirm: ModalAction[] = [
     { label: "Confirm", type: "submit", variant: "primary" },
   ];
-  const handleReviewSuccess = async () => {
-    await onRefresh?.();
+  const handleReviewSuccess = () => {
+    onRefresh?.();
   };
+  const fixedDurationMinutes = Math.max(
+    30,
+    Math.floor(
+      (new Date(currentEndTime).getTime() -
+        new Date(currentStartTime).getTime()) /
+        (1000 * 60),
+    ),
+  );
+  const bookingStartInstant = new Date(currentStartTime);
+  const bookingDateInBangkok = getBangkokDateParts(bookingStartInstant);
+  const initialStartDate = new Date(
+    bookingDateInBangkok.y,
+    bookingDateInBangkok.m - 1,
+    bookingDateInBangkok.d,
+  );
 
   return (
     <>
       <div
         ref={cardRef}
-        className={`${statusBorderMap[booking.status]} border bg-white rounded-2xl cursor-pointer`}
+        className={`${
+          statusBorderMap[booking.status]
+        } border bg-white rounded-2xl cursor-pointer`}
       >
         <div className="md:p-6 p-4">
           <div className="md:pb-9 pb-4">
@@ -150,6 +172,10 @@ export function BookingCard({ booking, onRefresh }: BookingCardProps) {
       {isChangeTimeOpen && (
         <BookingModal
           sitter={{ tradeName: booking.tradeName }}
+          sitterId={String(booking.petSitterId)}
+          exceptedBookingId={booking.bookingId}
+          fixedDurationMinutes={fixedDurationMinutes}
+          initialStartDate={initialStartDate}
           onClose={() => setIsChangeTimeOpen(false)}
           onConfirm={handleConfirm}
           actions={confirm}

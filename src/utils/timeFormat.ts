@@ -1,4 +1,5 @@
 export type TimeOption = { value: string; label: string };
+const BOOKING_TIME_ZONE = "Asia/Bangkok";
 
 /**
  * Generate time options in 12-hour format with given step in minutes.
@@ -9,7 +10,10 @@ export function generateTimeOptions(stepMinutes = 30): TimeOption[] {
   const options: TimeOption[] = [];
   for (let h = 0; h < 24; h++) {
     for (let m = 0; m < 60; m += stepMinutes) {
-      const value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+      const value = `${String(h).padStart(2, "0")}:${String(m).padStart(
+        2,
+        "0",
+      )}`;
       const label = format24hTo12h(value);
       options.push({ value, label });
     }
@@ -46,7 +50,7 @@ export function getNextTimeSlot(
   const h = parseInt(hStr ?? "0", 10);
   const m = parseInt(mStr ?? "0", 10);
   if (Number.isNaN(h) || Number.isNaN(m)) return "";
-  let totalMins = h * 60 + m + stepMinutes;
+  const totalMins = h * 60 + m + stepMinutes;
   if (totalMins >= 24 * 60) return "24:00"; // no valid slot after; excludes all options
   const nh = Math.floor(totalMins / 60);
   const nm = totalMins % 60;
@@ -77,13 +81,14 @@ export function formatDateRange(startTime: string, endTime: string) {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: BOOKING_TIME_ZONE,
   });
 
   const timeOptions: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-    timeZone: "UTC",
+    timeZone: BOOKING_TIME_ZONE,
   };
 
   const startHour = start.toLocaleTimeString("en-US", timeOptions);
@@ -106,6 +111,7 @@ export function formatTransactionDate(createdAt: string) {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: BOOKING_TIME_ZONE,
   });
 }
 
@@ -114,5 +120,6 @@ export function formatTransactionDateWithOutWeekDay(createdAt: string) {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone: BOOKING_TIME_ZONE,
   });
 }

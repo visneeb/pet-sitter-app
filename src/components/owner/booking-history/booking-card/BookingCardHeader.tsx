@@ -1,6 +1,7 @@
 import { statusStyleMap } from "@/constants/status";
 import { UserIcon } from "@/assets/icons/components";
 import { BookingStatus } from "@/constants/bookinglist/bookingStatus";
+import { formatTransactionDate } from "@/utils/timeFormat";
 
 interface BookingCardHeaderProps {
   tradeName: string | null;
@@ -9,15 +10,6 @@ interface BookingCardHeaderProps {
   status: BookingStatus;
   createdAt: string;
   sitterImgUrl: string | undefined;
-}
-
-function formatTransactionDate(createdAt: string) {
-  return new Date(createdAt).toLocaleDateString("en-US", {
-    weekday: "short",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 export function BookingCardHeader({

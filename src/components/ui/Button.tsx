@@ -26,13 +26,13 @@ const variants: Record<ButtonVariant, string> = {
     "flex justify-center items-center gap-2 min-w-30 px-6 py-3 style-button text-white bg-orange-500 rounded-full transition-colors duration-200 cursor-pointer",
     "hover:bg-orange-400",
     "active:bg-orange-600",
-    "disabled:text-gray-300 disabled:bg-gray-200",
+    "disabled:text-gray-300 disabled:bg-gray-200 disabled:cursor-not-allowed",
   ),
   secondary: cn(
     "flex justify-center items-center gap-2 min-w-30 px-6 py-3 style-button text-orange-500 bg-orange-100 rounded-full transition-colors duration-200 cursor-pointer",
     "hover:text-orange-400",
     "active:text-orange-600",
-    "disabled:text-gray-200 disabled:bg-gray-100",
+    "disabled:text-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed",
   ),
   ghost: cn(
     "flex justify-center items-center gap-1 px-0.5 py-1 style-button text-orange-500 transition-colors duration-200 cursor-pointer",
@@ -44,7 +44,7 @@ const variants: Record<ButtonVariant, string> = {
     "flex justify-center items-center gap-2 p-4.5 text-orange-500 bg-orange-100 rounded-full transition-colors duration-200 cursor-pointer",
     "hover:text-orange-400",
     "active:text-orange-600",
-    "disabled:text-gray-200 disabled:bg-gray-100",
+    "disabled:text-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed",
   ),
 };
 

@@ -31,8 +31,8 @@ export const Pagination = ({
   });
 
   return (
-    <div className={cn("w-full flex justify-center",className)}>
-      <div className="flex justify-center items-center gap-2 ">
+    <div className={cn("w-full flex justify-center", className)}>
+      <div className="flex justify-center items-center gap-2">
         <button
           onClick={() => handlePageClick(page - 1)}
           disabled={page === 1}
