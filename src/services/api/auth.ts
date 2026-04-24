@@ -66,4 +66,29 @@ export const authApi = {
       }
     }
   },
+
+  updateEmail: async (
+    newEmail: string,
+    password: string,
+  ): Promise<{ success?: boolean; error?: string }> => {
+    try {
+      await privateApi.patch("/auth/change-email", {
+        email: newEmail,
+        password,
+      });
+      return { success: true };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update email";
+      const apiError =
+        typeof error === "object" && error !== null && "response" in error
+          ? (error as { response?: { data?: { error?: string } } }).response
+              ?.data?.error
+          : undefined;
+
+      return {
+        error: apiError || message,
+      };
+    }
+  },
 };

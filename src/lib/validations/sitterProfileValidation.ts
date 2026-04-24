@@ -17,6 +17,7 @@ export interface SitterProfileFormValues extends ProfileFormValues {
   postalCode?: string;
   status?: string;
   images: File[];
+  removeProfileImg?: boolean;
 }
 
 export function validateSitterProfile(

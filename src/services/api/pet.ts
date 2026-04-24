@@ -1,4 +1,4 @@
-import { privateApi } from "./client";
+import { privateApi, publicApi } from "./client";
 import type { PetFormValues } from "@/types/pet";
 import formatLocalDate from "@/utils/formatLocalDate";
 
@@ -45,7 +45,7 @@ function toRequestBody(values: PetFormValues): PetRequestBody {
 
 export const petApi = {
   getTypes: async (): Promise<{ id: number; name: string }[]> => {
-    const { data } = await privateApi.get<{ id: number; name: string }[]>(
+    const { data } = await publicApi.get<{ id: number; name: string }[]>(
       "/pet/type",
     );
     return data;

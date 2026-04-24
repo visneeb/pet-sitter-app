@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import {
   ProfileFormValues,
@@ -19,20 +19,12 @@ export interface BaseProfileFormReturn {
   isLoadingProfile: boolean;
   profileError: string | null;
   handleAvatarChange: (file: File | null) => Promise<void>;
-  showPasswordModal: boolean;
-  pendingData: ProfileFormValues | null;
-  onEmailConfirmed: (password?: string) => Promise<void>;
-  onModalClose: () => void;
   onSubmit: (data: ProfileFormValues) => Promise<void>;
   isAvatarDirty: boolean;
-  originalEmail: string;
-  setOriginalEmail: (email: string) => void;
   pendingAvatarFile: File | null;
   removeAvatar: boolean;
   setIsUpdating: (val: boolean) => void;
   setResetData: (data: ProfileFormValues | null) => void;
-  setPendingData: (data: ProfileFormValues | null) => void;
-  setShowPasswordModal: (val: boolean) => void;
   setIsAvatarDirty: (val: boolean) => void;
   setPendingAvatarFile: (file: File | null) => void;
   setRemoveAvatar: (val: boolean) => void;
@@ -45,27 +37,12 @@ export function useBaseProfileForm(
   const [profileError, setProfileError] = useState<string | null>(null);
   const router = useRouter();
 
-  const originalEmailRef = useRef("");
-  const [originalEmail, _setOriginalEmail] = useState("");
-  const setOriginalEmail = (email: string) => {
-    originalEmailRef.current = email;
-    _setOriginalEmail(email);
-  };
-
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [pendingData, setPendingData] = useState<ProfileFormValues | null>(
-    null,
-  );
   const [isUpdating, setIsUpdating] = useState(false);
   const [resetData, setResetData] = useState<ProfileFormValues | null>(null);
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const [isAvatarDirty, setIsAvatarDirty] = useState(false);
 
-  // FIX: Memoize the resolver so it's created only ONCE, not on every render.
-  // Previously `createResolver(validateProfile)` was passed inline to useForm(),
-  // which created a new function reference every render — causing RHF to
-  // re-register all fields and trigger setState during render (the crash).
   const resolver = useMemo(() => createResolver(validateProfile), []);
 
   const methods = useForm<ProfileFormValues>({
@@ -111,7 +88,6 @@ export function useBaseProfileForm(
         const data = await userApi.getCurrentUser();
 
         if (data) {
-          setOriginalEmail(data.email);
           setTimeout(() => {
             reset({
               name: data.name || "",
@@ -125,8 +101,12 @@ export function useBaseProfileForm(
             });
           }, 0);
         }
-      } catch (error: any) {
-        setProfileError(error.message || "Failed to load profile data");
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to load profile data";
+        setProfileError(message);
       } finally {
         setIsLoadingProfile(false);
       }
@@ -137,7 +117,6 @@ export function useBaseProfileForm(
 
   useEffect(() => {
     if (!errors.root?.message) return;
-
     showCustomToast({
       title: "Failed to update profile",
       description: errors.root.message,
@@ -184,22 +163,15 @@ export function useBaseProfileForm(
   const onSubmit = async (data: ProfileFormValues) => {
     if (isUpdating) return;
 
-    const emailChanged = data.email?.trim() !== originalEmailRef.current.trim();
-
-    if (emailChanged) {
-      setPendingData(data);
-      setShowPasswordModal(true);
-      return;
-    }
-
     setIsUpdating(true);
 
     try {
-      if (removeAvatar) {
-        await ProfileService.removeAvatar(data, userRole);
-      } else {
-        await ProfileService.updateProfile(data, userRole, pendingAvatarFile);
-      }
+      await userApi.updateBasicProfile(
+        data,
+        removeAvatar ? null : pendingAvatarFile,
+        removeAvatar,
+        userRole,
+      );
 
       showCustomToast({
         title: "Profile updated successfully",
@@ -208,81 +180,23 @@ export function useBaseProfileForm(
       });
 
       router.refresh();
-
       setPendingAvatarFile(null);
       setRemoveAvatar(false);
       setIsAvatarDirty(false);
       setResetData(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update profile";
       setError("root", {
         type: "server",
         message:
-          error?.response?.data?.message ||
-          error?.response?.data?.error ||
-          error?.message ||
-          "Failed to update profile",
+          (error as any)?.response?.data?.message ||
+          (error as any)?.response?.data?.error ||
+          message,
       });
     } finally {
       setIsUpdating(false);
     }
-  };
-
-  const onEmailConfirmed = async (password?: string) => {
-    if (!pendingData) {
-      setError("root", { type: "server", message: "No pending data" });
-      return;
-    }
-    if (!password?.trim()) {
-      setError("root", { type: "server", message: "Password is required" });
-      return;
-    }
-
-    setIsUpdating(true);
-
-    try {
-      const result = await ProfileService.updateProfileWithEmail(
-        pendingData,
-        password,
-        userRole,
-        pendingAvatarFile,
-      );
-
-      if (result.message) {
-        showCustomToast({
-          title: "Email updated successfully",
-          description: "Your email has been changed.",
-          variant: "success",
-        });
-
-        router.refresh();
-
-        setPendingAvatarFile(null);
-        setRemoveAvatar(false);
-        setIsAvatarDirty(false);
-        setResetData(pendingData);
-      }
-
-      setOriginalEmail(pendingData.email ?? "");
-      setShowPasswordModal(false);
-      setPendingData(null);
-    } catch (error: any) {
-      setError("root", {
-        type: "server",
-        message:
-          error?.response?.data?.message ||
-          error?.response?.data?.error ||
-          error?.message ||
-          "Failed to update email",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const onModalClose = () => {
-    setShowPasswordModal(false);
-    setPendingData(null);
-    setIsUpdating(false);
   };
 
   return {
@@ -292,20 +206,12 @@ export function useBaseProfileForm(
     isLoadingProfile,
     profileError,
     handleAvatarChange,
-    showPasswordModal,
-    pendingData,
-    onEmailConfirmed,
-    onModalClose,
     onSubmit,
     isAvatarDirty,
-    originalEmail,
-    setOriginalEmail,
     pendingAvatarFile,
     removeAvatar,
     setIsUpdating,
     setResetData,
-    setPendingData,
-    setShowPasswordModal,
     setIsAvatarDirty,
     setPendingAvatarFile,
     setRemoveAvatar,

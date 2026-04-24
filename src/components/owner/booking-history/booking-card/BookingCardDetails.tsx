@@ -26,7 +26,7 @@ export function BookingCardDetails({
     "self-stretch border-l border-gray-200 pr-8 h-10 my-auto md:flex hidden";
 
   const petNames = pets.map((p) => p.petName).join(", ") || "—";
-  const isWait = status === "Waiting for confirm";
+  const isWait = status === "waiting_confirm";
 
   return (
     <div className="grid md:grid-cols-4 grid-cols-1 items-center text-gray-700 gap-4">

@@ -14,6 +14,7 @@ import {
   cancelPetSitterProfileUpdate,
   deleteRejectNote,
 } from "@/services/api/sitter";
+import { userApi } from "@/services/api/user";
 import { petApi } from "@/services/api/pet";
 import { District, SubDistrict } from "@/services/api/address";
 import React from "react";
@@ -80,6 +81,13 @@ export function usePetSitterForm(): SitterProfileFormReturn {
       postalCode: "",
       status: "",
       images: [],
+      removeProfileImg: false,
+      name: "",
+      email: "",
+      phone: "",
+      idNumber: "",
+      dateOfBirth: null,
+      profile_img_url: "",
     },
   });
 
@@ -120,7 +128,15 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     const loadSitterProfile = async () => {
       try {
         const { data, error } = await getCurrentSitter();
-        if (error || !data) return;
+        // FIX 1: Show toast on load error instead of silently returning
+        if (error || !data) {
+          showCustomToast({
+            title: "Failed to load sitter profile",
+            description: error || "No profile data returned",
+            variant: "error",
+          });
+          return;
+        }
 
         setSitterId(data.id);
         setSitterData(data);
@@ -130,7 +146,27 @@ export function usePetSitterForm(): SitterProfileFormReturn {
         setHasPendingUpdate(data.hasPendingUpdate);
         initImages(data.imgUrls || []);
 
+        // Get current user data to populate user fields
+        let currentUserData = null;
+        try {
+          currentUserData = await userApi.getCurrentUser();
+        } catch (userError) {
+          console.warn("Failed to load current user data:", userError);
+        }
+
         const fields: Partial<Record<keyof SitterProfileFormValues, any>> = {
+          // User fields from current user data
+          name: currentUserData?.name || data.sitter?.name || "",
+          email: currentUserData?.email || "",
+          phone: currentUserData?.phone || "",
+          idNumber: currentUserData?.idNumber || "",
+          dateOfBirth: currentUserData?.dateOfBirth
+            ? new Date(currentUserData.dateOfBirth + "T00:00:00+00:00")
+            : null,
+          profile_img_url:
+            currentUserData?.profileImgUrl || data.sitter?.profileImgUrl || "",
+
+          // Sitter fields
           experience: data.experience ?? 0,
           tradeName: data.tradeName ?? "",
           introduction: data.introduction ?? "",
@@ -141,6 +177,7 @@ export function usePetSitterForm(): SitterProfileFormReturn {
           longitude: data.longitude ?? 0,
           status: data.status ?? "",
           images: [],
+          removeProfileImg: false,
         };
 
         Object.entries(fields).forEach(([key, value]) => {
@@ -152,6 +189,11 @@ export function usePetSitterForm(): SitterProfileFormReturn {
         });
       } catch (err) {
         console.error("Failed to load sitter profile:", err);
+        showCustomToast({
+          title: "Failed to load sitter profile",
+          description: "An unexpected error occurred",
+          variant: "error",
+        });
       }
     };
 
@@ -192,6 +234,12 @@ export function usePetSitterForm(): SitterProfileFormReturn {
             message: error.message,
           });
       });
+      // FIX 2: Show toast so user knows why submit was blocked
+      showCustomToast({
+        title: "Please fix the form errors",
+        description: "Some fields are invalid or missing.",
+        variant: "error",
+      });
       return;
     }
 
@@ -200,33 +248,76 @@ export function usePetSitterForm(): SitterProfileFormReturn {
         type: "server",
         message: "No sitter profile found. Please contact support.",
       });
+      showCustomToast({
+        title: "No sitter profile found",
+        description: "Please contact support.",
+        variant: "error",
+      });
       return;
     }
 
     setIsUpdating(true);
 
     try {
+      // FIX 3: Ensure existingImages is always a valid array, never undefined
+      const safeExistingImages = Array.isArray(existingImageOrders)
+        ? existingImageOrders
+        : [];
+
+      // FIX 4: Only pass images if they are valid File objects
+      const validNewImages =
+        data.images && data.images.length > 0
+          ? data.images.filter((img): img is File => img instanceof File)
+          : undefined;
+
+      // Extract profile image from form data if available
+      const profileImage =
+        data.avatarFile instanceof File ? data.avatarFile : undefined;
+      const removeProfileImg = data.removeProfileImg || false;
+
+      // Build request body with both user and sitter fields
+      const requestBody: any = {
+        // Sitter fields
+        experience: Number(data.experience),
+        tradeName: data.tradeName,
+        petTypeIds: data.petTypeIds.map(Number),
+        introduction: data.introduction || undefined,
+        services: data.services || undefined,
+        description: data.description || undefined,
+        address: data.address,
+        latitude: Number(data.latitude),
+        longitude: Number(data.longitude),
+        provinceId: Number(data.provinceId),
+        districtId: Number(data.districtId),
+        subDistrictId: Number(data.subDistrictId),
+        existingImages: safeExistingImages,
+
+        // User fields (only include if they have values)
+        ...(data.name && { name: data.name.trim() }),
+        ...(data.phone && { phone: data.phone.trim() }),
+        ...(data.idNumber !== undefined && { idNumber: data.idNumber || null }),
+        ...(data.dateOfBirth && {
+          dateOfBirth:
+            data.dateOfBirth instanceof Date
+              ? data.dateOfBirth.toISOString().split("T")[0]
+              : data.dateOfBirth,
+        }),
+        ...(removeProfileImg && { removeProfileImg: true }),
+      };
+
       const result = await updatePetSitterProfile(
-        {
-          experience: Number(data.experience),
-          tradeName: data.tradeName,
-          petTypeIds: data.petTypeIds.map(Number),
-          introduction: data.introduction || undefined,
-          services: data.services || undefined,
-          description: data.description || undefined,
-          address: data.address,
-          latitude: Number(data.latitude),
-          longitude: Number(data.longitude),
-          provinceId: Number(data.provinceId),
-          districtId: Number(data.districtId),
-          subDistrictId: Number(data.subDistrictId),
-          existingImages: existingImageOrders,
-        },
-        data.images?.length ? data.images : undefined,
+        requestBody,
+        validNewImages,
+        profileImage,
       );
 
       if (result.error) {
         setError("root", { type: "server", message: result.error });
+        showCustomToast({
+          title: "Failed to update profile",
+          description: result.error,
+          variant: "error",
+        });
         return;
       }
 
@@ -235,15 +326,30 @@ export function usePetSitterForm(): SitterProfileFormReturn {
         description: "Your sitter info has been saved.",
         variant: "success",
       });
+
       router.refresh();
       methods.setValue("images", []);
 
-      const { data: updatedData } = await getCurrentSitter();
-      if (updatedData) {
-        setHasPendingUpdate(updatedData.hasPendingUpdate);
-        const updatedFields: Partial<
-          Record<keyof SitterProfileFormValues, any>
-        > = {
+      // FIX 5: Re-fetch and repopulate everything cleanly after update
+      const { data: updatedData, error: fetchError } = await getCurrentSitter();
+      if (fetchError || !updatedData) {
+        // Update succeeded but re-fetch failed — not critical, just warn
+        showCustomToast({
+          title: "Profile updated",
+          description: "Could not reload latest data. Please refresh the page.",
+          variant: "error",
+        });
+        return;
+      }
+
+      setHasPendingUpdate(updatedData.hasPendingUpdate);
+      setStatus(updatedData.status || "Waiting for approval");
+      setAdminNote(updatedData.adminNote ?? null);
+      setSitterData(updatedData);
+      initImages(updatedData.imgUrls || []);
+
+      const updatedFields: Partial<Record<keyof SitterProfileFormValues, any>> =
+        {
           experience: updatedData.experience ?? 0,
           tradeName: updatedData.tradeName ?? "",
           introduction: updatedData.introduction ?? "",
@@ -254,40 +360,43 @@ export function usePetSitterForm(): SitterProfileFormReturn {
           longitude: updatedData.longitude ?? 0,
         };
 
-        Object.entries(updatedFields).forEach(([key, value]) => {
-          methods.setValue(key as keyof SitterProfileFormValues, value, {
-            shouldDirty: false,
-            shouldTouch: false,
-            shouldValidate: false,
-          });
+      Object.entries(updatedFields).forEach(([key, value]) => {
+        methods.setValue(key as keyof SitterProfileFormValues, value, {
+          shouldDirty: false,
+          shouldTouch: false,
+          shouldValidate: false,
         });
+      });
 
-        initImages(updatedData.imgUrls || []);
-        await populateAddressFields(updatedData);
+      // FIX 6: Let the useEffect handle address repopulation via setSitterData
+      // instead of calling populateAddressFields directly (avoids race condition)
 
-        if (petTypes.length > 0) {
-          const updatedPetTypeIds = (updatedData.petTypes || [])
-            .map((name: string) => petTypes.find((p) => p.name === name)?.id)
-            .filter(Boolean) as number[];
-          methods.setValue("petTypeIds", updatedPetTypeIds, {
-            shouldDirty: false,
-          });
-        }
-
-        methods.reset(methods.getValues(), {
-          keepValues: true,
-          keepDirty: false,
-          keepDefaultValues: false,
+      if (petTypes.length > 0) {
+        const updatedPetTypeIds = (updatedData.petTypes || [])
+          .map((name: string) => petTypes.find((p) => p.name === name)?.id)
+          .filter(Boolean) as number[];
+        methods.setValue("petTypeIds", updatedPetTypeIds, {
+          shouldDirty: false,
         });
       }
+
+      methods.reset(methods.getValues(), {
+        keepValues: true,
+        keepDirty: false,
+        keepDefaultValues: false,
+      });
     } catch (error: any) {
-      setError("root", {
-        type: "server",
-        message:
-          error?.response?.data?.error ||
-          error?.response?.data?.message ||
-          error?.message ||
-          "Failed to update sitter profile",
+      const message =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update sitter profile";
+
+      setError("root", { type: "server", message });
+      showCustomToast({
+        title: "Failed to update sitter profile",
+        description: message,
+        variant: "error",
       });
     } finally {
       setIsUpdating(false);
@@ -325,7 +434,10 @@ export function usePetSitterForm(): SitterProfileFormReturn {
     try {
       setIsShowRejectNote(false);
       await deleteRejectNote();
-    } finally {
+    } catch (error: any) {
+      // FIX 7: Don't silently swallow errors on deleteRejectNote
+      console.error("Failed to delete reject note:", error);
+      setIsShowRejectNote(true); // Revert UI if API call failed
     }
   };
 
