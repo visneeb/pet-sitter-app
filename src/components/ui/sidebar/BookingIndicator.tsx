@@ -4,7 +4,7 @@ import { useBookingList } from "@/hooks/booking/useBookingList";
 
 export function BookingIndicator() {
   const { bookings } = useBookingList();
-  const hasWaiting = bookings.some((b) => b.status === "waiting_confirm");
+  const hasWaiting = bookings.some((b) => b.status === "Waiting for confirm");
 
   if (!hasWaiting) return null;
 
