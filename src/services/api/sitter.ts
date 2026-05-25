@@ -1,6 +1,9 @@
 import { publicApi, privateApi } from "./client";
 import type { SitterApi } from "@/types/sitter";
 
+// ─── Types & Interfaces ──────────────────────────────────────────────────────
+
+// Query params for filtering the pet sitter list
 export interface PetSitterListParams {
   page?: number;
   limit?: number;
@@ -16,6 +19,7 @@ export interface Sitter {
   profileImgUrl: string | null;
 }
 
+// Single item in the pet sitter listing
 export interface PetSitterListItem {
   id: string;
   sitter: Sitter;
@@ -29,6 +33,7 @@ export interface PetSitterListItem {
   district: string | null;
 }
 
+// Paginated response for pet sitter list
 export interface PetSitterListResponse {
   totalPetSitters: number;
   totalPages: number;
@@ -37,6 +42,9 @@ export interface PetSitterListResponse {
   sitters: PetSitterListItem[];
 }
 
+// ─── Pet Sitter List ─────────────────────────────────────────────────────────
+
+// Fetches paginated & filtered list of pet sitters (public)
 export async function getPetSitters(
   params?: PetSitterListParams,
 ): Promise<{ data?: PetSitterListResponse; error?: string }> {
@@ -55,7 +63,6 @@ export async function getPetSitters(
     const res = await publicApi.get<PetSitterListResponse>(
       `/pet-sitter${qs ? `?${qs}` : ""}`,
     );
-
     return { data: res.data };
   } catch (err: any) {
     return {
@@ -67,6 +74,8 @@ export async function getPetSitters(
   }
 }
 
+// ─── Pet Sitter Detail ───────────────────────────────────────────────────────
+
 export const PET_SITTER_STATUS = {
   WAITING: "Waiting for approval",
   APPROVED: "Approved",
@@ -77,7 +86,7 @@ export const PET_SITTER_STATUS = {
 export type PetSitterStatus =
   (typeof PET_SITTER_STATUS)[keyof typeof PET_SITTER_STATUS];
 
-/** API response shape for pet-sitter detail; derives from SitterApi for type compatibility with toSitter() */
+// Full detail shape — extends SitterApi with admin-only fields
 export type PetSitterDetail = SitterApi & {
   status?: string;
   adminNote?: string | null;
@@ -86,19 +95,18 @@ export type PetSitterDetail = SitterApi & {
   subDistrictId?: number | null;
 };
 
+// Builds the detail endpoint path, optionally bypassing approved-only filter
 function buildPetSitterDetailPath(
   sitterId: string,
   options?: { onlyApproved?: boolean },
 ) {
   const params = new URLSearchParams();
-  if (options?.onlyApproved === false) {
-    params.set("onlyApproved", "false");
-  }
-
+  if (options?.onlyApproved === false) params.set("onlyApproved", "false");
   const queryString = params.toString();
   return `/pet-sitter/${sitterId}${queryString ? `?${queryString}` : ""}`;
 }
 
+// Fetches sitter detail via authenticated (private) API
 export async function getPetSitterById(
   sitterId: string,
   options?: { onlyApproved?: boolean },
@@ -119,8 +127,9 @@ export async function getPetSitterById(
   }
 }
 
-export const getPrivatePetSitterById = getPetSitterById;
+export const getPrivatePetSitterById = getPetSitterById; // Alias for explicit private usage
 
+// Fetches sitter detail via public API (no auth required)
 export async function getPublicPetSitterById(
   sitterId: string,
   options?: { onlyApproved?: boolean },
@@ -141,6 +150,7 @@ export async function getPublicPetSitterById(
   }
 }
 
+// Fetches the currently logged-in sitter's own profile
 export async function getCurrentSitter(): Promise<{
   data?: PetSitterDetail;
   error?: string;
@@ -159,6 +169,7 @@ export async function getCurrentSitter(): Promise<{
   }
 }
 
+// Fetches a sitter's detail by user ID (private)
 export async function getPetSitterByUserId(
   userId: string,
 ): Promise<{ data?: PetSitterDetail; error?: string }> {
@@ -175,21 +186,22 @@ export async function getPetSitterByUserId(
   }
 }
 
-export async function getPetSitterByUserIdSimple(
-  userId: string,
-): Promise<{ data?: PetSitterDetail; error?: string }> {
-  return getPetSitterByUserId(userId);
+export async function getPetSitterByUserIdSimple(userId: string) {
+  return getPetSitterByUserId(userId); // Thin wrapper kept for API consistency
 }
+
+// ─── Available Booking Hours ─────────────────────────────────────────────────
 
 export interface AvailableHoursParams {
   date: string;
-  exceptedBookingId?: number;
+  exceptedBookingId?: number; // Exclude a specific booking when checking availability (e.g. rescheduling)
 }
 
 export interface AvailableHoursResponse {
   availableSlots: string[];
 }
 
+// Fetches open time slots for a sitter on a given date (public)
 export async function getAvailableHoursBySitterId(
   sitterId: string,
   params: AvailableHoursParams,
@@ -200,11 +212,9 @@ export async function getAvailableHoursBySitterId(
     if (params.exceptedBookingId !== undefined) {
       query.set("exceptedBookingId", String(params.exceptedBookingId));
     }
-
     const res = await publicApi.get<AvailableHoursResponse>(
       `/pet-sitter/bookings/available-hours/${sitterId}?${query.toString()}`,
     );
-
     return { data: res.data };
   } catch (err: any) {
     return {
@@ -217,13 +227,10 @@ export async function getAvailableHoursBySitterId(
   }
 }
 
-// ─── Sitter Reviews ─────────────────────────────────────────────────────────
+// ─── Sitter Reviews ──────────────────────────────────────────────────────────
 
 export interface ReviewApi {
-  reviewer: {
-    name: string;
-    profileImgUrl?: string;
-  };
+  reviewer: { name: string; profileImgUrl?: string };
   createdAt: string;
   comment: string;
   rating: number;
@@ -232,7 +239,7 @@ export interface ReviewApi {
 export interface SitterReviewsParams {
   page?: number;
   limit?: number;
-  rating?: number;
+  rating?: number; // Filter by star rating
 }
 
 export interface SitterReviewsResponse {
@@ -242,6 +249,7 @@ export interface SitterReviewsResponse {
   totalReviews: number;
 }
 
+// Fetches paginated reviews for a sitter (public)
 export async function getSitterReviewsById(
   sitterId: string,
   params?: SitterReviewsParams,
@@ -257,7 +265,6 @@ export async function getSitterReviewsById(
     const res = await publicApi.get<SitterReviewsResponse>(
       `/pet-sitter/${sitterId}/reviews${qs ? `?${qs}` : ""}`,
     );
-
     return { data: res.data };
   } catch (err: any) {
     return {
@@ -269,18 +276,21 @@ export async function getSitterReviewsById(
   }
 }
 
+// ─── Profile Update ──────────────────────────────────────────────────────────
+
 export interface ExistingImage {
   url: string;
-  order: number;
+  order: number; // Display order of the image
 }
 
+// Fields allowed in a sitter profile update request
 export interface UpdatePetSitterProfileBody {
   // User fields
   name?: string;
   phone?: string;
   idNumber?: string | null;
   dateOfBirth?: string | null;
-  removeProfileImg?: boolean;
+  removeProfileImg?: boolean; // Flag to delete current profile picture
 
   // Sitter fields
   experience?: number | null;
@@ -295,36 +305,33 @@ export interface UpdatePetSitterProfileBody {
   provinceId?: number | null;
   districtId?: number | null;
   subDistrictId?: number | null;
-  existingImages?: ExistingImage[];
+  existingImages?: ExistingImage[]; // Retained images after editing
 }
 
+// Submits profile update as multipart/form-data (supports image uploads, max 10)
 export async function updatePetSitterProfile(
-  body: UpdatePetSitterProfileBody,
-  images?: File[],
-  profileImage?: File,
+  body: UpdatePetSitterProfileBody, // JSON fields (name, address, etc.)
+  images?: File[], // Gallery images (optional)
+  profileImage?: File, // Profile picture (optional)
 ): Promise<{ message?: string; error?: string }> {
   try {
+    // Guard: count total images across both params and reject if over limit
     const totalImages = (images?.length || 0) + (profileImage ? 1 : 0);
-    if (totalImages > 10) {
-      return { error: "Maximum 10 images allowed" };
-    }
+    if (totalImages > 10) return { error: "Maximum 10 images allowed" };
 
+    // Build multipart form — body goes as a JSON string, images as raw File blobs
     const formData = new FormData();
     formData.append("body", JSON.stringify(body));
-
-    if (profileImage) {
-      formData.append("profileImage", profileImage);
-    }
-
+    if (profileImage) formData.append("profileImage", profileImage);
     images?.forEach((img) => formData.append("images", img));
 
     const res = await privateApi.put<{ message: string }>(
       `/pet-sitter/profile`,
       formData,
     );
-
     return { message: res.data.message };
   } catch (err: any) {
+    // Prioritize server error message, fall back to generic
     return {
       error:
         err.response?.data?.error ??
@@ -335,6 +342,7 @@ export async function updatePetSitterProfile(
   }
 }
 
+// Cancels a pending profile update request
 export async function cancelPetSitterProfileUpdate() {
   const res = await privateApi.delete<{ message: string }>(
     "/pet-sitter/profile/cancel",
@@ -342,6 +350,7 @@ export async function cancelPetSitterProfileUpdate() {
   return { message: res.data.message };
 }
 
+// Clears the admin rejection note from the sitter's profile
 export async function deleteRejectNote() {
   await privateApi.delete("/pet-sitter/note");
 }
